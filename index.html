@@ -1,119 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Fojas de Obra</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Dias y de Fojas</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <h1>Calculadora de Fojas de Obra</h1>
-        
-        <div class="form-container">
-            <h2>Datos de la Obra</h2>
-            <form id="obraForm">
-                <div class="form-group">
-                    <label for="startDate">Fecha de inicio de obra:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="initialDays">Plazo inicial (días corridos):</label>
-                    <input type="number" id="initialDays" min="1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>¿Hubo paralizaciones?</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="hasStoppages" value="yes"> Sí
-                        </label>
-                        <label>
-                            <input type="radio" name="hasStoppages" value="no" checked> No
-                        </label>
-                    </div>
-                </div>
-                
-                <div id="stoppagesContainer" class="hidden">
-                    <h3>Paralizaciones</h3>
-                    <div id="stoppagesList">
-                        <!-- Stoppage inputs will be added here -->
-                    </div>
-                    <button type="button" id="addStoppage" class="btn-secondary">+ Agregar Paralización</button>
-                </div>
-                
-                <div class="form-group">
-                    <label>¿Hubo ampliación de plazo?</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="hasExtension" value="yes"> Sí
-                        </label>
-                        <label>
-                            <input type="radio" name="hasExtension" value="no" checked> No
-                        </label>
-                    </div>
-                </div>
-                
-                <div id="extensionContainer" class="hidden">
-                    <div class="form-group">
-                        <label for="extensionDays">Días de ampliación:</label>
-                        <input type="number" id="extensionDays" min="1" value="0">
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-primary">Calcular Fojas</button>
-            </form>
-        </div>
-        
-        <div id="results" class="hidden">
-            <h2>Resultados</h2>
-            <div class="results-summary">
-                <p><strong>Fecha de finalización inicial:</strong> <span id="initialEndDate"></span></p>
-                <p><strong>Fecha con paralizaciones:</strong> <span id="endDateWithStoppages"></span></p>
-                <p><strong>Fecha final con ampliación:</strong> <span id="finalEndDate"></span></p>
-                <p><strong>Total de fojas:</strong> <span id="totalFojas"></span></p>
-            </div>
-            
-            <div class="table-container">
-                <div class="table-header">
-                    <h3>Detalle de Fojas</h3>
-                    <button id="exportPdf" class="btn-secondary">Exportar a PDF</button>
-                </div>
-                <table id="fojasTable">
-                    <thead>
-                        <tr>
-                            <th>Foja Nº</th>
-                            <th>Desde</th>
-                            <th>Hasta</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Table rows will be added here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo Neuquén Capital" class="logo" />
+  </div>
+
+  <div class="container">
+<h1>Calculadora de Días y de Fojas</h1>
+<p class="subtitle">Hola! con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
+
     
-    <template id="stoppageTemplate">
-        <div class="stoppage-item">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Fecha inicio:</label>
-                    <input type="date" class="stoppage-start" required>
-                </div>
-                <div class="form-group">
-                    <label>Fecha fin:</label>
-                    <input type="date" class="stoppage-end" required>
-                </div>
-                <button type="button" class="btn-remove">×</button>
-            </div>
-        </div>
-    </template>
-    
-    <script src="script.js"></script>
+    <label>Fecha de inicio de obra:
+      <input type="date" id="startDate" />
+    </label>
+
+    <label>Plazo inicial (en días):
+      <input type="number" id="initialDays" />
+    </label>
+
+    <label>¿Hubo paralizaciones?
+      <select id="hasPauses">
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </label>
+
+    <div id="pauseSection"></div>
+
+    <label>¿Hubo ampliación de plazo?
+      <select id="hasExtension">
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </label>
+
+    <div id="extensionSection"></div>
+
+    <button onclick="calculate()">Calcular</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
