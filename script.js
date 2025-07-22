@@ -1,6 +1,7 @@
+// Suma la cantidad exacta de días al calendario
 function addDays(date, days) {
   const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  newDate.setDate(newDate.getDate() + days - 1);
+  newDate.setDate(newDate.getDate() + days);
   return newDate;
 }
 
@@ -51,33 +52,34 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
 
   const fojas = [];
   let fojaNum = 1;
-  let mesActual = null;
-  let inicioFoja = null;
-  let finFoja = null;
 
-  trabajados.forEach((dia, idx) => {
-    const key = `${dia.getFullYear()}-${dia.getMonth()}`;
+  if (trabajados.length === 0) {
+    return '';
+  }
 
-    if (key !== mesActual) {
-      if (inicioFoja && finFoja) {
-        fojas.push({
-          numero: fojaNum++,
-          desde: formatDate(inicioFoja),
-          hasta: formatDate(finFoja),
-        });
-      }
-      mesActual = key;
-      inicioFoja = dia;
-    }
-    finFoja = dia;
+  let inicioFoja = trabajados[0];
+  let finFoja = trabajados[0];
 
-    if (idx === trabajados.length - 1) {
+  for (let i = 1; i < trabajados.length; i++) {
+    const dia = trabajados[i];
+    const prev = trabajados[i - 1];
+    const diff = (dia - prev) / (1000 * 60 * 60 * 24);
+
+    if (diff > 1 || dia.getMonth() !== prev.getMonth()) {
       fojas.push({
-        numero: fojaNum,
+        numero: fojaNum++,
         desde: formatDate(inicioFoja),
         hasta: formatDate(finFoja),
       });
+      inicioFoja = dia;
     }
+    finFoja = dia;
+  }
+
+  fojas.push({
+    numero: fojaNum,
+    desde: formatDate(inicioFoja),
+    hasta: formatDate(finFoja),
   });
 
   let tablaHTML = `
@@ -121,8 +123,18 @@ function calculate() {
   if (hasPauses) {
     const pauseGroups = document.querySelectorAll(".pauseGroup");
     pauseGroups.forEach(group => {
-      const pauseStart = new Date(group.querySelector(".pauseStart").value);
-      const pauseEnd = new Date(group.querySelector(".pauseEnd").value);
+      const rawStart = group.querySelector(".pauseStart").value;
+      const rawEnd = group.querySelector(".pauseEnd").value;
+
+      if (!rawStart || !rawEnd) {
+        return;
+      }
+
+      const [sY, sM, sD] = rawStart.split("-").map(Number);
+      const [eY, eM, eD] = rawEnd.split("-").map(Number);
+
+      const pauseStart = new Date(sY, sM - 1, sD);
+      const pauseEnd = new Date(eY, eM - 1, eD);
 
       if (!isNaN(pauseStart) && !isNaN(pauseEnd) && pauseStart <= pauseEnd) {
         pauses.push([pauseStart, pauseEnd]);
@@ -130,7 +142,7 @@ function calculate() {
     });
   }
 
-  const finalDate = addDays(startDate, initialDays);
+  const finalDate = addDays(startDate, initialDays - 1);
   let currentDate = new Date(finalDate);
 
   let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
