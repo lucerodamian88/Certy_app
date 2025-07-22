@@ -90,9 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         stoppages.sort((a, b) => a.start - b.start);
         
         // Calculate dates
-        const initialEndDate = addDays(new Date(startDate), initialDays);
+        const initialEndDate = addDays(new Date(startDate), initialDays - 1);
         const { endDate: endDateWithStoppages, totalStoppageDays } = calculateEndDateWithStoppages(new Date(startDate), initialDays, stoppages);
-        const finalEndDate = addDays(new Date(endDateWithStoppages), extensionDays);
+        const finalEndDate = extensionDays > 0 ? addDays(new Date(endDateWithStoppages), extensionDays) : new Date(endDateWithStoppages);
         
         // Generate fojas
         const fojas = generateFojas(new Date(startDate), finalEndDate, stoppages);
@@ -104,32 +104,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Calculate end date with stoppages
     function calculateEndDateWithStoppages(startDate, days, stoppages) {
         let currentDate = new Date(startDate);
-        let remainingDays = days;
+        let remainingDays = days - 1; // Start date counts as the first day
         let totalStoppageDays = 0;
-        
-        for (let i = 0; i < days * 2; i++) { // Safety limit
-            if (remainingDays <= 0) break;
-            
-            // Check if current date is within any stoppage period
-            const isInStoppage = stoppages.some(stop => {
-                return currentDate >= stop.start && currentDate <= stop.end;
-            });
-            
+
+        while (remainingDays > 0) {
+            // Move to next calendar day
+            currentDate.setDate(currentDate.getDate() + 1);
+
+            // Check if this day falls within a stoppage
+            const isInStoppage = stoppages.some(stop => currentDate >= stop.start && currentDate <= stop.end);
+
             if (!isInStoppage) {
                 remainingDays--;
             } else {
                 totalStoppageDays++;
             }
-            
-            // Move to next day
-            currentDate.setDate(currentDate.getDate() + 1);
         }
-        
-        // Add the remaining days after the last stoppage
-        if (remainingDays > 0) {
-            currentDate = addDays(currentDate, remainingDays);
-        }
-        
+
         return { endDate: currentDate, totalStoppageDays };
     }
     
@@ -159,8 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Process each day from start to end date
         while (currentDate <= endDate) {
-            // Skip weekends and stoppage days
-            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6 && !isInStoppage(currentDate)) {
+            // Skip days included in stoppages only
+            if (!isInStoppage(currentDate)) {
                 const monthStart = firstDayOfMonth(currentDate);
                 const monthEnd = lastDayOfMonth(currentDate);
                 
