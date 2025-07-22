@@ -8,8 +8,8 @@ function formatDate(date) {
   return date.toLocaleDateString('es-AR');
 }
 
-function calculateFojas(startDate, endDate, pauses = []) {
-  const trabajados = [];
+function getWorkingDays(startDate, endDate, pauses = []) {
+  const days = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
@@ -18,31 +18,36 @@ function calculateFojas(startDate, endDate, pauses = []) {
     );
 
     if (!inPause) {
-      trabajados.push(new Date(current));
+      days.push(new Date(current));
     }
 
     current.setDate(current.getDate() + 1);
   }
 
+  return days;
+}
+
+// Devuelve la cantidad de fojas (meses) trabajadas entre dos fechas
+// Ejemplo:
+// countFojas(new Date('2024-01-01'), new Date('2024-03-31')) => 3
+function countFojas(startDate, endDate, pauses = []) {
+  if (!(startDate instanceof Date) || isNaN(startDate)) {
+    throw new Error('startDate debe ser un objeto Date válido');
+  }
+  if (!(endDate instanceof Date) || isNaN(endDate)) {
+    throw new Error('endDate debe ser un objeto Date válido');
+  }
+  if (startDate > endDate) {
+    throw new Error('startDate no puede ser posterior a endDate');
+  }
+
+  const trabajados = getWorkingDays(startDate, endDate, pauses);
   const meses = new Set(trabajados.map(d => `${d.getFullYear()}-${d.getMonth()}`));
   return meses.size;
 }
 
 function generarTablaFojas(startDate, endDate, pauses = []) {
-  const trabajados = [];
-  const current = new Date(startDate);
-
-  while (current <= endDate) {
-    const inPause = pauses.some(([pauseStart, pauseEnd]) =>
-      current >= pauseStart && current <= pauseEnd
-    );
-
-    if (!inPause) {
-      trabajados.push(new Date(current));
-    }
-
-    current.setDate(current.getDate() + 1);
-  }
+  const trabajados = getWorkingDays(startDate, endDate, pauses);
 
   const fojas = [];
   let fojaNum = 1;
@@ -119,23 +124,21 @@ function calculate() {
       const pauseStart = new Date(group.querySelector(".pauseStart").value);
       const pauseEnd = new Date(group.querySelector(".pauseEnd").value);
 
-      const adjustedStart = new Date(pauseStart);
-      adjustedStart.setDate(adjustedStart.getDate() - 1);
-      const adjustedEnd = new Date(pauseEnd);
-      adjustedEnd.setDate(adjustedEnd.getDate() + 1);
-
-      pauses.push([adjustedStart, adjustedEnd]);
+      if (!isNaN(pauseStart) && !isNaN(pauseEnd) && pauseStart <= pauseEnd) {
+        pauses.push([pauseStart, pauseEnd]);
+      }
     });
   }
 
   const finalDate = addDays(startDate, initialDays);
   let currentDate = new Date(finalDate);
 
-  let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(finalDate)}</p>`;
+  let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
 
   if (hasPauses) {
-    pauses.forEach(([_, pauseEnd], i) => {
-      currentDate = addDays(currentDate, 1); // ya se sumó con días al excluirse
+    pauses.forEach(([pauseStart, pauseEnd], i) => {
+      const diff = Math.round((pauseEnd - pauseStart) / (1000 * 60 * 60 * 24)) + 1;
+      currentDate = addDays(currentDate, diff);
       resultHTML += `<p><strong>Finalización tras Paralización ${i + 1}:</strong> ${formatDate(currentDate)}</p>`;
     });
   }
@@ -146,7 +149,7 @@ function calculate() {
     resultHTML += `<p><strong>Finalización con Ampliación:</strong> ${formatDate(currentDate)}</p>`;
   }
 
-  const fojasIniciales = calculateFojas(startDate, currentDate, pauses);
+  const fojasIniciales = countFojas(startDate, currentDate, pauses);
   resultHTML += `<p><strong>Fojas totales:</strong> ${fojasIniciales}</p>`;
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
@@ -158,15 +161,31 @@ document.getElementById("hasPauses").addEventListener("change", function () {
   section.innerHTML = "";
 
   if (this.value === "yes") {
-    const cantidad = prompt("¿Cuántas paralizaciones desea cargar?");
-    for (let i = 1; i <= cantidad; i++) {
-      section.innerHTML += `
-        <div class="pauseGroup">
-          <label>Inicio de Paralización ${i}: <input type="date" class="pauseStart" /></label>
-          <label>Fin de Paralización ${i}: <input type="date" class="pauseEnd" /></label>
-        </div>
-      `;
+    section.innerHTML = `
+      <label>Cantidad de paralizaciones:
+        <input type="number" id="pauseCount" min="1" value="1" />
+      </label>
+      <div id="pausesContainer"></div>
+    `;
+
+    const pauseCountInput = document.getElementById("pauseCount");
+    const container = document.getElementById("pausesContainer");
+
+    function renderPauseInputs() {
+      const count = parseInt(pauseCountInput.value) || 0;
+      container.innerHTML = "";
+      for (let i = 1; i <= count; i++) {
+        container.innerHTML += `
+          <div class="pauseGroup">
+            <label>Inicio de Paralización ${i}: <input type="date" class="pauseStart" /></label>
+            <label>Fin de Paralización ${i}: <input type="date" class="pauseEnd" /></label>
+          </div>
+        `;
+      }
     }
+
+    pauseCountInput.addEventListener("input", renderPauseInputs);
+    renderPauseInputs();
   }
 });
 
