@@ -254,10 +254,16 @@ function shareWhatsApp() {
       }
       
       const pdfBlob = doc.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-      const text = 'Te envío los resultados en PDF. Descargá el archivo abierto y compartilo.';
-      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+      const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
+
+      const text = 'Te envío los resultados en PDF.';
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], text });
+      } else {
+        const url = URL.createObjectURL(pdfBlob);
+        window.open(url, '_blank');
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+      }
     }
   });
 }
