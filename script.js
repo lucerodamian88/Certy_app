@@ -193,13 +193,43 @@ function shareWhatsApp() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
+  
+  // Save original styles
+  const originalStyles = {};
+  const elements = resultEl.getElementsByTagName('*');
+  for (let el of elements) {
+    if (el.style) {
+      originalStyles[el] = {
+        color: el.style.color,
+        backgroundColor: el.style.backgroundColor
+      };
+      // Force black text and white background for PDF
+      el.style.color = '#000000';
+      el.style.backgroundColor = '#FFFFFF';
+    }
+  }
+  
   doc.html(resultEl, {
     margin: [40, 40, 60, 40],
-    html2canvas: { scale: 0.8 },
+    html2canvas: { 
+      scale: 0.8,
+      logging: true,
+      useCORS: true
+    },
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
       doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0); // Black text
       doc.text('Gracias por usar la app de Certy!', 40, pageH - 20);
+      
+      // Restore original styles
+      for (let el in originalStyles) {
+        if (el.style) {
+          el.style.color = originalStyles[el].color;
+          el.style.backgroundColor = originalStyles[el].backgroundColor;
+        }
+      }
+      
       const pdfBlob = doc.output('blob');
       const url = URL.createObjectURL(pdfBlob);
       window.open(url, '_blank');
@@ -257,4 +287,3 @@ document.getElementById("hasExtension").addEventListener("change", function () {
     `;
   }
 });
-
