@@ -148,8 +148,7 @@ function calculate() {
 
   let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
 
-  const warningEl = document.getElementById('warning');
-  warningEl.style.display = 'none';
+  let showWarning = false;
 
   if (hasPauses) {
     pauses.forEach(([pauseStart, pauseEnd], i) => {
@@ -158,7 +157,7 @@ function calculate() {
       resultHTML += `<p><strong>Finalización tras Paralización ${i + 1}:</strong> ${formatDate(currentDate)}</p>`;
     });
     if (pauses.some(([pStart]) => pStart > startDate)) {
-      warningEl.style.display = 'block';
+      showWarning = true;
     }
   }
 
@@ -170,6 +169,9 @@ function calculate() {
 
   const fojasIniciales = countFojas(startDate, currentDate, pauses);
   resultHTML += `<p><strong>Fojas totales:</strong> ${fojasIniciales}</p>`;
+  if (showWarning) {
+    resultHTML += `<p class="warning">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>`;
+  }
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
   document.getElementById("result").innerHTML = resultHTML;
@@ -184,7 +186,6 @@ function clearAll() {
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('extensionSection').innerHTML = '';
   document.getElementById('result').innerHTML = '';
-  document.getElementById('warning').style.display = 'none';
   document.getElementById('shareBtn').style.display = 'none';
 }
 
@@ -194,14 +195,16 @@ function shareWhatsApp() {
   const resultEl = document.getElementById('result');
   doc.html(resultEl, {
     margin: [40, 40, 60, 40],
+    html2canvas: { scale: 0.8 },
     callback: function (doc) {
-      const pageH = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+      const pageH = doc.internal.pageSize.getHeight();
       doc.setFontSize(10);
       doc.text('Gracias por usar la app de Certy!', 40, pageH - 20);
       const pdfBlob = doc.output('blob');
       const url = URL.createObjectURL(pdfBlob);
-      window.open(url);
-      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Te envio los resultados en PDF. Descarga el archivo abierto y compartelo.'), '_blank');
+      window.open(url, '_blank');
+      const text = 'Te envío los resultados en PDF. Descargá el archivo abierto y compartilo.';
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
     }
   });
 }
