@@ -1,52 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora de Dias y de Fojas</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certy App</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="logo-container">
-    <img src="logo.png" alt="Logo Neuquén Capital" class="logo" />
+    <img src="logo.png" alt="Logo Neuquén Capital" class="logo">
   </div>
-
-  <div class="container">
-<h1>Calculadora de Días y de Fojas</h1>
-<p class="subtitle">Hola! con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
-
-    
-    <label>Fecha de inicio de obra:
-      <input type="date" id="startDate" />
-    </label>
-
-    <label>Plazo inicial (en días):
-      <input type="number" id="initialDays" />
-    </label>
-
-    <label>¿Hubo paralizaciones?
-      <select id="hasPauses">
-        <option value="no">No</option>
-        <option value="yes">Sí</option>
-      </select>
-    </label>
-
-    <div id="pauseSection"></div>
-
-    <label>¿Hubo ampliación de plazo?
-      <select id="hasExtension">
-        <option value="no">No</option>
-        <option value="yes">Sí</option>
-      </select>
-    </label>
-
-    <div id="extensionSection"></div>
-
-    <button onclick="calculate()">Calcular</button>
-
-    <div id="result"></div>
+  <div class="container menu">
+    <h1>Certy App</h1>
+    <button onclick="window.location.href='calculator.html'">Calculadora de Días y Fojas</button>
+    <button disabled>Próximamente más funciones</button>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
