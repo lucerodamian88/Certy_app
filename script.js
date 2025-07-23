@@ -253,10 +253,9 @@ function shareWhatsApp() {
         }
       }
       
-      const pdfBlob = doc.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-      const text = 'Te envío los resultados en PDF. Descargá el archivo abierto y compartilo.';
+      const fileName = 'Reporte' + Date.now() + '.pdf';
+      doc.save(fileName);
+      const text = 'Te envío los resultados en PDF. Compartí el archivo generado.';
       window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
     }
   });
