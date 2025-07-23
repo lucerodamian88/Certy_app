@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
   font-family: 'Inter', sans-serif;
@@ -35,6 +36,12 @@ h1 {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 0.5rem;
+}
+
+.pixel {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1rem;
+  color: #00f7ff;
 }
 
 .subtitle {
@@ -81,6 +88,30 @@ button:hover {
   transform: scale(1.05);
 }
 
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.button-row button {
+  margin: 2rem 0 0 0;
+}
+
+#shareBtn {
+  background-color: #25D366;
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.fojas-box {
+  border: 2px solid #ffffff;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
 .warning {
   background: #ffd166;
   color: #1b1b1b;
@@ -102,8 +133,18 @@ button:hover {
   animation: robotMove 0.3s linear;
 }
 
+.menu {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,255,255,0.4);
+}
+
 .menu button {
   width: 100%;
+  background-color: #1b9aaa;
+  box-shadow: 0 0 10px rgba(0,255,255,0.7);
 }
 
 @media (max-width: 600px) {

@@ -16,7 +16,7 @@
 <h1>Calculadora de Días y de Fojas</h1>
 
 <p class="subtitle">Hola! con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
-<p class="warning">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>
+<p id="warning" class="warning" style="display:none;">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>
 
     
     <label>Fecha de inicio de obra:
@@ -45,11 +45,13 @@
 
     <div id="extensionSection"></div>
 
-    <button id="calculateBtn" onclick="calculate()">Calcular</button>
-    <button onclick="clearAll()">Borrar todo</button>
-    <button onclick="shareWhatsApp()">Compartir por WhatsApp</button>
+    <div class="button-row">
+      <button id="calculateBtn" onclick="calculate()">Calcular</button>
+      <button onclick="clearAll()">Borrar todo</button>
+    </div>
 
     <div id="result"></div>
+    <button id="shareBtn" onclick="shareWhatsApp()">Compartir por WhatsApp</button>
   </div>
 
   <script src="script.js"></script>
