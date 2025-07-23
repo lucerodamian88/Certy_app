@@ -40,9 +40,13 @@ h1 {
 
 .pixel {
   font-family: 'Press Start 2P', cursive;
-  font-size: 1rem;
+  font-size: 0.8rem; /* Reduced from 1rem */
   color: #fff;
-  white-space: nowrap;
+  white-space: normal; /* Changed from nowrap to allow text wrapping */
+  word-break: break-word; /* Ensures long words can break and wrap */
+  line-height: 1.4; /* Improved line height for better readability */
+  margin: 0 auto; /* Center the text block */
+  max-width: 100%; /* Ensure it doesn't overflow container */
 }
 
 .cursor {
