@@ -146,7 +146,31 @@ function calculate() {
   const finalDate = addDays(startDate, initialDays - 1);
   let currentDate = new Date(finalDate);
 
-  let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
+  let resultHTML = `<h2>REPORTE GENERADO POR CERTY</h2>`;
+  resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
+  resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
+
+  if (hasPauses && pauses.length > 0) {
+    resultHTML += '<p><strong>Paralizaciones:</strong></p><ul>';
+    pauses.forEach(([pauseStart, pauseEnd], i) => {
+      resultHTML += `<li>Paralización ${i + 1}: ${formatDate(pauseStart)} a ${formatDate(pauseEnd)}</li>`;
+    });
+    resultHTML += '</ul>';
+  } else {
+    resultHTML += `<p><strong>Paralizaciones:</strong> No hubo</p>`;
+  }
+
+  let extensionDays = 0;
+
+  if (hasExtension) {
+    extensionDays = parseInt(document.getElementById("extensionDays").value);
+    resultHTML += `<p><strong>Ampliación de plazo:</strong> ${extensionDays} días</p>`;
+  } else {
+    resultHTML += `<p><strong>Ampliación de plazo:</strong> No se solicitó</p>`;
+  }
+
+  resultHTML += '<hr />';
+  resultHTML += `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
 
   let showWarning = false;
 
@@ -162,7 +186,6 @@ function calculate() {
   }
 
   if (hasExtension) {
-    const extensionDays = parseInt(document.getElementById("extensionDays").value);
     currentDate = addDays(currentDate, extensionDays);
     resultHTML += `<p><strong>Finalización con Ampliación:</strong> ${formatDate(currentDate)}</p>`;
   }
