@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Dias y de Fojas</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo Neuquén Capital" class="logo" />
+  </div>
+
+  <div class="container">
+    <button class="backBtn" onclick="window.location.href='index.html'">Volver al menú</button>
+<h1>Calculadora de Días y de Fojas</h1>
+
+<p class="subtitle">Hola! con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
+<p id="warning" class="warning" style="display:none;">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>
+
+    
+    <label>Fecha de inicio de obra:
+      <input type="date" id="startDate" placeholder="Ingrese fecha" />
+    </label>
+
+    <label>Plazo inicial (en días):
+      <input type="number" id="initialDays" placeholder="Cantidad" />
+    </label>
+
+    <label>¿Hubo paralizaciones?
+      <select id="hasPauses">
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </label>
+
+    <div id="pauseSection"></div>
+
+    <label>¿Hubo ampliación de plazo?
+      <select id="hasExtension">
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </label>
+
+    <div id="extensionSection"></div>
+
+    <div class="button-row">
+      <button id="calculateBtn" onclick="calculate()">Calcular</button>
+      <button onclick="clearAll()">Borrar todo</button>
+    </div>
+
+    <div id="result"></div>
+    <button id="shareBtn" onclick="shareWhatsApp()" style="display:none;">Compartir por WhatsApp</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
