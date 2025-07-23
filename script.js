@@ -83,6 +83,7 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
   });
 
   let tablaHTML = `
+    <div class="fojas-box">
     <h3>Detalle de Fojas</h3>
     <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse; background: white; color: black; margin-top: 1rem;">
       <thead>
@@ -105,7 +106,7 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
     `;
   });
 
-  tablaHTML += `</tbody></table>`;
+  tablaHTML += `</tbody></table></div>`;
   return tablaHTML;
 }
 
@@ -147,12 +148,18 @@ function calculate() {
 
   let resultHTML = `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
 
+  const warningEl = document.getElementById('warning');
+  warningEl.style.display = 'none';
+
   if (hasPauses) {
     pauses.forEach(([pauseStart, pauseEnd], i) => {
       const diff = Math.round((pauseEnd - pauseStart) / (1000 * 60 * 60 * 24)) + 1;
       currentDate = addDays(currentDate, diff);
       resultHTML += `<p><strong>Finalización tras Paralización ${i + 1}:</strong> ${formatDate(currentDate)}</p>`;
     });
+    if (pauses.some(([pStart]) => pStart > startDate)) {
+      warningEl.style.display = 'block';
+    }
   }
 
   if (hasExtension) {
@@ -166,7 +173,43 @@ function calculate() {
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
   document.getElementById("result").innerHTML = resultHTML;
+  document.getElementById('shareBtn').style.display = 'block';
 }
+
+function clearAll() {
+  document.getElementById('startDate').value = '';
+  document.getElementById('initialDays').value = '';
+  document.getElementById('hasPauses').value = 'no';
+  document.getElementById('hasExtension').value = 'no';
+  document.getElementById('pauseSection').innerHTML = '';
+  document.getElementById('extensionSection').innerHTML = '';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('warning').style.display = 'none';
+  document.getElementById('shareBtn').style.display = 'none';
+}
+
+function shareWhatsApp() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const resultEl = document.getElementById('result');
+  doc.html(resultEl, {
+    margin: [40, 40, 60, 40],
+    callback: function (doc) {
+      const pageH = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+      doc.setFontSize(10);
+      doc.text('Gracias por usar la app de Certy!', 40, pageH - 20);
+      const pdfBlob = doc.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      window.open(url);
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Te envio los resultados en PDF. Descarga el archivo abierto y compartelo.'), '_blank');
+    }
+  });
+}
+
+document.getElementById('calculateBtn').addEventListener('click', function() {
+  this.classList.add('robot');
+  setTimeout(() => this.classList.remove('robot'), 300);
+});
 
 document.getElementById("hasPauses").addEventListener("change", function () {
   const section = document.getElementById("pauseSection");
@@ -189,8 +232,8 @@ document.getElementById("hasPauses").addEventListener("change", function () {
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="pauseGroup">
-            <label>Inicio de Paralización ${i}: <input type="date" class="pauseStart" /></label>
-            <label>Fin de Paralización ${i}: <input type="date" class="pauseEnd" /></label>
+            <label>Inicio de Paralización ${i}: <input type="date" class="pauseStart" placeholder="Inicio" /></label>
+            <label>Fin de Paralización ${i}: <input type="date" class="pauseEnd" placeholder="Fin" /></label>
           </div>
         `;
       }
@@ -207,7 +250,7 @@ document.getElementById("hasExtension").addEventListener("change", function () {
 
   if (this.value === "yes") {
     section.innerHTML = `
-      <label>Ampliación de plazo (en días): <input type="number" id="extensionDays" /></label>
+      <label>Ampliación de plazo (en días): <input type="number" id="extensionDays" placeholder="Cantidad" /></label>
     `;
   }
 });
