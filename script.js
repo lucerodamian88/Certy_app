@@ -153,9 +153,6 @@ function calculate() {
       currentDate = addDays(currentDate, diff);
       resultHTML += `<p><strong>Finalización tras Paralización ${i + 1}:</strong> ${formatDate(currentDate)}</p>`;
     });
-    if (pauses.some(([pStart]) => pStart > startDate)) {
-      alert('Si paraliza la obra con fecha posterior al inicio, genere una foja un día antes de la paralización.');
-    }
   }
 
   if (hasExtension) {
@@ -170,32 +167,6 @@ function calculate() {
 
   document.getElementById("result").innerHTML = resultHTML;
 }
-
-function clearAll() {
-  document.getElementById('startDate').value = '';
-  document.getElementById('initialDays').value = '';
-  document.getElementById('hasPauses').value = 'no';
-  document.getElementById('hasExtension').value = 'no';
-  document.getElementById('pauseSection').innerHTML = '';
-  document.getElementById('extensionSection').innerHTML = '';
-  document.getElementById('result').innerHTML = '';
-}
-
-function shareWhatsApp() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const result = document.getElementById('result').innerText || 'Sin resultados';
-  doc.text(result, 10, 10);
-  const pdfBlob = doc.output('blob');
-  const url = URL.createObjectURL(pdfBlob);
-  window.open(url);
-  window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Te envio los resultados en PDF. Descarga el archivo abierto y compartelo.'), '_blank');
-}
-
-document.getElementById('calculateBtn').addEventListener('click', function() {
-  this.classList.add('robot');
-  setTimeout(() => this.classList.remove('robot'), 300);
-});
 
 document.getElementById("hasPauses").addEventListener("change", function () {
   const section = document.getElementById("pauseSection");

@@ -81,39 +81,3 @@ button:hover {
   transform: scale(1.05);
 }
 
-.warning {
-  background: #ffd166;
-  color: #1b1b1b;
-  padding: 0.5rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-@keyframes robotMove {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  50% { transform: translateX(2px); }
-  75% { transform: translateX(-2px); }
- 100% { transform: translateX(0); }
-}
-
-.robot {
-  animation: robotMove 0.3s linear;
-}
-
-.menu button {
-  width: 100%;
-}
-
-@media (max-width: 600px) {
-  .container {
-    width: 95%;
-    margin: 1rem auto;
-    padding: 1rem;
-  }
-  button {
-    width: 100%;
-  }
-}
-
