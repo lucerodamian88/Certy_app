@@ -153,6 +153,11 @@ button:hover {
   margin-bottom: 1rem;
 }
 
+#result {
+  word-spacing: 0.2em;
+  letter-spacing: 0.05em;
+}
+
 @keyframes robotMove {
   0% { transform: translateX(0); }
   25% { transform: translateX(-2px); }
@@ -181,9 +186,10 @@ button:hover {
 
 @media (max-width: 600px) {
   .container {
-    width: 95%;
-    margin: 1rem auto;
+    width: 100%;
+    margin: 0;
     padding: 1rem;
+    border-radius: 0;
   }
   button {
     width: 100%;

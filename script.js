@@ -257,8 +257,12 @@ function shareWhatsApp() {
       const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
 
       const text = 'Te envío los resultados en PDF.';
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], text });
+      if (navigator.share) {
+        navigator.share({ files: [file], text }).catch(() => {
+          const url = URL.createObjectURL(pdfBlob);
+          window.open(url, '_blank');
+          window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+        });
       } else {
         const url = URL.createObjectURL(pdfBlob);
         window.open(url, '_blank');
