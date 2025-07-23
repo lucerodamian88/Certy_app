@@ -6,19 +6,27 @@ body {
   background: linear-gradient(to right, #2b2d42, #8d99ae);
   color: #edf2f4;
   margin: 0;
-  padding: 0 0 120px 0; /* espacio para que no tape el banner */
+  padding: 160px 0 120px 0; /* espacio para el banner fijo */
 }
+
 
 .logo-container {
   background: #0c1b2a;
   text-align: center;
   padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .logo {
   display: block;
-  margin: 20px auto;
-  max-height: 80px;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  max-height: none;
 }
 
 .container {
