@@ -6,17 +6,13 @@ body {
   background: linear-gradient(to right, #2b2d42, #8d99ae);
   color: #edf2f4;
   margin: 0;
-  padding: 120px 0 120px 0; /* espacio para logo fijo y banner inferior */
+  padding: 0 0 120px 0; /* espacio para que no tape el banner */
 }
 
 .logo-container {
   background: #0c1b2a;
   text-align: center;
   padding: 10px;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
 }
 
 .logo {
