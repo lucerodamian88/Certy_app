@@ -6,7 +6,7 @@ body {
   background: linear-gradient(to right, #2b2d42, #8d99ae);
   color: #edf2f4;
   margin: 0;
-  padding: 160px 0 120px 0; /* espacio para el banner fijo */
+  padding: 140px 0 120px 0; /* espacio para el banner fijo */
 }
 
 
@@ -24,9 +24,9 @@ body {
 .logo {
   display: block;
   margin: 0 auto;
-  width: 100%;
+  width: 80%;
+  max-width: 300px;
   height: auto;
-  max-height: none;
 }
 
 .container {
@@ -189,9 +189,16 @@ button:hover {
 }
 
 @media (max-width: 600px) {
+  body {
+    padding: 120px 0 100px 0;
+  }
+  .logo {
+    width: 70%;
+    max-width: 200px;
+  }
   .container {
-    width: 100%;
-    margin: 0;
+    width: auto;
+    margin: 0 1rem;
     padding: 1rem;
     border-radius: 0;
   }
