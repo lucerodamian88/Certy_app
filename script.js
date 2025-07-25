@@ -253,7 +253,6 @@ function shareWhatsApp() {
         }
       }
       
-codex/adjust-mobile-layout-and-fix-pdf-sending
       const pdfBlob = doc.output('blob');
       const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
 
