@@ -253,10 +253,23 @@ function shareWhatsApp() {
         }
       }
       
-      const fileName = 'Reporte' + Date.now() + '.pdf';
-      doc.save(fileName);
-      const text = 'Te envío los resultados en PDF. Compartí el archivo generado.';
-      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+codex/adjust-mobile-layout-and-fix-pdf-sending
+      const pdfBlob = doc.output('blob');
+      const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
+
+      const text = 'Te envío los resultados en PDF.';
+      if (navigator.share) {
+        navigator.share({ files: [file], text }).catch(() => {
+          const url = URL.createObjectURL(pdfBlob);
+          window.open(url, '_blank');
+          window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+        });
+      } else {
+        const url = URL.createObjectURL(pdfBlob);
+        window.open(url, '_blank');
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+      }
+
     }
   });
 }
