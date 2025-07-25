@@ -253,6 +253,7 @@ function shareWhatsApp() {
         }
       }
       
+codex/adjust-mobile-layout-and-fix-pdf-sending
       const pdfBlob = doc.output('blob');
       const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
 
@@ -268,6 +269,7 @@ function shareWhatsApp() {
         window.open(url, '_blank');
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
       }
+
     }
   });
 }
