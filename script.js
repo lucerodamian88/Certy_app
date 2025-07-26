@@ -159,6 +159,19 @@ function calculate() {
         pauses.push([pauseStart, pauseEnd]);
       }
     }
+    // Validar solapamientos
+    pauses.sort((a, b) => a[0] - b[0]);
+    for (let i = 1; i < pauses.length; i++) {
+      if (pauses[i][0] <= pauses[i - 1][1]) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Los plazos de las paralizaciones se solapan, corregir.',
+          timer: 5000,
+          timerProgressBar: true
+        });
+        return;
+      }
+    }
   }
 
   const finalDate = addDays(startDate, initialDays - 1);

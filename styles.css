@@ -9,6 +9,11 @@ body {
   padding: 140px 0 120px 0; /* espacio para el banner fijo */
 }
 
+body.light-mode {
+  background: linear-gradient(to right, #f0f0f0, #d9d9d9);
+  color: #1b1b1b;
+}
+
 
 .logo-container {
   background: #0c1b2a;
@@ -21,12 +26,20 @@ body {
   z-index: 1000;
 }
 
+body.light-mode .logo-container {
+  background: #ffffff;
+}
+
 .logo {
   display: block;
   margin: 0 auto;
   width: 80%;
   max-width: 300px;
   height: auto;
+}
+
+body.light-mode .logo {
+  filter: invert(1);
 }
 
 .container {
@@ -38,6 +51,11 @@ body {
   box-shadow: 0 0 15px rgba(0,0,0,0.4);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode .container {
+  background: rgba(255, 255, 255, 0.85);
+  color: #000;
 }
 
 h1 {
@@ -60,6 +78,18 @@ h1 {
 .cursor {
   display: inline-block;
   animation: blink 1s steps(2, start) infinite;
+}
+
+#themeToggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1100;
+  color: inherit;
 }
 
 @keyframes blink {
@@ -112,6 +142,10 @@ button {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+body.light-mode button {
+  color: white;
+}
+
 button:hover {
   background-color: #d90429;
   transform: scale(1.05);
@@ -135,6 +169,11 @@ button:hover {
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+}
+
+body.light-mode .backBtn {
+  color: #000;
+  border-color: #000;
 }
 
 .backBtn:hover {
@@ -188,10 +227,20 @@ button:hover {
   box-shadow: 0 0 15px rgba(0,255,255,0.4);
 }
 
+body.light-mode .menu {
+  background: #e0e0e0;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
 .menu button {
   width: 100%;
   background-color: #1b9aaa;
   box-shadow: 0 0 10px rgba(0,255,255,0.7);
+}
+
+body.light-mode .menu button {
+  background-color: #1976d2;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
 #downloadAppBtn {
@@ -206,6 +255,10 @@ button:hover {
   font-size: 0.9rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   animation: floatBtn 3s ease-in-out infinite;
+}
+
+body.light-mode #downloadAppBtn {
+  background-color: #336699;
 }
 #downloadAppBtn:hover {
   background-color: #00254d;
@@ -222,6 +275,71 @@ button:hover {
 
 @keyframes slideOut {
   to { transform: translateY(100px); opacity: 0; }
+}
+
+/* Robot animation */
+#robot {
+  position: fixed;
+  bottom: 20px;
+  left: -150px;
+  width: 120px;
+  z-index: 1050;
+  pointer-events: none;
+}
+
+#robot.enter {
+  animation: robotEnter 2s forwards;
+}
+
+#robot.exit {
+  animation: robotExit 2s forwards;
+}
+
+#robot.wave {
+  animation: robotWave 1s ease-in-out;
+}
+
+#robot.peek-left {
+  right: auto;
+  left: -150px;
+  animation: robotPeekLeft 3s forwards;
+}
+
+#robot.peek-right {
+  left: auto;
+  right: -150px;
+  animation: robotPeekRight 3s forwards;
+}
+
+@keyframes robotEnter {
+  from { left: -150px; }
+  50% { left: calc(50% - 60px); }
+  to { left: calc(50% - 60px); }
+}
+
+@keyframes robotExit {
+  from { left: calc(50% - 60px); }
+  to { left: 110%; }
+}
+
+@keyframes robotWave {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes robotPeekLeft {
+  0% { left: -150px; }
+  30% { left: 0; }
+  70% { left: 0; }
+  100% { left: -150px; }
+}
+
+@keyframes robotPeekRight {
+  0% { right: -150px; }
+  30% { right: 0; }
+  70% { right: 0; }
+  100% { right: -150px; }
 }
 
 @media (max-width: 600px) {
