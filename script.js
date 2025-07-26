@@ -115,7 +115,16 @@ function calculate() {
   const [year, month, day] = rawStart.split("-").map(Number);
   const startDate = new Date(year, month - 1, day);
 
+  if (!rawStart || isNaN(startDate)) {
+    alert('Ingrese una fecha de inicio válida.');
+    return;
+  }
+
   const initialDays = parseInt(document.getElementById("initialDays").value);
+  if (isNaN(initialDays) || initialDays <= 0) {
+    alert('El plazo inicial debe ser un número positivo.');
+    return;
+  }
   const hasPauses = document.getElementById("hasPauses").value === "yes";
   const hasExtension = document.getElementById("hasExtension").value === "yes";
 
@@ -123,23 +132,28 @@ function calculate() {
 
   if (hasPauses) {
     const pauseGroups = document.querySelectorAll(".pauseGroup");
-    pauseGroups.forEach(group => {
+    for (const group of pauseGroups) {
       const rawRange = group.querySelector(".pauseRange").value;
       if (!rawRange || !rawRange.includes(" a ")) {
-        return;
+        continue;
       }
-      const [rawStart, rawEnd] = rawRange.split(" a ");
+      const [rawStartP, rawEnd] = rawRange.split(" a ");
 
-      const [sY, sM, sD] = rawStart.split("-").map(Number);
+      const [sY, sM, sD] = rawStartP.split("-").map(Number);
       const [eY, eM, eD] = rawEnd.split("-").map(Number);
 
       const pauseStart = new Date(sY, sM - 1, sD);
       const pauseEnd = new Date(eY, eM - 1, eD);
 
+      if (pauseStart < startDate) {
+        alert('Paralización anterior al inicio de la obra. Revise los datos.');
+        return;
+      }
+
       if (!isNaN(pauseStart) && !isNaN(pauseEnd) && pauseStart <= pauseEnd) {
         pauses.push([pauseStart, pauseEnd]);
       }
-    });
+    }
   }
 
   const finalDate = addDays(startDate, initialDays - 1);
@@ -163,6 +177,10 @@ function calculate() {
 
   if (hasExtension) {
     extensionDays = parseInt(document.getElementById("extensionDays").value);
+    if (isNaN(extensionDays) || extensionDays <= 0) {
+      alert('La ampliación de plazo debe ser un número positivo.');
+      return;
+    }
     resultHTML += `<p><strong>Ampliación de plazo:</strong> ${extensionDays} días</p>`;
   } else {
     resultHTML += `<p><strong>Ampliación de plazo:</strong> No se solicitó</p>`;
@@ -307,6 +325,8 @@ document.getElementById("hasPauses").addEventListener("change", function () {
         flatpickr(el, {
           mode: 'range',
           dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'd/m/Y',
           locale: 'es',
           rangeSeparator: ' a '
         });
