@@ -194,6 +194,22 @@ button:hover {
   box-shadow: 0 0 10px rgba(0,255,255,0.7);
 }
 
+#downloadAppBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #003366;
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+#downloadAppBtn:hover {
+  background-color: #00254d;
+}
+
 @media (max-width: 600px) {
   body {
     padding: 120px 0 100px 0;
@@ -210,6 +226,9 @@ button:hover {
   }
   button {
     width: 100%;
+  }
+  #downloadAppBtn {
+    width: auto;
   }
 }
 
