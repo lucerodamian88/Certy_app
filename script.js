@@ -124,12 +124,11 @@ function calculate() {
   if (hasPauses) {
     const pauseGroups = document.querySelectorAll(".pauseGroup");
     pauseGroups.forEach(group => {
-      const rawStart = group.querySelector(".pauseStart").value;
-      const rawEnd = group.querySelector(".pauseEnd").value;
-
-      if (!rawStart || !rawEnd) {
+      const rawRange = group.querySelector(".pauseRange").value;
+      if (!rawRange || !rawRange.includes(" a ")) {
         return;
       }
+      const [rawStart, rawEnd] = rawRange.split(" a ");
 
       const [sY, sM, sD] = rawStart.split("-").map(Number);
       const [eY, eM, eD] = rawEnd.split("-").map(Number);
@@ -299,11 +298,19 @@ document.getElementById("hasPauses").addEventListener("change", function () {
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="pauseGroup">
-            <label>Inicio de Paralización ${i}: <input type="date" class="pauseStart" placeholder="Inicio" /></label>
-            <label>Fin de Paralización ${i}: <input type="date" class="pauseEnd" placeholder="Fin" /></label>
-          </div>
-        `;
+            <label>Paralización ${i}:
+              <input type="text" class="pauseRange" placeholder="Seleccionar rango"/>
+            </label>
+          </div>`;
       }
+      container.querySelectorAll('.pauseRange').forEach(el => {
+        flatpickr(el, {
+          mode: 'range',
+          dateFormat: 'Y-m-d',
+          locale: 'es',
+          rangeSeparator: ' a '
+        });
+      });
     }
 
     pauseCountInput.addEventListener("input", renderPauseInputs);
