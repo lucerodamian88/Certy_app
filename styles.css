@@ -196,7 +196,7 @@ button:hover {
 
 #downloadAppBtn {
   position: fixed;
-  bottom: 20px;
+  bottom: 60px;
   right: 20px;
   background-color: #003366;
   color: #ffffff;
@@ -205,9 +205,23 @@ button:hover {
   border-radius: 10px;
   font-size: 0.9rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  animation: floatBtn 3s ease-in-out infinite;
 }
 #downloadAppBtn:hover {
   background-color: #00254d;
+}
+
+#downloadAppBtn.hide {
+  animation: slideOut 0.5s forwards;
+}
+
+@keyframes floatBtn {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes slideOut {
+  to { transform: translateY(100px); opacity: 0; }
 }
 
 @media (max-width: 600px) {
