@@ -146,7 +146,10 @@ function calculate() {
       const pauseEnd = new Date(eY, eM - 1, eD);
 
       if (pauseStart < startDate) {
-        alert('Paralización anterior al inicio de la obra. Revise los datos.');
+        Swal.fire({
+          icon: 'error',
+          text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.'
+        });
         return;
       }
 
