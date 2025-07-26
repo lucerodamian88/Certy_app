@@ -17,6 +17,17 @@
       <button onclick="window.location.href='calculator.html'">Calculadora de Días y Fojas</button>
       <button disabled>Próximamente más funciones</button>
 </div>
-<button id="downloadAppBtn" onclick="window.open('https://lucerodamian88.github.io/Certy_app/download.html', '_blank')">Descarga Certy en tu celular ;)! (sólo valido para Android)</button>
+<button id="downloadAppBtn" onclick="window.open('https://lucerodamian88.github.io/Certy_app/download.html', '_blank')">
+  DESCARGAR CERTY EN TU CELULAR!<br><em>Sólo válido para Android</em>
+</button>
+<script>
+  window.addEventListener('load', function() {
+    const btn = document.getElementById('downloadAppBtn');
+    setTimeout(() => {
+      btn.classList.add('hide');
+      setTimeout(() => btn.style.display = 'none', 500);
+    }, 3000);
+  });
+</script>
 </body>
 </html>

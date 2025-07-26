@@ -148,7 +148,9 @@ function calculate() {
       if (pauseStart < startDate) {
         Swal.fire({
           icon: 'error',
-          text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.'
+          text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.',
+          timer: 5000,
+          timerProgressBar: true
         });
         return;
       }
