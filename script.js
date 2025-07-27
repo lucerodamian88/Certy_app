@@ -309,8 +309,8 @@ function shareWhatsApp() {
 }
 
 document.getElementById('calculateBtn').addEventListener('click', function() {
-  this.classList.add('robot');
-  setTimeout(() => this.classList.remove('robot'), 300);
+  this.classList.add('shake');
+  setTimeout(() => this.classList.remove('shake'), 300);
 });
 
 document.getElementById("hasPauses").addEventListener("change", function () {

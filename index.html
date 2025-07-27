@@ -9,8 +9,6 @@
 </head>
 <body>
   <button id="themeToggle">🌙</button>
-  <audio id="robotSound" src="https://assets.mixkit.co/sfx/preview/mixkit-robot-style-beep-1008.mp3"></audio>
-  <img id="robot" src="Robot.png" alt="Robot" />
   <div class="logo-container">
     <img src="logo.png" alt="Logo Neuquén Capital" class="logo">
   </div>
@@ -20,7 +18,15 @@
       <button onclick="window.location.href='calculator.html'">Calculadora de Días y Fojas</button>
       <button disabled>Próximamente más funciones</button>
 </div>
-<button id="downloadAppBtn" onclick="window.open('https://lucerodamian88.github.io/Certy_app/download.html', '_blank')">
+<div id="chatbot">
+  <button id="chatbotToggle"><img src="Robot.png" alt="Certy" width="40"></button>
+  <div id="chatbotWindow" class="hidden">
+    <div id="chatContent"></div>
+    <input type="text" id="chatInput" placeholder="Escribe tu pregunta">
+    <button id="chatSend">Enviar</button>
+  </div>
+</div>
+<button id="downloadAppBtn" onclick="installApp()">
   DESCARGAR CERTY EN TU CELULAR!<br><em>Sólo válido para Android</em>
 </button>
 <script>
@@ -33,5 +39,8 @@
   });
 </script>
 <script src="common.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.9/mammoth.browser.min.js"></script>
+<script src="chatbot.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Theme toggle and robot interaction
+// Theme toggle and shared actions
 
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('themeToggle');
@@ -16,41 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const robot = document.getElementById('robot');
-  const audio = document.getElementById('robotSound');
-  if (robot) {
-    const wave = () => {
-      robot.classList.add('wave');
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play();
-      }
-      setTimeout(() => robot.classList.remove('wave'), 1000);
-    };
-
-    const start = () => {
-      robot.classList.add('enter');
-      setTimeout(wave, 1500);
-      setTimeout(() => robot.classList.add('exit'), 3000);
-      setTimeout(() => robot.classList.remove('enter', 'exit'), 5000);
-    };
-
-    const randomPeek = () => {
-      const side = Math.random() > 0.5 ? 'left' : 'right';
-      robot.classList.add(`peek-${side}`);
-      wave();
-      setTimeout(() => robot.classList.remove(`peek-${side}`), 3000);
-    };
-
-    let idleTimer;
-    const resetIdle = () => {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(randomPeek, 10000);
-    };
-    document.addEventListener('mousemove', resetIdle);
-    document.addEventListener('keydown', resetIdle);
-    resetIdle();
-
-    start();
-  }
 });
+
+function installApp() {
+  document.body.classList.add('big-text');
+  window.open('https://lucerodamian88.github.io/Certy_app/download.html', '_blank');
+}
