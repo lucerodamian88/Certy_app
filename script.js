@@ -233,7 +233,7 @@ function calculate() {
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
   document.getElementById("result").innerHTML = resultHTML;
-  document.getElementById('shareBtn').style.display = 'block';
+    document.getElementById('printBtn').style.display = 'block';
 }
 
 function clearAll() {
@@ -244,14 +244,14 @@ function clearAll() {
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('extensionSection').innerHTML = '';
   document.getElementById('result').innerHTML = '';
-  document.getElementById('shareBtn').style.display = 'none';
+    document.getElementById('printBtn').style.display = 'none';
 }
 
-function shareWhatsApp() {
+function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
-  
+
   // Save original styles
   const originalStyles = {};
   const elements = resultEl.getElementsByTagName('*');
@@ -266,10 +266,10 @@ function shareWhatsApp() {
       el.style.backgroundColor = '#FFFFFF';
     }
   }
-  
+
   doc.html(resultEl, {
     margin: [40, 40, 60, 40],
-    html2canvas: { 
+    html2canvas: {
       scale: 0.8,
       logging: true,
       useCORS: true
@@ -279,7 +279,7 @@ function shareWhatsApp() {
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0); // Black text
       doc.text('Gracias por usar la app de Certy!', 40, pageH - 20);
-      
+
       // Restore original styles
       for (let el in originalStyles) {
         if (el.style) {
@@ -287,23 +287,10 @@ function shareWhatsApp() {
           el.style.backgroundColor = originalStyles[el].backgroundColor;
         }
       }
-      
+
       const pdfBlob = doc.output('blob');
-      const file = new File([pdfBlob], 'reporte.pdf', { type: 'application/pdf' });
-
-      const text = 'Te envío los resultados en PDF.';
-      if (navigator.share) {
-        navigator.share({ files: [file], text }).catch(() => {
-          const url = URL.createObjectURL(pdfBlob);
-          window.open(url, '_blank');
-          window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
-        });
-      } else {
-        const url = URL.createObjectURL(pdfBlob);
-        window.open(url, '_blank');
-        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
-      }
-
+      const url = URL.createObjectURL(pdfBlob);
+      window.open(url, '_blank');
     }
   });
 }
