@@ -96,10 +96,11 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
       <tbody>
   `;
 
-  fojas.forEach(foja => {
+  fojas.forEach((foja, index) => {
+    const label = index === fojas.length - 1 ? `${foja.numero} FINAL` : `${foja.numero}`;
     tablaHTML += `
       <tr>
-        <td>${foja.numero}</td>
+        <td>${label}</td>
         <td>${foja.desde}</td>
         <td>${foja.hasta}</td>
       </tr>
@@ -177,7 +178,7 @@ function calculate() {
   const finalDate = addDays(startDate, initialDays - 1);
   let currentDate = new Date(finalDate);
 
-  let resultHTML = `<h2>REPORTE GENERADO POR CERTY</h2>`;
+  let resultHTML = `<h2 style="text-align: center; text-decoration: underline;">REPORTE GENERADO POR LA APP CERTY</h2>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
@@ -226,7 +227,7 @@ function calculate() {
   }
 
   const fojasIniciales = countFojas(startDate, currentDate, pauses);
-  resultHTML += `<p><strong>Fojas totales:</strong> ${fojasIniciales}</p>`;
+  resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojasIniciales} FINAL</p>`;
   if (showWarning) {
     resultHTML += `<p class="warning">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>`;
   }
@@ -276,21 +277,31 @@ function openPdfReport() {
     },
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
+      const pageW = doc.internal.pageSize.getWidth();
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0); // Black text
-      doc.text('Gracias por usar la app de Certy!', 40, pageH - 20);
 
-      // Restore original styles
-      for (let el in originalStyles) {
-        if (el.style) {
-          el.style.color = originalStyles[el].color;
-          el.style.backgroundColor = originalStyles[el].backgroundColor;
+      const finalize = () => {
+        for (let el in originalStyles) {
+          if (el.style) {
+            el.style.color = originalStyles[el].color;
+            el.style.backgroundColor = originalStyles[el].backgroundColor;
+          }
         }
-      }
+        doc.save('ReporteCertyApp.pdf');
+      };
 
-      const pdfBlob = doc.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
+      const img = new Image();
+      img.src = 'logo.png';
+      img.onload = function() {
+        const imgSize = 24;
+        const xImg = pageW - 40 - imgSize;
+        const yImg = pageH - imgSize - 20;
+        doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
+        doc.text('Gracias por usar la app de Certy!', xImg - 10, pageH - 20, { align: 'right' });
+        finalize();
+      };
+      img.onerror = finalize;
     }
   });
 }
