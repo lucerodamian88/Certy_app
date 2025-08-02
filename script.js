@@ -236,7 +236,7 @@ function calculate() {
   const fojasIniciales = countFojas(startDate, currentDate, pauses);
   resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojasIniciales} FINAL</p>`;
   if (showWarning) {
-    resultHTML += `<p class="warning">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>`;
+    resultHTML += `<p class="warning">OJO! ten en cuenta que si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>`;
   }
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
@@ -259,6 +259,17 @@ function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
+  const originalWordSpacing = resultEl.style.wordSpacing;
+  const textNodes = [];
+  const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.nodeValue.includes(':')) {
+      textNodes.push({ node, text: node.nodeValue });
+      node.nodeValue = node.nodeValue.replace(/:/g, ' :');
+    }
+  }
+  resultEl.style.wordSpacing = '4px';
 
   // Save original styles
   const originalStyles = {};
@@ -269,7 +280,6 @@ function openPdfReport() {
         color: el.style.color,
         backgroundColor: el.style.backgroundColor
       };
-      // Force black text and white background for PDF
       el.style.color = '#000000';
       el.style.backgroundColor = '#FFFFFF';
     }
@@ -296,6 +306,8 @@ function openPdfReport() {
             el.style.backgroundColor = originalStyles[el].backgroundColor;
           }
         }
+        textNodes.forEach(({ node, text }) => (node.nodeValue = text));
+        resultEl.style.wordSpacing = originalWordSpacing;
         const blobUrl = doc.output('bloburl');
         window.open(blobUrl, '_blank');
       };
@@ -303,7 +315,7 @@ function openPdfReport() {
       const img = new Image();
       img.src = 'Robot.png';
       img.onload = function() {
-        const imgSize = 32;
+        const imgSize = 16;
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
