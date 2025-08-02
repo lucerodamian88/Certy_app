@@ -159,12 +159,13 @@ button:hover {
 .suggestion-date {
   font-weight: bold;
   font-size: 1.1rem;
+  text-decoration: underline;
 }
 
 #themeToggle {
   position: fixed;
   top: 10px;
-  left: 10px;
+  right: 10px;
   background: transparent;
   border: none;
   font-size: 1.5rem;
@@ -225,6 +226,13 @@ body.dark-mode #themeToggle {
 .suggestion {
   font-size: 0.9rem;
   color: #666;
+}
+
+.suggestion-box {
+  background-color: #ffd8a8;
+  border: 1px solid #ffa94d;
+  padding: 0.5rem;
+  border-radius: 4px;
 }
 
 .warning {
