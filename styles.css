@@ -129,17 +129,36 @@ button:hover {
   box-shadow: 0 0 8px #00aaff;
 }
 
+#printBtn {
+  display: block;
+  margin: 2rem auto 0;
+}
+
 .backBtn {
-  background: transparent;
+  background: #fff;
   border: 1px solid #004080;
   color: #004080;
-  margin-bottom: 1rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
 }
 
 .backBtn:hover {
   background: #004080;
   color: #fff;
   box-shadow: 0 0 8px #004080;
+}
+
+.logo-container .backBtn {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.suggestion-date {
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 #themeToggle {
