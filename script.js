@@ -256,7 +256,6 @@ function clearAll() {
 }
 
 function openPdfReport() {
-  const pdfWindow = window.open('', '_blank');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
@@ -311,11 +310,11 @@ function openPdfReport() {
         resultEl.style.wordSpacing = originalWordSpacing;
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
-        if (pdfWindow) {
-          pdfWindow.location.href = url;
-        } else {
-          window.location.href = url;
-        }
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'informe.pdf';
+        link.click();
+        URL.revokeObjectURL(url);
       };
 
       const img = new Image();
