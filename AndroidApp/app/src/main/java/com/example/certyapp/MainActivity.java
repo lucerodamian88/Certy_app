@@ -1,17 +1,13 @@
 package com.example.certyapp;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import android.view.View;
 import android.widget.Button;
@@ -26,13 +22,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button shareButton = findViewById(R.id.shareButton);
-        shareButton.setOnClickListener(new View.OnClickListener() {
+        Button printButton = findViewById(R.id.printButton);
+        printButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     File pdfFile = generatePdf();
-                    sharePdf(pdfFile);
+                    openPdf(pdfFile);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -65,36 +61,13 @@ public class MainActivity extends AppCompatActivity {
         return pdfFile;
     }
 
-    private void sharePdf(File pdfFile) {
+    private void openPdf(File pdfFile) {
         Context context = this;
         Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", pdfFile);
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("application/pdf");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        // Check if WhatsApp is installed
-        PackageManager pm = getPackageManager();
-        boolean hasWhatsApp;
-        try {
-            pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
-            hasWhatsApp = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            hasWhatsApp = false;
-        }
-
-        Intent chooser;
-        if (hasWhatsApp) {
-            Intent whatsappIntent = new Intent(shareIntent);
-            whatsappIntent.setPackage("com.whatsapp");
-            chooser = Intent.createChooser(whatsappIntent, "Compartir PDF");
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { shareIntent });
-        } else {
-            chooser = Intent.createChooser(shareIntent, "Compartir PDF");
-        }
-
-        startActivity(chooser);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "application/pdf");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 }
 
