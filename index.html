@@ -5,27 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Certy App</title>
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <button id="themeToggle">🌙</button>
   <div class="logo-container">
     <img src="logo.png" alt="Logo Neuquén Capital" class="logo">
   </div>
-    <div class="container menu">
-      <h1 class="pixel">¡Hola! Soy Certy, ¿Qué vamos a hacer hoy?<span class="cursor">_</span></h1>
+  <div class="container menu">
+      <h1>¡Hola! Soy Certy, ¿Qué vamos a hacer hoy?<span class="cursor">_</span></h1>
       <p class="subtitle">Seleccioná una opción para continuar</p>
       <button onclick="window.location.href='calculator.html'">Calculadora de Días y Fojas</button>
       <button disabled>Próximamente más funciones</button>
-</div>
-<div id="chatbot">
-  <button id="chatbotToggle"><img src="Robot.png" alt="Certy" width="40"></button>
-  <div id="chatbotWindow" class="hidden">
-    <div id="chatContent"></div>
-    <input type="text" id="chatInput" placeholder="Escribe tu pregunta">
-    <button id="chatSend">Enviar</button>
   </div>
-</div>
 <button id="downloadAppBtn" onclick="installApp()">
   DESCARGAR CERTY EN TU CELULAR!<br><em>Sólo válido para Android</em>
 </button>
@@ -41,6 +33,5 @@
 <script src="common.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.9/mammoth.browser.min.js"></script>
-<script src="chatbot.js"></script>
 </body>
 </html>

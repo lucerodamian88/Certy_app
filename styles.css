@@ -1,112 +1,110 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: radial-gradient(circle at center, #0a0a0f 0%, #000000 100%);
-  color: #00e0e0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
   margin: 0;
-  padding: 140px 0 120px 0; /* espacio para el banner fijo */
-  animation: pulseBG 10s ease-in-out infinite alternate;
 }
-
-body.big-text {
-  font-size: 1.3rem;
-}
-
-body.light-mode {
-  background: linear-gradient(to right, #f4ecd8, #e7dec2);
-  color: #000000;
-}
-
 
 .logo-container {
-  background: #0c1b2a;
+  background: #004080;
   text-align: center;
   padding: 10px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
-body.light-mode .logo-container {
-  background: #f5e8c7;
 }
 
 .logo {
-  display: block;
-  margin: 0 auto;
   width: 80%;
   max-width: 300px;
   height: auto;
 }
 
-body.light-mode .logo {
-  filter: invert(1);
-}
-
 .container {
   max-width: 600px;
   margin: 2rem auto;
-  background: rgba(0, 0, 0, 0.6);
+  background: #ffffff;
   padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #00f0ff;
-  box-shadow: 0 0 20px #00f0ff;
-  backdrop-filter: blur(10px);
-  animation: fadeIn 1s ease forwards, borderGlow 5s linear infinite;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-body.light-mode .container {
-  background: rgba(255, 255, 255, 0.85);
-  color: #000;
+.form-container {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.form-container.loaded {
+  opacity: 1;
+  transform: scale(1);
 }
 
 h1 {
   text-align: center;
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  font-family: 'Orbitron', sans-serif;
-  color: #00f0ff;
-  text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+  margin-top: 0;
+  color: #333;
 }
 
-.pixel {
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.8rem; /* Reduced from 1rem */
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+select:focus {
+  border-color: #00aaff;
+  box-shadow: 0 0 8px #00aaff;
+  outline: none;
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  border: none;
+  background: #004080;
   color: #fff;
-  white-space: normal; /* Changed from nowrap to allow text wrapping */
-  word-break: break-word; /* Ensures long words can break and wrap */
-  line-height: 1.4; /* Improved line height for better readability */
-  margin: 0 auto; /* Center the text block */
-  max-width: 100%; /* Ensure it doesn't overflow container */
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
 }
 
-@keyframes pulseBG {
-  0% { background: radial-gradient(circle at center, #0a0a0f 0%, #000000 100%); }
-  100% { background: radial-gradient(circle at center, #0d0d14 0%, #000000 100%); }
+button:hover {
+  background: #0059b3;
+  box-shadow: 0 0 8px #00aaff;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+.backBtn {
+  background: transparent;
+  border: 1px solid #004080;
+  color: #004080;
+  margin-bottom: 1rem;
 }
 
-@keyframes borderGlow {
-  0%, 100% { box-shadow: 0 0 10px #00f0ff, 0 0 20px #00e0e0; }
-  50% { box-shadow: 0 0 20px #00f0ff, 0 0 30px #00e0e0; }
-}
-
-body.light-mode .pixel {
-  color: #000;
-}
-
-.cursor {
-  display: inline-block;
-  animation: blink 1s steps(2, start) infinite;
+.backBtn:hover {
+  background: #004080;
+  color: #fff;
+  box-shadow: 0 0 8px #004080;
 }
 
 #themeToggle {
@@ -117,286 +115,37 @@ body.light-mode .pixel {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  z-index: 1100;
-  color: inherit;
+}
+
+#downloadAppBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 0.6rem 1rem;
+  background: #004080;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#downloadAppBtn:hover {
+  background: #0059b3;
+}
+
+#downloadAppBtn.hide {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s steps(2, start) infinite;
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0; }
 }
-
-.subtitle {
-  text-align: center;
-  font-size: 1rem;
-  font-style: italic;
-  color: #00e0e0;
-  margin-bottom: 2rem;
-  font-family: 'Orbitron', sans-serif;
-  text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
-}
-
-body.light-mode .subtitle {
-  color: #000;
-}
-
-label {
-  display: block;
-  margin: 1rem 0 0.5rem;
-}
-
-input,
-select {
-  width: 100%;
-  padding: 0.7rem;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid #00f0ff;
-  border-radius: 8px;
-  margin-bottom: 1.2rem;
-  font-size: 1rem;
-  color: #00e0e0;
-  transition: box-shadow 0.3s ease;
-}
-
-input:hover,
-input:focus,
-select:hover,
-select:focus {
-  box-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff inset;
-  outline: none;
-}
-
-.pauseRange,
-.flatpickr-input {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-button {
-  display: block;
-  margin: 2rem auto 0 auto;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  background: transparent;
-  color: #00f0ff;
-  border: 2px solid #00f0ff;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 0 15px #00f0ff;
-}
-
-body.light-mode button {
-  color: white;
-}
-
-button:hover {
-  background: #00f0ff;
-  color: #000;
-  box-shadow: 0 0 25px #00f0ff;
-}
-
-.button-row {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.button-row button {
-  margin: 2rem 0 0 0;
-}
-
-.backBtn {
-  background: transparent;
-  border: 2px solid #00f0ff;
-  color: #00f0ff;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  box-shadow: 0 0 15px #00f0ff;
-  transition: 0.3s;
-}
-
-body.light-mode .backBtn {
-  color: #000;
-  border-color: #000;
-  box-shadow: none;
-}
-
-.backBtn:hover {
-  background: #00f0ff;
-  color: #000;
-  box-shadow: 0 0 25px #00f0ff;
-}
-
-#printBtn {
-  margin-top: 2rem;
-  margin-bottom: 4rem;
-}
-
-.fojas-box {
-  border: 2px solid #ffffff;
-  padding: 1rem;
-  border-radius: 10px;
-  margin-top: 1rem;
-}
-
-.warning {
-  background: #ffd166;
-  color: #1b1b1b;
-  padding: 0.5rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-#result {
-  word-spacing: 0.2em;
-  letter-spacing: 0.05em;
-}
-
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  50% { transform: translateX(2px); }
-  75% { transform: translateX(-2px); }
-  100% { transform: translateX(0); }
-}
-
-.shake {
-  animation: shake 0.3s linear;
-}
-
-
-.menu {
-  text-align: center;
-  background: rgba(0,0,0,0.6);
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #00f0ff;
-  box-shadow: 0 0 20px #00f0ff;
-}
-
-body.light-mode .menu {
-  background: #e0e0e0;
-  border: 1px solid #000;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-}
-
-.menu button {
-  width: 100%;
-}
-
-body.light-mode .menu button {
-  background-color: transparent;
-  box-shadow: none;
-}
-
-#downloadAppBtn {
-  position: fixed;
-  bottom: 60px;
-  right: 20px;
-  background-color: #003366;
-  color: #ffffff;
-  padding: 1rem 1.5rem;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  animation: floatBtn 3s ease-in-out infinite;
-}
-
-body.light-mode #downloadAppBtn {
-  background-color: #336699;
-}
-#downloadAppBtn:hover {
-  background-color: #00254d;
-}
-
-#downloadAppBtn.hide {
-  animation: slideOut 0.5s forwards;
-}
-
-@keyframes floatBtn {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes slideOut {
-  to { transform: translateY(100px); opacity: 0; }
-}
-
-
-@media (max-width: 600px) {
-  body {
-    padding: 120px 0 100px 0;
-  }
-  .logo {
-    width: 70%;
-    max-width: 200px;
-  }
-  .container {
-    width: auto;
-    margin: 0 1rem;
-    padding: 1rem;
-    border-radius: 0;
-  }
-  button {
-    width: 100%;
-  }
-  #downloadAppBtn {
-    width: auto;
-  }
-}
-
-#chatbotToggle {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 1200;
-}
-
-#chatbotWindow {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 260px;
-  max-height: 400px;
-  background: rgba(0, 0, 0, 0.9);
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px;
-  display: none;
-  flex-direction: column;
-  z-index: 1200;
-}
-
-body.light-mode #chatbotWindow {
-  background: #f5e8c7;
-  color: #000;
-}
-
-#chatContent {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 8px;
-}
-
-#chatbotWindow.show {
-  display: flex;
-}
-
-#chatbotWindow input {
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-#chatbotWindow button {
-  width: 100%;
-}
-
