@@ -52,7 +52,7 @@ h1 {
 .menu .robot {
   display: block;
   margin: 0 auto 1rem;
-  max-width: 120px;
+  max-width: 60px;
 }
 
 .menu button {
@@ -108,6 +108,8 @@ button {
   color: #fff;
   cursor: pointer;
   transition: background 0.3s, box-shadow 0.3s;
+  font-size: 1.1rem;
+  text-transform: uppercase;
 }
 
 button:hover {
@@ -191,4 +193,12 @@ body.dark-mode #themeToggle {
 .suggestion {
   font-size: 0.9rem;
   color: #666;
+}
+
+.warning {
+  background-color: #ffd8a8;
+  border: 1px solid #ffa94d;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
 }

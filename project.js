@@ -199,6 +199,17 @@ function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
+  const originalWordSpacing = resultEl.style.wordSpacing;
+  const textNodes = [];
+  const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.nodeValue.includes(':')) {
+      textNodes.push({ node, text: node.nodeValue });
+      node.nodeValue = node.nodeValue.replace(/:/g, ' :');
+    }
+  }
+  resultEl.style.wordSpacing = '4px';
 
   const originalStyles = {};
   const elements = resultEl.getElementsByTagName('*');
@@ -234,6 +245,8 @@ function openPdfReport() {
             el.style.backgroundColor = originalStyles[el].backgroundColor;
           }
         }
+        textNodes.forEach(({ node, text }) => (node.nodeValue = text));
+        resultEl.style.wordSpacing = originalWordSpacing;
         const blobUrl = doc.output('bloburl');
         window.open(blobUrl, '_blank');
       };
@@ -241,7 +254,7 @@ function openPdfReport() {
       const img = new Image();
       img.src = 'Robot.png';
       img.onload = function() {
-        const imgSize = 32;
+        const imgSize = 16;
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);

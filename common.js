@@ -7,12 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.toggle('dark-mode', theme === 'dark');
       toggle.textContent = theme === 'light' ? '🌞' : '🌙';
     };
-    const saved = localStorage.getItem('theme') || 'light';
-    applyTheme(saved);
+    let currentTheme = 'light';
+    applyTheme(currentTheme);
     toggle.addEventListener('click', () => {
-      const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-      localStorage.setItem('theme', newTheme);
-      applyTheme(newTheme);
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      applyTheme(currentTheme);
     });
   }
 
