@@ -25,14 +25,15 @@
 </button>
 <script>
   window.addEventListener('load', function() {
-    const btn = document.getElementById('downloadAppBtn');
-    setTimeout(() => {
+    var btn = document.getElementById('downloadAppBtn');
+    setTimeout(function() {
       btn.classList.add('hide');
-      setTimeout(() => btn.style.display = 'none', 500);
+      setTimeout(function() { btn.style.display = 'none'; }, 500);
     }, 3000);
   });
 </script>
-<script src="common.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+<script type="text/babel" src="common.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.9/mammoth.browser.min.js"></script>
 </body>
