@@ -1,0 +1,26 @@
+/* Simplified design for iPad 2 devices */
+body {
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #000000;
+  padding-top: 80px;
+}
+
+.logo-container {
+  position: static;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.container {
+  box-shadow: none;
+  border: 1px solid #ddd;
+  margin: 0.5rem;
+  padding: 1rem;
+  max-width: 100%;
+}
+
+button {
+  box-shadow: none;
+}
+
