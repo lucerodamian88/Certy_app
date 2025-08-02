@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const ua = navigator.userAgent || '';
+  const isIpad2 = /iPad/.test(ua) && window.devicePixelRatio === 1;
+  if (isIpad2) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'ipad2.css';
+    document.head.appendChild(link);
+  }
 });
 
 function installApp() {

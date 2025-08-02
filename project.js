@@ -234,8 +234,14 @@ function openPdfReport() {
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
-        const blobUrl = doc.output('bloburl');
-        window.open(blobUrl, '_blank');
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        const pdfWindow = window.open('', '_blank');
+        if (pdfWindow) {
+          pdfWindow.document.write(`<iframe width='100%' height='100%' src='${url}'></iframe>`);
+        } else {
+          window.location.href = url;
+        }
       };
 
       const img = new Image();

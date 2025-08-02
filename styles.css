@@ -52,7 +52,7 @@ h1 {
 }
 
 .menu h1 {
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .menu .robot {
@@ -241,4 +241,21 @@ body.dark-mode #themeToggle {
   padding: 0.5rem;
   border-radius: 4px;
   font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 90px;
+  }
+  .container.menu {
+    margin: 1rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+  .menu .robot {
+    max-width: 50px;
+  }
+  .menu h1 {
+    font-size: 1.2rem;
+  }
 }
