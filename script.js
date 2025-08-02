@@ -1,3 +1,10 @@
+window.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.form-container');
+  if (container) {
+    container.classList.add('loaded');
+  }
+});
+
 // Suma la cantidad exacta de días al calendario
 function addDays(date, days) {
   const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -288,11 +295,12 @@ function openPdfReport() {
             el.style.backgroundColor = originalStyles[el].backgroundColor;
           }
         }
-        doc.save('ReporteCertyApp.pdf');
+        const blobUrl = doc.output('bloburl');
+        window.open(blobUrl, '_blank');
       };
 
       const img = new Image();
-      img.src = 'logo.png';
+      img.src = 'Robot.png';
       img.onload = function() {
         const imgSize = 24;
         const xImg = pageW - 40 - imgSize;
