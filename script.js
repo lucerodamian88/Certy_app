@@ -97,7 +97,7 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
         <tr>
           <th>Foja Nº</th>
           <th>Desde</th>
-          <th>Hasta</th>
+          <th>Fecha de medición</th>
         </tr>
       </thead>
       <tbody>

@@ -15,45 +15,22 @@ function formatDate(date) {
   return date.toLocaleDateString('es-AR');
 }
 
-function getWorkingDays(startDate, endDate, pauses = []) {
-  const days = [];
-  const current = new Date(startDate);
-
-  while (current <= endDate) {
-    const inPause = pauses.some(([pauseStart, pauseEnd]) =>
-      current >= pauseStart && current <= pauseEnd
-    );
-
-    if (!inPause) {
-      days.push(new Date(current));
-    }
-
-    current.setDate(current.getDate() + 1);
-  }
-
-  return days;
-}
-
-function countFojas(startDate, endDate, pauses = []) {
-  const trabajados = getWorkingDays(startDate, endDate, pauses);
-  return Math.ceil(trabajados.length / 30);
-}
-
-function generarTablaFojas(startDate, endDate, pauses = []) {
-  const trabajados = getWorkingDays(startDate, endDate, pauses);
-  if (trabajados.length === 0) return '';
-
+function buildFojas(startDate, finalDate, suspensions = []) {
   const fojas = [];
-  for (let i = 0; i < trabajados.length; i += 30) {
-    const inicio = trabajados[i];
-    const fin = trabajados[Math.min(i + 29, trabajados.length - 1)];
-    fojas.push({
-      numero: fojas.length + 1,
-      desde: formatDate(inicio),
-      hasta: formatDate(fin)
-    });
+  let inicio = startDate;
+  suspensions.forEach(([, sEnd]) => {
+    const fojaFin = addDays(sEnd, 1);
+    fojas.push({ desde: formatDate(inicio), hasta: formatDate(fojaFin) });
+    inicio = addDays(fojaFin, 1);
+  });
+  if (inicio <= finalDate) {
+    fojas.push({ desde: formatDate(inicio), hasta: formatDate(finalDate) });
   }
+  return fojas;
+}
 
+function generarTablaFojas(fojas) {
+  if (fojas.length === 0) return '';
   let tablaHTML = `
     <div class="fojas-box">
     <h3>Detalle de Fojas</h3>
@@ -62,14 +39,14 @@ function generarTablaFojas(startDate, endDate, pauses = []) {
         <tr>
           <th>Foja Nº</th>
           <th>Desde</th>
-          <th>Hasta</th>
+          <th>Fecha de medición</th>
         </tr>
       </thead>
       <tbody>
   `;
 
   fojas.forEach((foja, index) => {
-    const label = index === fojas.length - 1 ? `${foja.numero} FINAL` : `${foja.numero}`;
+    const label = index === fojas.length - 1 ? `${index + 1} FINAL` : `${index + 1}`;
     tablaHTML += `
       <tr>
         <td>${label}</td>
@@ -141,8 +118,6 @@ function calculate() {
     }
   }
 
-  const allPauses = suspensions.concat(pauses);
-
   let currentDate = addDays(startDate, initialDays - 1);
 
   let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR LA APP CERTY</h2>`;
@@ -176,9 +151,9 @@ function calculate() {
   resultHTML += '<hr />';
   resultHTML += `<p><strong>Fecha de finalización:</strong> ${formatDate(currentDate)}</p>`;
 
-  const fojas = countFojas(startDate, currentDate, allPauses);
-  resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas} FINAL</p>`;
-  resultHTML += generarTablaFojas(startDate, currentDate, allPauses);
+  const fojas = buildFojas(startDate, currentDate, suspensions);
+  resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas.length} FINAL</p>`;
+  resultHTML += generarTablaFojas(fojas);
 
   document.getElementById("result").innerHTML = resultHTML;
   document.getElementById('printBtn').style.display = 'block';
@@ -320,14 +295,13 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
 
   if (this.value === "yes") {
     section.innerHTML = `
-      <p id="suspensionSuggestion" class="suggestion"></p>
       <label>Cantidad de suspensiones:
         <input type="number" id="suspensionCount" min="1" value="1" />
       </label>
       <div id="suspensionsContainer"></div>
     `;
 
-    updateSuspensionSuggestion();
+    updateSuspensionSuggestions();
 
     const countInput = document.getElementById("suspensionCount");
     const container = document.getElementById("suspensionsContainer");
@@ -338,6 +312,7 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="suspensionGroup">
+            <p class="suspensionSuggestion warning"></p>
             <label>Suspensión ${i}:
               <input type="text" class="suspensionRange" placeholder="Seleccionar rango"/>
             </label>
@@ -352,26 +327,51 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
           locale: 'es',
           rangeSeparator: ' a '
         });
+        el.addEventListener('change', updateSuspensionSuggestions);
       });
     }
 
-    countInput.addEventListener("input", renderSuspensionInputs);
+    countInput.addEventListener("input", () => { renderSuspensionInputs(); updateSuspensionSuggestions(); });
     renderSuspensionInputs();
+    updateSuspensionSuggestions();
   }
 });
 
-document.getElementById('startDate').addEventListener('change', updateSuspensionSuggestion);
+document.getElementById('startDate').addEventListener('change', updateSuspensionSuggestions);
 
-function updateSuspensionSuggestion() {
-  const p = document.getElementById('suspensionSuggestion');
-  if (!p) return;
+function updateSuspensionSuggestions() {
   const rawStart = document.getElementById('startDate').value;
-  if (!rawStart) {
-    p.textContent = 'Se le sugiere guardar 1 día de los 30 para medir después de la suspensión.';
-    return;
+  const groups = document.querySelectorAll('.suspensionGroup');
+  if (groups.length === 0) return;
+
+  let startDate = null;
+  if (rawStart) {
+    const [y, m, d] = rawStart.split('-').map(Number);
+    startDate = new Date(y, m - 1, d);
   }
-  const [y, m, d] = rawStart.split('-').map(Number);
-  const startDate = new Date(y, m - 1, d);
-  const suggestion = addDays(startDate, 28);
-  p.textContent = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del ${formatDate(suggestion)}`;
+
+  let prevFojaEnd = startDate ? new Date(startDate) : null;
+  groups.forEach((group, index) => {
+    const p = group.querySelector('.suspensionSuggestion');
+    if (!startDate) {
+      p.textContent = 'Se le sugiere guardar 1 día de los 30 para medir después de la suspensión.';
+    } else if (index === 0) {
+      const suggestion = addDays(startDate, 29);
+      p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
+    } else if (prevFojaEnd) {
+      const suggestion = addDays(prevFojaEnd, 30);
+      p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
+    } else {
+      p.textContent = 'Complete la suspensión anterior para obtener sugerencia.';
+    }
+
+    const rangeVal = group.querySelector('.suspensionRange').value;
+    if (rangeVal && rangeVal.includes(' a ')) {
+      const [, rawEnd] = rangeVal.split(' a ');
+      const [eY, eM, eD] = rawEnd.split('-').map(Number);
+      prevFojaEnd = addDays(new Date(eY, eM - 1, eD), 1);
+    } else {
+      prevFojaEnd = null;
+    }
+  });
 }
