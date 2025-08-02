@@ -8,7 +8,7 @@ body {
 }
 
 .logo-container {
-  background: #004080;
+  background: rgb(1, 5, 10);
   text-align: center;
   padding: 10px;
 }
@@ -45,6 +45,22 @@ h1 {
   color: #333;
 }
 
+.menu h1 {
+  white-space: nowrap;
+}
+
+.menu .robot {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 120px;
+}
+
+.menu button {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
 .subtitle {
   text-align: center;
   color: #666;
@@ -63,6 +79,11 @@ select {
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#startDate,
+#initialDays {
+  max-width: 50%;
 }
 
 input:focus,
@@ -148,4 +169,26 @@ button:hover {
 @keyframes blink {
   0%, 50% { opacity: 1; }
   50.01%, 100% { opacity: 0; }
+}
+
+/* Night mode */
+body.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+body.dark-mode img,
+body.dark-mode #themeToggle {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.report-title {
+  text-align: center;
+  text-decoration: underline;
+  letter-spacing: 2px;
+  word-spacing: 4px;
+}
+
+.suggestion {
+  font-size: 0.9rem;
+  color: #666;
 }

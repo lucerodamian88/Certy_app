@@ -5,7 +5,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Suma la cantidad exacta de días al calendario
 function addDays(date, days) {
   const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   newDate.setDate(newDate.getDate() + days);
@@ -35,59 +34,25 @@ function getWorkingDays(startDate, endDate, pauses = []) {
   return days;
 }
 
-// Devuelve la cantidad de fojas (meses) trabajadas entre dos fechas
-// Ejemplo:
-// countFojas(new Date('2024-01-01'), new Date('2024-03-31')) => 3
 function countFojas(startDate, endDate, pauses = []) {
-  if (!(startDate instanceof Date) || isNaN(startDate)) {
-    throw new Error('startDate debe ser un objeto Date válido');
-  }
-  if (!(endDate instanceof Date) || isNaN(endDate)) {
-    throw new Error('endDate debe ser un objeto Date válido');
-  }
-  if (startDate > endDate) {
-    throw new Error('startDate no puede ser posterior a endDate');
-  }
-
   const trabajados = getWorkingDays(startDate, endDate, pauses);
-  const meses = new Set(trabajados.map(d => `${d.getFullYear()}-${d.getMonth()}`));
-  return meses.size;
+  return Math.ceil(trabajados.length / 30);
 }
 
 function generarTablaFojas(startDate, endDate, pauses = []) {
   const trabajados = getWorkingDays(startDate, endDate, pauses);
+  if (trabajados.length === 0) return '';
 
   const fojas = [];
-  let fojaNum = 1;
-
-  if (trabajados.length === 0) {
-    return '';
+  for (let i = 0; i < trabajados.length; i += 30) {
+    const inicio = trabajados[i];
+    const fin = trabajados[Math.min(i + 29, trabajados.length - 1)];
+    fojas.push({
+      numero: fojas.length + 1,
+      desde: formatDate(inicio),
+      hasta: formatDate(fin)
+    });
   }
-
-  let inicioFoja = trabajados[0];
-  let finFoja = trabajados[0];
-
-  for (let i = 1; i < trabajados.length; i++) {
-    const dia = trabajados[i];
-    const prev = trabajados[i - 1];
-    const diff = (dia - prev) / (1000 * 60 * 60 * 24);
-
-    if (diff > 1 || dia.getMonth() !== prev.getMonth()) {
-      fojas.push({
-        numero: fojaNum++,
-        desde: formatDate(inicioFoja),
-        hasta: formatDate(finFoja),
-      });
-      inicioFoja = dia;
-    }
-    finFoja = dia;
-  }
-
-  fojas.push({
-    numero: fojaNum,
-    desde: formatDate(inicioFoja),
-    hasta: formatDate(finFoja),
-  });
 
   let tablaHTML = `
     <div class="fojas-box">
@@ -133,126 +98,101 @@ function calculate() {
     alert('El plazo inicial debe ser un número positivo.');
     return;
   }
-  const hasPauses = document.getElementById("hasPauses").value === "yes";
-  const hasExtension = document.getElementById("hasExtension").value === "yes";
 
+  const hasSuspensions = document.getElementById("hasSuspensions").value === "yes";
+  const hasPauses = document.getElementById("hasPauses").value === "yes";
+
+  let suspensions = [];
   let pauses = [];
 
+  if (hasSuspensions) {
+    const groups = document.querySelectorAll(".suspensionGroup");
+    for (const group of groups) {
+      const rawRange = group.querySelector(".suspensionRange").value;
+      if (!rawRange || !rawRange.includes(" a ")) {
+        continue;
+      }
+      const [rawStartP, rawEnd] = rawRange.split(" a ");
+      const [sY, sM, sD] = rawStartP.split("-").map(Number);
+      const [eY, eM, eD] = rawEnd.split("-").map(Number);
+      const sStart = new Date(sY, sM - 1, sD);
+      const sEnd = new Date(eY, eM - 1, eD);
+      if (!isNaN(sStart) && !isNaN(sEnd) && sStart <= sEnd) {
+        suspensions.push([sStart, sEnd]);
+      }
+    }
+  }
+
   if (hasPauses) {
-    const pauseGroups = document.querySelectorAll(".pauseGroup");
-    for (const group of pauseGroups) {
+    const groups = document.querySelectorAll(".pauseGroup");
+    for (const group of groups) {
       const rawRange = group.querySelector(".pauseRange").value;
       if (!rawRange || !rawRange.includes(" a ")) {
         continue;
       }
       const [rawStartP, rawEnd] = rawRange.split(" a ");
-
       const [sY, sM, sD] = rawStartP.split("-").map(Number);
       const [eY, eM, eD] = rawEnd.split("-").map(Number);
-
-      const pauseStart = new Date(sY, sM - 1, sD);
-      const pauseEnd = new Date(eY, eM - 1, eD);
-
-      if (pauseStart < startDate) {
-        Swal.fire({
-          icon: 'error',
-          text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.',
-          timer: 5000,
-          timerProgressBar: true
-        });
-        return;
-      }
-
-      if (!isNaN(pauseStart) && !isNaN(pauseEnd) && pauseStart <= pauseEnd) {
-        pauses.push([pauseStart, pauseEnd]);
-      }
-    }
-    // Validar solapamientos
-    pauses.sort((a, b) => a[0] - b[0]);
-    for (let i = 1; i < pauses.length; i++) {
-      if (pauses[i][0] <= pauses[i - 1][1]) {
-        Swal.fire({
-          icon: 'error',
-          text: 'Los plazos de las paralizaciones se solapan, corregir.',
-          timer: 5000,
-          timerProgressBar: true
-        });
-        return;
+      const pStart = new Date(sY, sM - 1, sD);
+      const pEnd = new Date(eY, eM - 1, eD);
+      if (!isNaN(pStart) && !isNaN(pEnd) && pStart <= pEnd) {
+        pauses.push([pStart, pEnd]);
       }
     }
   }
 
-  const finalDate = addDays(startDate, initialDays - 1);
-  let currentDate = new Date(finalDate);
+  const allPauses = suspensions.concat(pauses);
+
+  let currentDate = addDays(startDate, initialDays - 1);
 
   let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR LA APP CERTY</h2>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
+  if (hasSuspensions && suspensions.length > 0) {
+    resultHTML += '<p><strong>Suspensiones:</strong></p><ul>';
+    suspensions.forEach(([sStart, sEnd], i) => {
+      resultHTML += `<li>Suspensión ${i + 1}: ${formatDate(sStart)} a ${formatDate(sEnd)}</li>`;
+      const diff = Math.round((sEnd - sStart) / (1000 * 60 * 60 * 24)) + 1;
+      currentDate = addDays(currentDate, diff);
+    });
+    resultHTML += '</ul>';
+  } else {
+    resultHTML += `<p><strong>Suspensiones:</strong> No hubo</p>`;
+  }
+
   if (hasPauses && pauses.length > 0) {
     resultHTML += '<p><strong>Paralizaciones:</strong></p><ul>';
-    pauses.forEach(([pauseStart, pauseEnd], i) => {
-      resultHTML += `<li>Paralización ${i + 1}: ${formatDate(pauseStart)} a ${formatDate(pauseEnd)}</li>`;
+    pauses.forEach(([pStart, pEnd], i) => {
+      resultHTML += `<li>Paralización ${i + 1}: ${formatDate(pStart)} a ${formatDate(pEnd)}</li>`;
+      const diff = Math.round((pEnd - pStart) / (1000 * 60 * 60 * 24)) + 1;
+      currentDate = addDays(currentDate, diff);
     });
     resultHTML += '</ul>';
   } else {
     resultHTML += `<p><strong>Paralizaciones:</strong> No hubo</p>`;
   }
 
-  let extensionDays = 0;
-
-  if (hasExtension) {
-    extensionDays = parseInt(document.getElementById("extensionDays").value);
-    if (isNaN(extensionDays) || extensionDays <= 0) {
-      alert('La ampliación de plazo debe ser un número positivo.');
-      return;
-    }
-    resultHTML += `<p><strong>Ampliación de plazo:</strong> ${extensionDays} días</p>`;
-  } else {
-    resultHTML += `<p><strong>Ampliación de plazo:</strong> No se solicitó</p>`;
-  }
-
   resultHTML += '<hr />';
-  resultHTML += `<p><strong>Fecha de finalización inicial:</strong> ${formatDate(currentDate)}</p>`;
+  resultHTML += `<p><strong>Fecha de finalización:</strong> ${formatDate(currentDate)}</p>`;
 
-  let showWarning = false;
-
-  if (hasPauses) {
-    pauses.forEach(([pauseStart, pauseEnd], i) => {
-      const diff = Math.round((pauseEnd - pauseStart) / (1000 * 60 * 60 * 24)) + 1;
-      currentDate = addDays(currentDate, diff);
-      resultHTML += `<p><strong>Finalización tras Paralización ${i + 1}:</strong> ${formatDate(currentDate)}</p>`;
-    });
-    if (pauses.some(([pStart]) => pStart > startDate)) {
-      showWarning = true;
-    }
-  }
-
-  if (hasExtension) {
-    currentDate = addDays(currentDate, extensionDays);
-    resultHTML += `<p><strong>Finalización con Ampliación:</strong> ${formatDate(currentDate)}</p>`;
-  }
-
-  const fojasIniciales = countFojas(startDate, currentDate, pauses);
-  resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojasIniciales} FINAL</p>`;
-  if (showWarning) {
-    resultHTML += `<p class="warning">Si paralizás la obra con fecha posterior al inicio, debés generar una foja un día antes de la paralización.</p>`;
-  }
-  resultHTML += generarTablaFojas(startDate, currentDate, pauses);
+  const fojas = countFojas(startDate, currentDate, allPauses);
+  resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas} FINAL</p>`;
+  resultHTML += generarTablaFojas(startDate, currentDate, allPauses);
 
   document.getElementById("result").innerHTML = resultHTML;
-    document.getElementById('printBtn').style.display = 'block';
+  document.getElementById('printBtn').style.display = 'block';
 }
 
 function clearAll() {
   document.getElementById('startDate').value = '';
   document.getElementById('initialDays').value = '';
+  document.getElementById('hasSuspensions').value = 'no';
   document.getElementById('hasPauses').value = 'no';
-  document.getElementById('hasExtension').value = 'no';
+  document.getElementById('suspensionSection').innerHTML = '';
   document.getElementById('pauseSection').innerHTML = '';
-  document.getElementById('extensionSection').innerHTML = '';
   document.getElementById('result').innerHTML = '';
-    document.getElementById('printBtn').style.display = 'none';
+  document.getElementById('printBtn').style.display = 'none';
 }
 
 function openPdfReport() {
@@ -260,7 +200,6 @@ function openPdfReport() {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
 
-  // Save original styles
   const originalStyles = {};
   const elements = resultEl.getElementsByTagName('*');
   for (let el of elements) {
@@ -269,7 +208,6 @@ function openPdfReport() {
         color: el.style.color,
         backgroundColor: el.style.backgroundColor
       };
-      // Force black text and white background for PDF
       el.style.color = '#000000';
       el.style.backgroundColor = '#FFFFFF';
     }
@@ -287,7 +225,7 @@ function openPdfReport() {
       const pageW = doc.internal.pageSize.getWidth();
       doc.setFontSize(12);
       doc.setFont('helvetica', 'italic');
-      doc.setTextColor(0, 0, 0); // Black text
+      doc.setTextColor(0, 0, 0);
 
       const finalize = () => {
         for (let el in originalStyles) {
@@ -363,13 +301,64 @@ document.getElementById("hasPauses").addEventListener("change", function () {
   }
 });
 
-document.getElementById("hasExtension").addEventListener("change", function () {
-  const section = document.getElementById("extensionSection");
+document.getElementById("hasSuspensions").addEventListener("change", function () {
+  const section = document.getElementById("suspensionSection");
   section.innerHTML = "";
 
   if (this.value === "yes") {
     section.innerHTML = `
-      <label>Ampliación de plazo (en días): <input type="number" id="extensionDays" placeholder="Cantidad" /></label>
+      <p id="suspensionSuggestion" class="suggestion"></p>
+      <label>Cantidad de suspensiones:
+        <input type="number" id="suspensionCount" min="1" value="1" />
+      </label>
+      <div id="suspensionsContainer"></div>
     `;
+
+    updateSuspensionSuggestion();
+
+    const countInput = document.getElementById("suspensionCount");
+    const container = document.getElementById("suspensionsContainer");
+
+    function renderSuspensionInputs() {
+      const count = parseInt(countInput.value) || 0;
+      container.innerHTML = "";
+      for (let i = 1; i <= count; i++) {
+        container.innerHTML += `
+          <div class="suspensionGroup">
+            <label>Suspensión ${i}:
+              <input type="text" class="suspensionRange" placeholder="Seleccionar rango"/>
+            </label>
+          </div>`;
+      }
+      container.querySelectorAll('.suspensionRange').forEach(el => {
+        flatpickr(el, {
+          mode: 'range',
+          dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'd/m/Y',
+          locale: 'es',
+          rangeSeparator: ' a '
+        });
+      });
+    }
+
+    countInput.addEventListener("input", renderSuspensionInputs);
+    renderSuspensionInputs();
   }
 });
+
+document.getElementById('startDate').addEventListener('change', updateSuspensionSuggestion);
+
+function updateSuspensionSuggestion() {
+  const p = document.getElementById('suspensionSuggestion');
+  if (!p) return;
+  const rawStart = document.getElementById('startDate').value;
+  if (!rawStart) {
+    p.textContent = 'Se le sugiere guardar 1 día de los 30 para medir después de la suspensión.';
+    return;
+  }
+  const [y, m, d] = rawStart.split('-').map(Number);
+  const startDate = new Date(y, m - 1, d);
+  const suggestion = addDays(startDate, 28);
+  p.textContent = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del ${formatDate(suggestion)}`;
+}
