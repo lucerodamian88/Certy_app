@@ -17,15 +17,27 @@ function formatDate(date) {
 
 function buildFojas(startDate, finalDate, suspensions = []) {
   const fojas = [];
-  let inicio = startDate;
-  suspensions.forEach(([, sEnd]) => {
-    const fojaFin = addDays(sEnd, 1);
-    fojas.push({ desde: formatDate(inicio), hasta: formatDate(fojaFin) });
-    inicio = addDays(fojaFin, 1);
-  });
-  if (inicio <= finalDate) {
-    fojas.push({ desde: formatDate(inicio), hasta: formatDate(finalDate) });
+  const sorted = suspensions.sort((a, b) => a[0] - b[0]);
+  let currentStart = new Date(startDate);
+
+  while (currentStart <= finalDate) {
+    const nextBreak = addDays(currentStart, 29);
+    const nextSusp = sorted.length ? sorted[0] : null;
+
+    if (nextSusp && nextSusp[0] <= nextBreak) {
+      const measurement = addDays(nextSusp[1], 1);
+      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(measurement) });
+      currentStart = addDays(measurement, 1);
+      sorted.shift();
+    } else if (nextBreak <= finalDate) {
+      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(nextBreak) });
+      currentStart = addDays(nextBreak, 1);
+    } else {
+      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(finalDate) });
+      break;
+    }
   }
+
   return fojas;
 }
 
@@ -312,7 +324,7 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="suspensionGroup">
-            <p class="suspensionSuggestion warning"></p>
+            <p class="suspensionSuggestion suggestion-box suggestion"></p>
             <label>Suspensión ${i}:
               <input type="text" class="suspensionRange" placeholder="Seleccionar rango"/>
             </label>
