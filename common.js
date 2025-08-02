@@ -4,13 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('themeToggle');
   if (toggle) {
     const applyTheme = theme => {
-      document.body.classList.toggle('light-mode', theme === 'light');
+      document.body.classList.toggle('dark-mode', theme === 'dark');
       toggle.textContent = theme === 'light' ? '🌞' : '🌙';
     };
-    const saved = localStorage.getItem('theme') || 'dark';
+    const saved = localStorage.getItem('theme') || 'light';
     applyTheme(saved);
     toggle.addEventListener('click', () => {
-      const newTheme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+      const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
       localStorage.setItem('theme', newTheme);
       applyTheme(newTheme);
     });
