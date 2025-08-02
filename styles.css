@@ -5,12 +5,18 @@ body {
   background-color: #f8f9fa;
   color: #333;
   margin: 0;
+  padding-top: 120px;
 }
 
 .logo-container {
   background: rgb(1, 5, 10);
   text-align: center;
   padding: 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .logo {
@@ -59,6 +65,12 @@ h1 {
   display: block;
   width: 100%;
   margin: 0.5rem 0;
+  text-transform: none;
+}
+
+.menu button.coming-soon {
+  margin-top: 1.5rem;
+  text-transform: uppercase;
 }
 
 .subtitle {
@@ -138,6 +150,7 @@ button:hover {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  z-index: 1100;
 }
 
 #downloadAppBtn {
