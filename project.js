@@ -183,6 +183,7 @@ function clearAll() {
 }
 
 function openPdfReport() {
+  const pdfWindow = window.open('', '_blank');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const resultEl = document.getElementById('result');
@@ -236,9 +237,8 @@ function openPdfReport() {
         resultEl.style.wordSpacing = originalWordSpacing;
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
-        const pdfWindow = window.open('', '_blank');
         if (pdfWindow) {
-          pdfWindow.document.write(`<iframe width='100%' height='100%' src='${url}'></iframe>`);
+          pdfWindow.location.href = url;
         } else {
           window.location.href = url;
         }
