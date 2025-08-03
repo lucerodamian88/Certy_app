@@ -308,13 +308,7 @@ function openPdfReport() {
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'informe.pdf';
-        link.click();
-        URL.revokeObjectURL(url);
+        doc.save('informe.pdf');
       };
 
       const img = new Image();
