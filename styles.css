@@ -10,14 +10,16 @@ body {
 
 .logo-container {
   background: rgb(1, 5, 10);
+  width: 100%;
   text-align: center;
-  padding: 10px;
+  padding: 10px 10px 40px;
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   z-index: 1000;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .logo {
@@ -67,6 +69,14 @@ h1 {
   width: 100%;
   margin: 0.5rem 0;
   text-transform: none;
+}
+
+.btn-paralizacion {
+  background: #cc5500;
+}
+
+.btn-paralizacion:hover {
+  background: #e66b00;
 }
 
 .menu button.coming-soon {
@@ -240,6 +250,11 @@ body.dark-mode #themeToggle {
   border: 1px solid #ffa94d;
   padding: 0.5rem;
   border-radius: 4px;
+  font-weight: bold;
+}
+
+.alert-error {
+  color: #a00;
   font-weight: bold;
 }
 

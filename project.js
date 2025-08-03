@@ -236,7 +236,10 @@ function openPdfReport() {
         resultEl.style.wordSpacing = originalWordSpacing;
         const pdfBlob = doc.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
-        window.open(pdfUrl, '_blank');
+        const newWin = window.open(pdfUrl, '_blank');
+        if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+          window.location.href = pdfUrl;
+        }
         setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
       };
 
