@@ -28,65 +28,25 @@
       <p><strong>Obra:</strong> <span id="obraNombre"></span></p>
       <p><strong>Fecha de Inicio:</strong> <span id="fechaInicio"></span></p>
       <p><strong>Contratista:</strong> <span id="contratista"></span></p>
-      <label for="inspectores">Inspector/es a cargo:</label>
-      <select id="inspectores" multiple>
-        <option value="ADRIAN TROISI">ADRIAN TROISI</option>
-        <option value="APARICIO MIGUEL ANGEL">APARICIO MIGUEL ANGEL</option>
-        <option value="ARROYO MARIA CECILIA">ARROYO MARIA CECILIA</option>
-        <option value="CAPORALINI DANIEL">CAPORALINI DANIEL</option>
-        <option value="CARVAJAL GABRIEL">CARVAJAL GABRIEL</option>
-        <option value="COFRE MARCELA">COFRE MARCELA</option>
-        <option value="CRISTIAN TORRES">CRISTIAN TORRES</option>
-        <option value="DEL PIANO JAVIER">DEL PIANO JAVIER</option>
-        <option value="ESCALANTE WALTER">ESCALANTE WALTER</option>
-        <option value="EVA GONZALEZ">EVA GONZALEZ</option>
-        <option value="FERRARO ENZO">FERRARO ENZO</option>
-        <option value="GARCIA MARA BELEN">GARCIA MARA BELEN</option>
-        <option value="GUAHNON GUSTAVO">GUAHNON GUSTAVO</option>
-        <option value="HUGO HERNANDEZ">HUGO HERNANDEZ</option>
-        <option value="IDANEZ GUSTAVO">IDANEZ GUSTAVO</option>
-        <option value="INOSTROSA OSCAR">INOSTROSA OSCAR</option>
-        <option value="JUAN CALDENTEY">JUAN CALDENTEY</option>
-        <option value="LOPEZ BAEZA ORLANDO ARIEL">LOPEZ BAEZA ORLANDO ARIEL</option>
-        <option value="MAITA MELINA">MAITA MELINA</option>
-        <option value="MALINQUEO JUAN CARLOS">MALINQUEO JUAN CARLOS</option>
-        <option value="MARIA EUGENIA RAELE">MARIA EUGENIA RAELE</option>
-        <option value="MENDEZ CLAUDIO">MENDEZ CLAUDIO</option>
-        <option value="MOLINA SEBASTIAN">MOLINA SEBASTIAN</option>
-        <option value="MONDINO ADRIAN">MONDINO ADRIAN</option>
-        <option value="MONTORFANO FACUNDO">MONTORFANO FACUNDO</option>
-        <option value="ORTIGUEIRA FIORELLA">ORTIGUEIRA FIORELLA</option>
-        <option value="PEÑA HECTOR FABIAN">PEÑA HECTOR FABIAN</option>
-        <option value="PICHAUD MATIAS">PICHAUD MATIAS</option>
-        <option value="PRIETO RUBEN OSVALDO">PRIETO RUBEN OSVALDO</option>
-        <option value="RODRIGUEZ PABLO">RODRIGUEZ PABLO</option>
-        <option value="ROJAS LUCAS">ROJAS LUCAS</option>
-        <option value="SANTOS HUGO">SANTOS HUGO</option>
-        <option value="SCHMIDT SUSANA">SCHMIDT SUSANA</option>
-        <option value="SOLDANO RAMIRO">SOLDANO RAMIRO</option>
-        <option value="VASQUEZ EZEQUIEL">VASQUEZ EZEQUIEL</option>
-        <option value="VILLAGRA CARLOS IVAN">VILLAGRA CARLOS IVAN</option>
-        <option value="OTRO (Corregirlo después pero avisarle a la Dirección General de Certificaciones para agregarlo)">
-          OTRO (Corregirlo después pero avisarle a la Dirección General de Certificaciones para agregarlo)
-        </option>
+      <p><strong>Inspector/es:</strong> <span id="inspectoresEncontrados"></span></p>
+      <label for="adjudicadaPor">Adjudicada por:</label>
+      <select id="adjudicadaPor">
+        <option value="Disposición">Disposición</option>
+        <option value="Resolución">Resolución</option>
+        <option value="Decreto">Decreto</option>
       </select>
-      <p>Adjudicada por:</p>
-      <div class="adjudicada-options">
-        <label><input type="radio" name="adjudicadaPor" value="Disposición"> Disposición</label>
-        <label><input type="radio" name="adjudicadaPor" value="Resolución"> Resolución</label>
-        <label><input type="radio" name="adjudicadaPor" value="Decreto"> Decreto</label>
-      </div>
       <label for="numeroAdjudicacion">Número:</label>
-      <input type="text" id="numeroAdjudicacion" />
+      <input type="text" id="numeroAdjudicacion" class="half-width" />
       <small class="suggestion"><em>Formato solicitado "XX/202Y"</em></small>
       <label for="fechaSolicitud">Fecha de solicitud de paralización:</label>
       <input type="date" id="fechaSolicitud" />
       <label for="motivo">Motivo de la paralización:</label>
       <textarea id="motivo" rows="4"></textarea>
-      <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</small>
+      <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
         <button id="solicitarBtn">SOLICITAR</button>
       </div>
+      <div id="successMessage" class="alert-success" style="display:none;"></div>
     </div>
   </div>
 

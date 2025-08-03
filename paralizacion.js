@@ -39,7 +39,7 @@ async function buscarExpediente() {
   if (!exp) return;
 
   const sheetId = '1ZSAeRUOVsRJl5SXCV08QEQ4taLpQX686C9GcmMWpG1Q';
-  const query = `select A,B,C,D where A='${exp}'`;
+  const query = `select A,B,C,D,G,H where A='${exp}'`;
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Hoja1&tq=${encodeURIComponent(query)}`;
 
   try {
@@ -51,6 +51,10 @@ async function buscarExpediente() {
       document.getElementById('obraNombre').textContent = row[1] ? row[1].v : '';
       document.getElementById('fechaInicio').textContent = row[2] ? formatearFecha(row[2].f || row[2].v) : '';
       document.getElementById('contratista').textContent = row[3] ? row[3].v : '';
+      const insp1 = row[4] ? row[4].v : '';
+      const insp2 = row[5] ? row[5].v : '';
+      const inspectores = [insp1, insp2].filter(Boolean).join(', ');
+      document.getElementById('inspectoresEncontrados').textContent = inspectores;
       datosDiv.style.display = 'block';
     } else {
       alertEl.textContent = 'Expediente no encontrado. Verifique el número y los ceros adelante.';
@@ -61,3 +65,57 @@ async function buscarExpediente() {
     alertEl.style.display = 'block';
   }
 }
+
+document.getElementById('solicitarBtn').addEventListener('click', async () => {
+  const fechaSolicitud = document.getElementById('fechaSolicitud').value;
+  const expediente = document.getElementById('expedienteInput').value.trim();
+  const inspectores = document.getElementById('inspectoresEncontrados').textContent;
+  const tipoAlteracion = 'Paralización';
+  const obra = document.getElementById('obraNombre').textContent;
+  const contratista = document.getElementById('contratista').textContent;
+  const adjudicadaPorTipo = document.getElementById('adjudicadaPor').value;
+  const numeroAdjudicacion = document.getElementById('numeroAdjudicacion').value.trim();
+  const adjudicadaPor = adjudicadaPorTipo ? `${adjudicadaPorTipo} ${numeroAdjudicacion}` : '';
+  const motivo = document.getElementById('motivo').value.trim();
+  const timestamp = new Date().toLocaleString('es-AR');
+
+  const data = {
+    timestamp,
+    fechaSolicitud,
+    expediente,
+    inspectores,
+    tipoAlteracion,
+    obra,
+    contratista,
+    adjudicadaPor,
+    motivo
+  };
+  const scriptURL = 'https://script.google.com/u/0/home/projects/1_DIdunfGd5v1mBTYRG8tP3hkoBcMFe7j03qGUvCgPFFiMO5FhPlfPXP-';
+
+  const successEl = document.getElementById('successMessage');
+  const alertEl = document.getElementById('alert');
+  if (successEl) successEl.style.display = 'none';
+  if (alertEl) alertEl.style.display = 'none';
+
+  try {
+    const res = await fetch(scriptURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      if (successEl) {
+        successEl.textContent = '✅ Solicitud registrada. El documento se generará automáticamente en unos segundos.';
+        successEl.style.display = 'block';
+      }
+    } else if (alertEl) {
+      alertEl.textContent = 'Error al registrar la solicitud.';
+      alertEl.style.display = 'block';
+    }
+  } catch (e) {
+    if (alertEl) {
+      alertEl.textContent = 'Error al registrar la solicitud.';
+      alertEl.style.display = 'block';
+    }
+  }
+});
