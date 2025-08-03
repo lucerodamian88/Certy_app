@@ -5,6 +5,31 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function formatearFecha(valor) {
+  if (!valor) return '';
+  if (typeof valor === 'string') {
+    const match = valor.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (match) {
+      const year = match[1];
+      const month = String(parseInt(match[2], 10) + 1).padStart(2, '0');
+      const day = String(parseInt(match[3], 10)).padStart(2, '0');
+      return `${day}/${month}/${year}`;
+    }
+    const parts = valor.split('/');
+    if (parts.length === 3) {
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      return `${day}/${month}/${parts[2]}`;
+    }
+  } else if (valor instanceof Date) {
+    const day = String(valor.getDate()).padStart(2, '0');
+    const month = String(valor.getMonth() + 1).padStart(2, '0');
+    const year = valor.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  return valor;
+}
+
 async function buscarExpediente() {
   const exp = document.getElementById('expedienteInput').value.trim();
   const alertEl = document.getElementById('alert');
@@ -24,7 +49,7 @@ async function buscarExpediente() {
     if (json.table.rows.length > 0) {
       const row = json.table.rows[0].c;
       document.getElementById('obraNombre').textContent = row[1] ? row[1].v : '';
-      document.getElementById('fechaInicio').textContent = row[2] ? row[2].v : '';
+      document.getElementById('fechaInicio').textContent = row[2] ? formatearFecha(row[2].f || row[2].v) : '';
       document.getElementById('contratista').textContent = row[3] ? row[3].v : '';
       datosDiv.style.display = 'block';
     } else {
