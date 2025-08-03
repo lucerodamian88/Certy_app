@@ -90,7 +90,7 @@ document.getElementById('solicitarBtn').addEventListener('click', async () => {
     adjudicadaPor,
     motivo
   };
-  const scriptURL = 'https://script.google.com/u/0/home/projects/1_DIdunfGd5v1mBTYRG8tP3hkoBcMFe7j03qGUvCgPFFiMO5FhPlfPXP-';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbw5nSq_t0NqjNLSNELEspuPmhzvYJL0OR_y1WWNo4wV49vD0o7gWDpN_Up8/exec';
 
   const successEl = document.getElementById('successMessage');
   const alertEl = document.getElementById('alert');
