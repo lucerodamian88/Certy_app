@@ -105,7 +105,7 @@ document.getElementById('solicitarBtn').addEventListener('click', async () => {
     });
     if (res.ok) {
       if (successEl) {
-        successEl.textContent = '✅ Solicitud registrada. El documento se generará automáticamente en unos segundos.';
+        successEl.textContent = 'Solicitud registrada correctamente. El documento se generará automáticamente en unos segundos.';
         successEl.style.display = 'block';
       }
     } else if (alertEl) {
