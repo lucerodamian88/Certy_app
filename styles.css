@@ -11,7 +11,7 @@ body {
 .logo-container {
   background: rgb(1, 5, 10);
   text-align: center;
-  padding: 10px;
+  padding: 10px 10px 50px;
   position: fixed;
   top: 0;
   left: 0;
@@ -152,8 +152,7 @@ button:hover {
 .logo-container .backBtn {
   position: absolute;
   left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 10px;
 }
 
 .suggestion-date {
@@ -162,10 +161,10 @@ button:hover {
   text-decoration: underline;
 }
 
-#themeToggle {
-  position: fixed;
-  top: 10px;
+.logo-container #themeToggle {
+  position: absolute;
   right: 10px;
+  bottom: 10px;
   background: transparent;
   border: none;
   font-size: 1.5rem;
