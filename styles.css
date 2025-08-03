@@ -105,8 +105,13 @@ select {
 }
 
 #startDate,
-#initialDays {
+#initialDays,
+#fechaSolicitud {
   max-width: 50%;
+}
+
+#motivo {
+  width: 100%;
 }
 
 input:focus,
@@ -236,6 +241,11 @@ body.dark-mode #themeToggle {
 .suggestion {
   font-size: 0.9rem;
   color: #666;
+}
+
+.justify-text {
+  text-align: justify;
+  display: block;
 }
 
 .suggestion-box {
