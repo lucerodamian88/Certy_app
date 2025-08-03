@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solicitar Paralización</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="logo-container">
+    <img src="logo_obra.png" alt="Logo Neuquén Capital Obras" class="logo" />
+    <button class="backBtn" onclick="window.location.href='index.html'">Volver al menú</button>
+    <button id="themeToggle">🌞</button>
+  </div>
+
+  <div class="container form-container">
+    <h1>Solicitar Paralización</h1>
+    <label>N° de expediente:
+      <input type="text" id="expedienteInput" />
+      <small class="suggestion"><em>Ej: 00125-M-2025</em></small>
+    </label>
+    <div class="button-row">
+      <button onclick="buscarExpediente()">BUSCAR</button>
+    </div>
+    <div id="alert" class="alert-error" style="display:none;"></div>
+    <div id="datosObra" style="display:none;">
+      <p><strong>Obra:</strong> <span id="obraNombre"></span></p>
+      <p><strong>Fecha de Inicio:</strong> <span id="fechaInicio"></span></p>
+      <p><strong>Contratista:</strong> <span id="contratista"></span></p>
+      <label>Fecha de solicitud de paralización:
+        <input type="date" id="fechaSolicitud" />
+      </label>
+      <label>Motivo de la paralización:
+        <textarea id="motivo" rows="4"></textarea>
+        <small class="suggestion"><em>En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente.
+Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
+      </label>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="paralizacion.js"></script>
+</body>
+</html>
