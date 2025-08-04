@@ -236,10 +236,12 @@ function openPdfReport() {
         resultEl.style.wordSpacing = originalWordSpacing;
         const pdfBlob = doc.output('blob');
         const pdfUrl = URL.createObjectURL(pdfBlob);
-        const newWin = window.open(pdfUrl, '_blank');
-        if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
-          window.location.href = pdfUrl;
-        }
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = 'informe.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
       };
 
