@@ -1,0 +1,4 @@
+node_modules/
+uploads/
+AndroidApp/.gradle/
+AndroidApp/build/

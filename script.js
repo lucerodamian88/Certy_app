@@ -299,7 +299,7 @@ function openPdfReport() {
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(0, 0, 0); // Black text
 
-      const finalize = () => {
+      const finalize = async () => {
         for (let el in originalStyles) {
           if (el.style) {
             el.style.color = originalStyles[el].color;
@@ -308,15 +308,20 @@ function openPdfReport() {
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
+
         const pdfBlob = doc.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = 'informe.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
+        const formData = new FormData();
+        formData.append('file', pdfBlob, 'informe.pdf');
+
+        try {
+          const response = await fetch('/pdf', { method: 'POST', body: formData });
+          if (!response.ok) throw new Error('Error en la carga del PDF');
+          const { url } = await response.json();
+          window.open(url, '_blank');
+        } catch (err) {
+          console.error('Error generando o enviando el PDF:', err);
+          alert('No se pudo generar el PDF.');
+        }
       };
 
       const img = new Image();
