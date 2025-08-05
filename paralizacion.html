@@ -24,7 +24,7 @@
       <button onclick="buscarExpediente()">BUSCAR</button>
     </div>
     <div id="alert" class="alert-error" style="display:none;"></div>
-    <div id="datosObra" style="display:none;">
+    <form id="formularioParalizacion" style="display:none;">
       <p><strong>Obra:</strong> <span id="obraNombre"></span></p>
       <p><strong>Fecha de Inicio:</strong> <span id="fechaInicio"></span></p>
       <p><strong>Contratista:</strong> <span id="contratista"></span></p>
@@ -44,10 +44,10 @@
       <textarea id="motivo" rows="4"></textarea>
       <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
-        <button id="solicitarBtn">SOLICITAR</button>
+        <button id="solicitarBtn" type="submit">SOLICITAR</button>
       </div>
       <div id="successMessage" class="alert-success" style="display:none;"></div>
-    </div>
+    </form>
   </div>
 
   <script src="common.js"></script>
