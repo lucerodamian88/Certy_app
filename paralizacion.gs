@@ -18,5 +18,7 @@ function doPost(e) {
   ]);
   return ContentService.createTextOutput(
     JSON.stringify({ result: 'success' })
-  ).setMimeType(ContentService.MimeType.JSON);
+  )
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader("Access-Control-Allow-Origin", "*");
 }
