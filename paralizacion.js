@@ -33,7 +33,7 @@ function formatearFecha(valor) {
 async function buscarExpediente() {
   const exp = document.getElementById('expedienteInput').value.trim();
   const alertEl = document.getElementById('alert');
-  const datosDiv = document.getElementById('datosObra');
+  const datosDiv = document.getElementById('formularioParalizacion');
   alertEl.style.display = 'none';
   datosDiv.style.display = 'none';
   if (!exp) return;
@@ -66,56 +66,64 @@ async function buscarExpediente() {
   }
 }
 
-document.getElementById('solicitarBtn').addEventListener('click', async () => {
-  const fechaSolicitud = document.getElementById('fechaSolicitud').value;
-  const expediente = document.getElementById('expedienteInput').value.trim();
-  const inspectores = document.getElementById('inspectoresEncontrados').textContent;
-  const tipoAlteracion = 'Paralización';
-  const obra = document.getElementById('obraNombre').textContent;
-  const contratista = document.getElementById('contratista').textContent;
-  const adjudicadaPorTipo = document.getElementById('adjudicadaPor').value;
-  const numeroAdjudicacion = document.getElementById('numeroAdjudicacion').value.trim();
-  const adjudicadaPor = adjudicadaPorTipo ? `${adjudicadaPorTipo} ${numeroAdjudicacion}` : '';
-  const motivo = document.getElementById('motivo').value.trim();
-  const timestamp = new Date().toLocaleString('es-AR');
+const formulario = document.getElementById('formularioParalizacion');
+if (formulario) {
+  formulario.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fechaSolicitud = document.getElementById('fechaSolicitud').value;
+    const expediente = document.getElementById('expedienteInput').value.trim();
+    const inspectores = document.getElementById('inspectoresEncontrados').textContent;
+    const tipoAlteracion = 'Paralización';
+    const nombreObra = document.getElementById('obraNombre').textContent;
+    const empresa = document.getElementById('contratista').textContent;
+    const adjudicadaPorTipo = document.getElementById('adjudicadaPor').value;
+    const numeroAdjudicacion = document.getElementById('numeroAdjudicacion').value.trim();
+    const adjudicadaPor = adjudicadaPorTipo ? `${adjudicadaPorTipo} ${numeroAdjudicacion}` : '';
+    const motivo = document.getElementById('motivo').value.trim();
 
-  const data = {
-    timestamp,
-    fechaSolicitud,
-    expediente,
-    inspectores,
-    tipoAlteracion,
-    obra,
-    contratista,
-    adjudicadaPor,
-    motivo
-  };
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbw5nSq_t0NqjNLSNELEspuPmhzvYJL0OR_y1WWNo4wV49vD0o7gWDpN_Up8/exec';
+    const data = {
+      fechaSolicitud,
+      expediente,
+      inspectores,
+      tipoAlteracion,
+      nombreObra,
+      empresa,
+      adjudicadaPor,
+      motivo
+    };
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxy6wkCltPw3nKW35c9IyGmmcFn5jeAoJ2t2V4dqc-F892XUFtGjTi2tFWCM3swNvTO/exec';
 
-  const successEl = document.getElementById('successMessage');
-  const alertEl = document.getElementById('alert');
-  if (successEl) successEl.style.display = 'none';
-  if (alertEl) alertEl.style.display = 'none';
+    const successEl = document.getElementById('successMessage');
+    const alertEl = document.getElementById('alert');
+    if (successEl) successEl.style.display = 'none';
+    if (alertEl) alertEl.style.display = 'none';
 
-  try {
-    const res = await fetch(scriptURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
-      if (successEl) {
-        successEl.textContent = 'Solicitud registrada correctamente. El documento se generará automáticamente en unos segundos.';
-        successEl.style.display = 'block';
+    try {
+      const res = await fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        if (successEl) {
+          successEl.textContent = 'Formulario enviado correctamente.';
+          successEl.style.display = 'block';
+        }
+        formulario.reset();
+        document.getElementById('expedienteInput').value = '';
+        document.getElementById('obraNombre').textContent = '';
+        document.getElementById('fechaInicio').textContent = '';
+        document.getElementById('contratista').textContent = '';
+        document.getElementById('inspectoresEncontrados').textContent = '';
+      } else if (alertEl) {
+        alertEl.textContent = 'Error al enviar el formulario.';
+        alertEl.style.display = 'block';
       }
-    } else if (alertEl) {
-      alertEl.textContent = 'Error al registrar la solicitud.';
-      alertEl.style.display = 'block';
+    } catch (e) {
+      if (alertEl) {
+        alertEl.textContent = 'Error al enviar el formulario.';
+        alertEl.style.display = 'block';
+      }
     }
-  } catch (e) {
-    if (alertEl) {
-      alertEl.textContent = 'Error al registrar la solicitud.';
-      alertEl.style.display = 'block';
-    }
-  }
-});
+  });
+}
