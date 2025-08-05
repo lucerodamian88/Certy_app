@@ -182,10 +182,28 @@ function clearAll() {
   document.getElementById('printBtn').style.display = 'none';
 }
 
-function openPdfReport() {
+async function openPdfReport() {
+  const resultEl = document.getElementById('result');
+
+  if (window.isAndroidWebView && window.isAndroidWebView()) {
+    try {
+      const response = await fetch('/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: resultEl.innerHTML })
+      });
+      if (!response.ok) throw new Error('Error en la generación del PDF');
+      const { url } = await response.json();
+      window.open(url, '_blank');
+    } catch (err) {
+      console.error('Error generando PDF en el servidor:', err);
+      alert('No se pudo generar el PDF.');
+    }
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const resultEl = document.getElementById('result');
   const originalWordSpacing = resultEl.style.wordSpacing;
   const textNodes = [];
   const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);

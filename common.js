@@ -20,3 +20,10 @@ function installApp() {
   document.body.classList.add('big-text');
   window.open('https://lucerodamian88.github.io/Certy_app/download.html', '_blank');
 }
+
+function isAndroidWebView() {
+  const ua = navigator.userAgent || '';
+  return /Android/.test(ua) && /; wv\)/.test(ua);
+}
+
+window.isAndroidWebView = isAndroidWebView;
