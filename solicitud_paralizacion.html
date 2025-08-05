@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solicitud de Paralización</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .form-wrapper {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-wrapper">
+    <h1>Solicitud de Paralización</h1>
+    <form id="paralizacionForm">
+      <label for="fechaSolicitud">Fecha de solicitud</label>
+      <input type="date" id="fechaSolicitud" required />
+
+      <label for="numeroExpediente">N° de Expediente</label>
+      <input type="text" id="numeroExpediente" required />
+
+      <label for="inspectores">Inspectores a cargo</label>
+      <input type="text" id="inspectores" required />
+
+      <label for="tipoAlteracion">Tipo de alteración que se solicita</label>
+      <select id="tipoAlteracion">
+        <option value="Paralización" selected>Paralización</option>
+      </select>
+
+      <label for="nombreObra">Nombre de la Obra</label>
+      <input type="text" id="nombreObra" required />
+
+      <label for="empresaContratista">Empresa contratista</label>
+      <input type="text" id="empresaContratista" required />
+
+      <label for="adjudicadaPor">Adjudicada por</label>
+      <input type="text" id="adjudicadaPor" required />
+
+      <label for="motivo">Motivo de la solicitud</label>
+      <textarea id="motivo" rows="4" required></textarea>
+
+      <button type="submit">Solicitar</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('paralizacionForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const datos = {
+        fechaSolicitud: document.getElementById('fechaSolicitud').value,
+        numeroExpediente: document.getElementById('numeroExpediente').value.trim(),
+        inspectores: document.getElementById('inspectores').value.trim(),
+        tipoAlteracion: document.getElementById('tipoAlteracion').value,
+        nombreObra: document.getElementById('nombreObra').value.trim(),
+        empresaContratista: document.getElementById('empresaContratista').value.trim(),
+        adjudicadaPor: document.getElementById('adjudicadaPor').value.trim(),
+        motivo: document.getElementById('motivo').value.trim()
+      };
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbyRk2kyi4CNUhGZdEZ04LpRFMjl-Y-7Kod1eyFJ_zkyhPD09P7cJDmFkC2C8SPM0rOq/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('Solicitud enviada correctamente.');
+          this.reset();
+        } else {
+          const msg = result.error || 'Error al enviar la solicitud.';
+          alert('Error: ' + msg);
+        }
+      } catch (error) {
+        alert('Error al enviar la solicitud.');
+      }
+    });
+  </script>
+</body>
+</html>
