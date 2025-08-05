@@ -289,15 +289,15 @@ async function openPdfReport() {
   }
   resultEl.style.wordSpacing = '4px';
 
-  // Save original styles
-  const originalStyles = {};
+  // Save original styles using a Map to restore them later
+  const originalStyles = new Map();
   const elements = resultEl.getElementsByTagName('*');
   for (let el of elements) {
     if (el.style) {
-      originalStyles[el] = {
+      originalStyles.set(el, {
         color: el.style.color,
         backgroundColor: el.style.backgroundColor
-      };
+      });
       el.style.color = '#000000';
       el.style.backgroundColor = '#FFFFFF';
     }
@@ -318,11 +318,9 @@ async function openPdfReport() {
       doc.setTextColor(0, 0, 0); // Black text
 
       const finalize = async () => {
-        for (let el in originalStyles) {
-          if (el.style) {
-            el.style.color = originalStyles[el].color;
-            el.style.backgroundColor = originalStyles[el].backgroundColor;
-          }
+        for (const [el, styles] of originalStyles.entries()) {
+          el.style.color = styles.color;
+          el.style.backgroundColor = styles.backgroundColor;
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
