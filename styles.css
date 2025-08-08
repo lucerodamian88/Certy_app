@@ -278,6 +278,39 @@ body.dark-mode #themeToggle {
   font-weight: bold;
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 90%;
+  width: 400px;
+  text-align: center;
+}
+
+#sugerenciaTexto {
+  white-space: pre-wrap;
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
 @media (max-width: 480px) {
   body {
     padding-top: 90px;

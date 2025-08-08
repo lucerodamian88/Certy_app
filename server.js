@@ -2,10 +2,12 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const OpenAI = require('openai');
 
 const app = express();
 const uploadDir = path.join(__dirname, 'uploads');
 app.use(express.json({ limit: '5mb' }));
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
@@ -73,6 +75,25 @@ app.post('/generate-pdf', (req, res) => {
   } catch (err) {
     console.error('Error generating PDF:', err);
     res.status(500).json({ error: 'Error generando el PDF' });
+  }
+});
+
+app.post('/sugerencia-redaccion', async (req, res) => {
+  try {
+    const { texto, prompt } = req.body || {};
+    if (!texto) {
+      return res.status(400).json({ error: 'Texto requerido' });
+    }
+    const basePrompt = prompt || 'Corrige ortografía y gramática, y mejora la redacción manteniendo el sentido original, usando un tono formal y administrativo.';
+    const response = await openai.responses.create({
+      model: 'gpt-4o-mini',
+      input: `${basePrompt}\n\n${texto}`
+    });
+    const sugerencia = response.output_text;
+    res.json({ sugerencia });
+  } catch (err) {
+    console.error('Error solicitando sugerencia:', err);
+    res.status(500).json({ error: 'No se pudo obtener la sugerencia, intente nuevamente.' });
   }
 });
 
