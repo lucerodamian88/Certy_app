@@ -52,27 +52,28 @@
   <script src="common.js"></script>
   <script src="paralizacion.js"></script>
   <script>
-  document.getElementById('paralizacionForm').addEventListener('submit', async function (event) {
+  document.getElementById('formularioParalizacion').addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const datos = {
-      fechaSolicitud: document.getElementById('fechaSolicitud').value,
-      numeroExpediente: document.getElementById('numeroExpediente').value.trim(),
-      inspectores: document.getElementById('inspectores').value.trim(),
-      tipoAlteracion: document.getElementById('tipoAlteracion').value,
-      nombreObra: document.getElementById('nombreObra').value.trim(),
-      empresaContratista: document.getElementById('empresaContratista').value.trim(),
+      numeroExpediente: document.getElementById('expedienteInput').value.trim(),
+      nombreObra: document.getElementById('obraNombre').textContent.trim(),
+      fechaInicio: document.getElementById('fechaInicio').textContent.trim(),
+      empresaContratista: document.getElementById('contratista').textContent.trim(),
+      inspectores: document.getElementById('inspectoresEncontrados').textContent.trim(),
       adjudicadaPor: document.getElementById('adjudicadaPor').value.trim(),
+      numeroAdjudicacion: document.getElementById('numeroAdjudicacion').value.trim(),
+      fechaSolicitud: document.getElementById('fechaSolicitud').value,
       motivo: document.getElementById('motivo').value.trim()
     };
 
     // Enviar como x-www-form-urlencoded (sin headers manuales para evitar preflight CORS)
     const body = new URLSearchParams(datos);
 
-    // URL de mi Web App de Apps Script (no cambiar)
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyRk2kyi4CNUhGZdEZ04LpRFMjl-Y-7Kod1eyFJ_zkyhPD09P7cJDmFkC2C8SPM0rOq/exec';
+    // URL de la Web App de Google Apps Script
+    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKLum59RcK3PRwD3pjGcYizU-n_jLoromsGLdclh8LFgvcGYEI38ZR4e9B0iqhQIUd/exec';
 
-    const btn = this.querySelector('button[type="submit"]');
+    const btn = document.getElementById('solicitarBtn');
     const original = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Enviando...';
@@ -90,6 +91,8 @@
       if (result.success) {
         alert('Solicitud enviada correctamente.');
         this.reset();
+        document.getElementById('expedienteInput').value = '';
+        this.style.display = 'none';
       } else {
         alert('Error: ' + (result.error || 'No se pudo enviar la solicitud.'));
       }
