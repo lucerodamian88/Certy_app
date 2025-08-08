@@ -3,6 +3,23 @@ window.addEventListener('DOMContentLoaded', () => {
   if (container) {
     container.classList.add('loaded');
   }
+
+  const sugerenciaBtn = document.getElementById('sugerenciaBtn');
+  const aceptarBtn = document.getElementById('aceptarSugerencia');
+  const rechazarBtn = document.getElementById('rechazarSugerencia');
+  if (sugerenciaBtn) {
+    sugerenciaBtn.addEventListener('click', solicitarSugerencia);
+  }
+  if (aceptarBtn && rechazarBtn) {
+    aceptarBtn.addEventListener('click', () => {
+      const texto = document.getElementById('sugerenciaTexto').textContent;
+      document.getElementById('motivo').value = texto;
+      document.getElementById('modalSugerencia').hidden = true;
+    });
+    rechazarBtn.addEventListener('click', () => {
+      document.getElementById('modalSugerencia').hidden = true;
+    });
+  }
 });
 
 function formatearFecha(valor) {
@@ -64,5 +81,28 @@ async function buscarExpediente() {
     alertEl.textContent = 'Error al buscar el expediente.';
     alertEl.style.display = 'block';
   }
+}
+
+async function solicitarSugerencia() {
+  const motivo = document.getElementById('motivo').value.trim();
+  const modal = document.getElementById('modalSugerencia');
+  const textoEl = document.getElementById('sugerenciaTexto');
+  const prompt = 'Corrige ortografía y gramática, y mejora la redacción manteniendo el sentido original, usando un tono formal y administrativo.';
+  try {
+    const res = await fetch('/sugerencia-redaccion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto: motivo, prompt })
+    });
+    const data = await res.json();
+    if (data.sugerencia) {
+      textoEl.textContent = data.sugerencia;
+    } else {
+      textoEl.textContent = data.error || 'No se pudo obtener la sugerencia, intente nuevamente.';
+    }
+  } catch (err) {
+    textoEl.textContent = 'No se pudo obtener la sugerencia, intente nuevamente.';
+  }
+  modal.hidden = false;
 }
 
