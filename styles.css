@@ -104,6 +104,35 @@ select {
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+.expediente-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.expediente-input .exp-number {
+  flex: 1;
+}
+
+.expediente-input span {
+  white-space: nowrap;
+}
+
+.expediente-input .exp-year {
+  width: 2rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+#textoSugerido {
+  width: 100%;
+}
+
 .half-width {
   max-width: 50%;
 }
