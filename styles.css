@@ -150,6 +150,14 @@ button:hover {
   box-shadow: 0 0 8px #00aaff;
 }
 
+.sugerencia-btn {
+  background: #28a745;
+}
+
+.sugerencia-btn:hover {
+  background: #218838;
+}
+
 #printBtn {
   display: block;
   margin: 2rem auto 0;

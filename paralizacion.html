@@ -45,6 +45,29 @@
       <textarea id="motivo" rows="4"></textarea>
       <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
+        <button id="sugerenciaBtn" type="button" class="sugerencia-btn">Sugerencia de redacción</button>
+      </div>
+      <div id="sugerenciaSection" style="display:none;">
+        <p>Seleccione una opción:</p>
+        <label><input type="radio" name="opcionSugerencia" value="1"> Obra paralizada por poco avance de otra obra (Ej; Provisión a pavimentación).</label>
+        <div id="inputOpcion1" style="display:none; margin-left:1rem;">
+          <label>Tipo de obra relacionada:
+            <input type="text" id="tipoObra" placeholder="pavimentación/provisión/colocación" />
+          </label>
+        </div>
+        <label><input type="radio" name="opcionSugerencia" value="2"> Esperar a la aprobación de proyectos (Ej, esperar respuesta de CALF)</label>
+        <div id="inputOpcion2" style="display:none; margin-left:1rem;">
+          <label>Organismo interviniente:
+            <input type="text" id="organismo" placeholder="EPAS, CALF" />
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="generarSugerencia" type="button" class="sugerencia-btn">Generar</button>
+        </div>
+        <label for="textoSugerido">Texto sugerido:</label>
+        <textarea id="textoSugerido" rows="4"></textarea>
+      </div>
+      <div class="button-row">
         <button id="solicitarBtn" type="submit">SOLICITAR</button>
       </div>
     </form>
@@ -53,6 +76,41 @@
   <script src="common.js"></script>
   <script src="paralizacion.js"></script>
   <script>
+  const sugerenciaBtn = document.getElementById('sugerenciaBtn');
+  const sugerenciaSection = document.getElementById('sugerenciaSection');
+  const opcionRadios = document.querySelectorAll('input[name="opcionSugerencia"]');
+  const inputOpcion1 = document.getElementById('inputOpcion1');
+  const inputOpcion2 = document.getElementById('inputOpcion2');
+  const generarBtn = document.getElementById('generarSugerencia');
+  const textoSugerido = document.getElementById('textoSugerido');
+
+  sugerenciaBtn.addEventListener('click', () => {
+    sugerenciaSection.style.display = 'block';
+  });
+
+  opcionRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      inputOpcion1.style.display = radio.value === '1' && radio.checked ? 'block' : 'none';
+      inputOpcion2.style.display = radio.value === '2' && radio.checked ? 'block' : 'none';
+    });
+  });
+
+  generarBtn.addEventListener('click', () => {
+    const seleccion = document.querySelector('input[name="opcionSugerencia"]:checked');
+    if (!seleccion) return;
+    let texto = '';
+    if (seleccion.value === '1') {
+      const tipo = document.getElementById('tipoObra').value.trim();
+      if (!tipo) return;
+      texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido al escaso avance de la obra de ${tipo}, indispensable para la continuidad de los trabajos. La paralización se solicita a partir del día de la fecha y hasta tanto la mencionada obra alcance el progreso necesario para permitir la reanudación.`;
+    } else if (seleccion.value === '2') {
+      const organismo = document.getElementById('organismo').value.trim();
+      if (!organismo) return;
+      texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido a la necesidad de confeccionar el proyecto correspondiente y su posterior presentación ante ${organismo}, considerando los plazos correspondientes para su aprobación por parte de dicho ente. La paralización se solicita a partir del día de la fecha y hasta tanto ${organismo} otorgue la autorización para el inicio de la obra.`;
+    }
+    textoSugerido.value = texto;
+  });
+
   document.getElementById('formularioParalizacion').addEventListener('submit', async function (event) {
     event.preventDefault();
 
