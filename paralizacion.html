@@ -16,10 +16,13 @@
 
   <div class="container form-container">
     <h1>Solicitar Paralización</h1>
-    <label>N° de expediente:
-      <input type="text" id="expedienteInput" />
+      <label>N° de expediente:</label>
+      <div class="expediente-input">
+        <input type="text" id="expedienteNumero" class="exp-number" />
+        <span>-M-202</span>
+        <input type="text" id="expedienteAnio" class="exp-year" maxlength="1" />
+      </div>
       <small class="suggestion"><em>Ej: 00125-M-2025</em></small>
-    </label>
     <div class="button-row">
       <button onclick="buscarExpediente()">BUSCAR</button>
     </div>
@@ -49,13 +52,19 @@
       </div>
       <div id="sugerenciaSection" style="display:none;">
         <p>Seleccione una opción:</p>
-        <label><input type="radio" name="opcionSugerencia" value="1"> Obra paralizada por poco avance de otra obra (Ej; Provisión a pavimentación).</label>
+        <div class="radio-option">
+          <input type="radio" name="opcionSugerencia" value="1" id="opcion1">
+          <label for="opcion1">Obra paralizada por poco avance de otra obra (Ej; Provisión a pavimentación).</label>
+        </div>
         <div id="inputOpcion1" style="display:none; margin-left:1rem;">
           <label>Tipo de obra relacionada:
             <input type="text" id="tipoObra" placeholder="pavimentación/provisión/colocación" />
           </label>
         </div>
-        <label><input type="radio" name="opcionSugerencia" value="2"> Esperar a la aprobación de proyectos (Ej, esperar respuesta de CALF)</label>
+        <div class="radio-option">
+          <input type="radio" name="opcionSugerencia" value="2" id="opcion2">
+          <label for="opcion2">Esperar a la aprobación de proyectos (Ej, esperar respuesta de CALF)</label>
+        </div>
         <div id="inputOpcion2" style="display:none; margin-left:1rem;">
           <label>Organismo interviniente:
             <input type="text" id="organismo" placeholder="EPAS, CALF" />
@@ -64,7 +73,7 @@
         <div class="button-row">
           <button id="generarSugerencia" type="button" class="sugerencia-btn">Generar</button>
         </div>
-        <label for="textoSugerido">Texto sugerido:</label>
+        <label for="textoSugerido">Texto sugerido por Certy. <strong>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización" mas arriba</strong></label>
         <textarea id="textoSugerido" rows="4"></textarea>
       </div>
       <div class="button-row">
@@ -117,18 +126,25 @@
     const successEl = document.getElementById('successMessage');
     successEl.style.display = 'none';
 
-    const adjudicadaPor = `${document.getElementById('adjudicadaPor').value.trim()} N° ${document.getElementById('numeroAdjudicacion').value.trim()}`;
-    const datos = {
-      numeroExpediente: document.getElementById('expedienteInput').value.trim(),
-      nombreObra: document.getElementById('obraNombre').textContent.trim(),
-      fechaInicio: document.getElementById('fechaInicio').textContent.trim(),
-      empresaContratista: document.getElementById('contratista').textContent.trim(),
-      inspectores: document.getElementById('inspectoresEncontrados').textContent.trim(),
-      tipoAlteracion: 'paralización',
-      adjudicadaPor,
-      fechaSolicitud: document.getElementById('fechaSolicitud').value,
-      motivo: document.getElementById('motivo').value.trim()
-    };
+      const adjudicadaPor = `${document.getElementById('adjudicadaPor').value.trim()} N° ${document.getElementById('numeroAdjudicacion').value.trim()}`;
+      const numeroExpediente = `${document.getElementById('expedienteNumero').value.trim()}-M-202${document.getElementById('expedienteAnio').value.trim()}`;
+      const motivoTexto = document.getElementById('motivo').value.trim();
+      let motivoResumido = `El motivo que justifica dicha paralización se basa en ${motivoTexto.charAt(0).toLowerCase()}${motivoTexto.slice(1)}`;
+      if (!/[.!?]$/.test(motivoResumido)) {
+        motivoResumido += '.';
+      }
+      const datos = {
+        numeroExpediente,
+        nombreObra: document.getElementById('obraNombre').textContent.trim(),
+        fechaInicio: document.getElementById('fechaInicio').textContent.trim(),
+        empresaContratista: document.getElementById('contratista').textContent.trim(),
+        inspectores: document.getElementById('inspectoresEncontrados').textContent.trim(),
+        tipoAlteracion: 'paralización',
+        adjudicadaPor,
+        fechaSolicitud: document.getElementById('fechaSolicitud').value,
+        motivo: motivoTexto,
+        motivoResumido
+      };
 
     // Enviar como x-www-form-urlencoded (sin headers manuales para evitar preflight CORS)
     const body = new URLSearchParams(datos);
@@ -155,9 +171,10 @@
         successEl.innerHTML = '&#10004; Tu solicitud fue registrada';
         successEl.style.display = 'block';
         setTimeout(() => { successEl.style.display = 'none'; }, 3000);
-        this.reset();
-        document.getElementById('expedienteInput').value = '';
-        this.style.display = 'none';
+          this.reset();
+          document.getElementById('expedienteNumero').value = '';
+          document.getElementById('expedienteAnio').value = '';
+          this.style.display = 'none';
       } else {
         alert('Error: ' + (result.error || 'No se pudo enviar la solicitud.'));
       }

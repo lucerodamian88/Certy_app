@@ -30,17 +30,19 @@ function formatearFecha(valor) {
   return valor;
 }
 
-async function buscarExpediente() {
-  const exp = document.getElementById('expedienteInput').value.trim();
-  const alertEl = document.getElementById('alert');
-  const datosDiv = document.getElementById('formularioParalizacion');
-  alertEl.style.display = 'none';
-  datosDiv.style.display = 'none';
-  if (!exp) return;
+  async function buscarExpediente() {
+    const numero = document.getElementById('expedienteNumero').value.trim();
+    const anio = document.getElementById('expedienteAnio').value.trim();
+    const exp = `${numero}-M-202${anio}`;
+    const alertEl = document.getElementById('alert');
+    const datosDiv = document.getElementById('formularioParalizacion');
+    alertEl.style.display = 'none';
+    datosDiv.style.display = 'none';
+    if (!numero || !anio) return;
 
-  const sheetId = '1ZSAeRUOVsRJl5SXCV08QEQ4taLpQX686C9GcmMWpG1Q';
-  const query = `select A,B,C,D,G,H where A='${exp}'`;
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Hoja1&tq=${encodeURIComponent(query)}`;
+    const sheetId = '1ZSAeRUOVsRJl5SXCV08QEQ4taLpQX686C9GcmMWpG1Q';
+    const query = `select A,B,C,D,G,H where A='${exp}'`;
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Hoja1&tq=${encodeURIComponent(query)}`;
 
   try {
     const res = await fetch(url);
