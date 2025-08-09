@@ -18,9 +18,9 @@
     <h1>Solicitar Paralización</h1>
       <label>N° de expediente:</label>
       <div class="expediente-input">
-        <input type="text" id="expedienteNumero" class="exp-number" />
+        <input type="text" id="expedienteNumero" class="exp-number" maxlength="6" size="6" />
         <span>-M-202</span>
-        <input type="text" id="expedienteAnio" class="exp-year" maxlength="1" />
+        <input type="text" id="expedienteAnio" class="exp-year" maxlength="1" size="1" />
       </div>
       <small class="suggestion"><em>Ej: 00125-M-2025</em></small>
     <div class="button-row">
@@ -73,8 +73,9 @@
         <div class="button-row">
           <button id="generarSugerencia" type="button" class="sugerencia-btn">Generar</button>
         </div>
-        <label for="textoSugerido">Texto sugerido por Certy. <strong>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización" mas arriba</strong></label>
-        <textarea id="textoSugerido" rows="4"></textarea>
+        <label for="textoSugerido">Texto sugerido por Certy! <img src="Robot.png" alt="Robot" class="robot-icon" /></label>
+        <p class="suggestion-note"><strong><em>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización" mas arriba 👆</em></strong></p>
+        <textarea id="textoSugerido" rows="6"></textarea>
       </div>
       <div class="button-row">
         <button id="solicitarBtn" type="submit">SOLICITAR</button>
