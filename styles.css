@@ -162,6 +162,8 @@ select {
 
 #motivo {
   width: 100%;
+  background-color: #e6f7ff;
+  overflow-y: hidden;
 }
 
 input:focus,
@@ -202,6 +204,14 @@ button:hover {
 
 .sugerencia-btn:hover {
   background: #218838;
+}
+
+.collapse-btn {
+  background: #007bff;
+}
+
+.collapse-btn:hover {
+  background: #0059d6;
 }
 
 #printBtn {

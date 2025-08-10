@@ -49,6 +49,7 @@
       <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
         <button id="sugerenciaBtn" type="button" class="sugerencia-btn">Sugerencia de redacción</button>
+        <button id="colapsarSugerenciaBtn" type="button" class="collapse-btn" style="display:none;">&#8593;</button>
       </div>
       <div id="sugerenciaSection" style="display:none;">
         <p>Seleccione una opción:</p>
@@ -88,14 +89,30 @@
   <script>
   const sugerenciaBtn = document.getElementById('sugerenciaBtn');
   const sugerenciaSection = document.getElementById('sugerenciaSection');
+  const colapsarBtn = document.getElementById('colapsarSugerenciaBtn');
   const opcionRadios = document.querySelectorAll('input[name="opcionSugerencia"]');
   const inputOpcion1 = document.getElementById('inputOpcion1');
   const inputOpcion2 = document.getElementById('inputOpcion2');
   const generarBtn = document.getElementById('generarSugerencia');
   const textoSugerido = document.getElementById('textoSugerido');
+  const motivo = document.getElementById('motivo');
+
+  function autoResize() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  }
+
+  motivo.addEventListener('input', autoResize);
+  autoResize.call(motivo);
 
   sugerenciaBtn.addEventListener('click', () => {
     sugerenciaSection.style.display = 'block';
+    colapsarBtn.style.display = 'inline-block';
+  });
+
+  colapsarBtn.addEventListener('click', () => {
+    sugerenciaSection.style.display = 'none';
+    colapsarBtn.style.display = 'none';
   });
 
   opcionRadios.forEach(radio => {
