@@ -4,20 +4,21 @@ const SHEET_NAME = 'Respuestas_SParalización';
 function doPost(e) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME) || ss.getActiveSheet();
-  const data = JSON.parse(e.postData.contents);
+  const p = e.parameter;
   sheet.appendRow([
-    data.timestamp,
-    data.fechaSolicitud,
-    data.expediente,
-    data.inspectores,
-    data.tipoAlteracion,
-    data.obra,
-    data.contratista,
-    data.adjudicadaPor,
-    data.motivo
+    new Date(),
+    p.fechaSolicitud || '',
+    p.numeroExpediente || '',
+    p.inspectores || '',
+    p.tipoAlteracion || '',
+    p.nombreObra || '',
+    p.empresaContratista || '',
+    p.adjudicadaPor || '',
+    p.motivo || '',
+    p.motivoResumido || ''
   ]);
   return ContentService.createTextOutput(
-    JSON.stringify({ result: 'success' })
+    JSON.stringify({ success: true })
   )
     .setMimeType(ContentService.MimeType.JSON)
     .setHeader("Access-Control-Allow-Origin", "*");
