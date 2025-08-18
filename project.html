@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Días y Fojas para PROYECTOS</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -14,13 +16,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <div class="logo-container">
-    <img src="logo_proyecto.png" alt="Logo Neuquén Capital Proyectos" class="logo" />
-    <button class="backBtn" onclick="window.location.href='index.html'">Volver al menú</button>
-    <button id="themeToggle">🌞</button>
-  </div>
+  <header class="site-header">
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="logo-group">
+      <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
+      <span class="dept">Dirección Municipal de Certificaciones</span>
+    </div>
+    <div class="header-actions">
+      <img src="Certy_logo.png" alt="Avatar de Certy" class="certy-avatar">
+      <button id="themeToggle" aria-label="Cambiar a modo oscuro">🌞</button>
+    </div>
+  </header>
 
   <div class="container form-container">
+    <div class="calc-mascot">
+      <img src="Certy_celular.png" alt="Certy">
+      <div class="speech">Completa los datos</div>
+    </div>
     <h1>Calculadora de Días y Fojas para PROYECTOS</h1>
     <p class="subtitle">Con la siguiente calculadora vamos a calcular la fecha de finalización del proyecto y fojas a realizar.</p>
 
