@@ -15,6 +15,10 @@ function formatDate(date) {
   return date.toLocaleDateString('es-AR');
 }
 
+function formatISO(date) {
+  return date.toISOString().split('T')[0];
+}
+
 function buildFojas(startDate, finalDate, suspensions = []) {
   const fojas = [];
   const sorted = suspensions.sort((a, b) => a[0] - b[0]);
@@ -244,6 +248,8 @@ function clearAll() {
 async function openPdfReport() {
   const resultEl = document.getElementById('result');
 
+  resultEl.classList.add('pdf-export');
+
   if (window.isAndroidWebView && window.isAndroidWebView()) {
     try {
       const response = await fetch('/generate-pdf', {
@@ -265,10 +271,25 @@ async function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
+
   const originalFont = resultEl.style.fontFamily;
   const originalLig = resultEl.style.fontVariantLigatures;
   const originalSize = resultEl.style.fontSize;
-  resultEl.classList.add('pdf-export');
+  const originalWordSpacing = resultEl.style.wordSpacing;
+  const originalLetterSpacing = resultEl.style.letterSpacing;
+  const originalStyles = new Map();
+  const elements = resultEl.getElementsByTagName('*');
+  for (let el of elements) {
+    if (el.style) {
+      originalStyles.set(el, {
+        color: el.style.color,
+        backgroundColor: el.style.backgroundColor
+      });
+      el.style.color = '#000000';
+      el.style.backgroundColor = '#FFFFFF';
+    }
+  }
+
   resultEl.style.fontFamily = '"Courier New", monospace';
   resultEl.style.fontVariantLigatures = 'none';
   resultEl.style.fontSize = '12pt';
@@ -284,34 +305,40 @@ async function openPdfReport() {
     },
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
-      const note = 'Gracias por usar la app de Certy!';
+      const pageW = doc.internal.pageSize.getWidth();
       doc.setFont('courier', 'italic');
-      const x = 40;
-      const y = pageH - 40;
-      doc.text(note, x, y);
+
+      const finalize = () => {
+        for (const [el, styles] of originalStyles.entries()) {
+          el.style.color = styles.color;
+          el.style.backgroundColor = styles.backgroundColor;
+        }
+        resultEl.style.fontFamily = originalFont;
+        resultEl.style.fontVariantLigatures = originalLig;
+        resultEl.style.fontSize = originalSize;
+        resultEl.style.wordSpacing = originalWordSpacing;
+        resultEl.style.letterSpacing = originalLetterSpacing;
+        resultEl.classList.remove('pdf-export');
+
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        if (pdfWindow) pdfWindow.location.href = url; else window.location.href = url;
+      };
+
       const img = new Image();
       img.src = 'Certy_saludando.png';
       img.onload = function() {
         const imgSize = 32;
-        const xImg = x + doc.getTextWidth(note) + 10;
-        const yImg = y - imgSize + 8;
+        const xImg = pageW - 40 - imgSize;
+        const yImg = pageH - imgSize - 20;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-        if (pdfWindow) pdfWindow.location.href = url; else window.location.href = url;
+        const textX = xImg - 5;
+        doc.text('Gracias por usar la app de Certy!', textX, pageH - 20, { align: 'right' });
+        finalize();
       };
-      img.onerror = function() {
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-        if (pdfWindow) pdfWindow.location.href = url; else window.location.href = url;
-      };
+      img.onerror = finalize;
     }
   });
-
-  resultEl.classList.remove('pdf-export');
-  resultEl.style.fontFamily = originalFont;
-  resultEl.style.fontVariantLigatures = originalLig;
-  resultEl.style.fontSize = originalSize;
 }
 
 document.getElementById('calculateBtn').addEventListener('click', function() {
@@ -426,19 +453,26 @@ function updateSuspensionSuggestions() {
   let prevFojaEnd = startDate ? new Date(startDate) : null;
   groups.forEach((group, index) => {
     const p = group.querySelector('.suspensionSuggestion');
+    let suggestion = null;
     if (!startDate) {
       p.textContent = 'Se le sugiere guardar 1 día de los 30 para medir después de la suspensión.';
     } else if (index === 0) {
-      const suggestion = addDays(startDate, 29);
+      suggestion = addDays(startDate, 29);
       p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
     } else if (prevFojaEnd) {
-      const suggestion = addDays(prevFojaEnd, 30);
+      suggestion = addDays(prevFojaEnd, 30);
       p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
     } else {
       p.textContent = 'Complete la suspensión anterior para obtener sugerencia.';
     }
 
-    const rangeVal = group.querySelector('.suspensionRange').value;
+    const rangeEl = group.querySelector('.suspensionRange');
+    if (!rangeEl.value && suggestion) {
+      const iso = formatISO(suggestion);
+      rangeEl._flatpickr.setDate([iso, iso], false);
+    }
+
+    const rangeVal = rangeEl.value;
     if (rangeVal && rangeVal.includes(' a ')) {
       const [, rawEnd] = rangeVal.split(' a ');
       const [eY, eM, eD] = rawEnd.split('-').map(Number);

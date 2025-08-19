@@ -68,6 +68,16 @@ body.dark .site-header {
   gap: 1rem;
 }
 
+.dept-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
 .certy-avatar {
   height: 60px;
   animation: float 4s ease-in-out infinite;
@@ -211,7 +221,7 @@ body.dark #themeToggle {
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.2s, box-shadow 0.2s;
-  height: 120px;
+  height: 90px;
 }
 
 .card-icon {
@@ -247,6 +257,12 @@ body.dark #themeToggle {
   justify-content: center;
 }
 
+.card-button.center-button {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 60%;
+}
+
 .form-wrapper {
   position: relative;
   max-width: 600px;
@@ -258,16 +274,25 @@ body.dark #themeToggle {
 }
 
 .calc-mascot {
-  position: absolute;
-  top: -40px;
-  left: -60px;
+  position: fixed;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
   display: flex;
+  flex-direction: row-reverse;
   align-items: flex-start;
   gap: 1rem;
+  z-index: 1001;
 }
 
 .calc-mascot img {
   max-width: 120px;
+  animation: work-glow 2s infinite alternate;
+}
+
+@keyframes work-glow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.2); }
 }
 
 button:focus-visible,
@@ -597,6 +622,14 @@ body.dark-mode #themeToggle {
   color: #fff;
 }
 
+.suspensionSuggestion {
+  background: #cc5500;
+  color: #000;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
 .pause-day {
   background: #555555;
   color: #fff;
@@ -615,6 +648,18 @@ body.dark-mode #themeToggle {
 .pdf-export .suspension-day {
   background: var(--color-primary) !important;
   color: #fff !important;
+}
+
+.pdf-export .calendar {
+  page-break-before: always;
+}
+
+.fojas-box {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 1rem;
 }
 
 .pdf-export .calendar,

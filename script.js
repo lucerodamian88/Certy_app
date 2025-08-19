@@ -258,6 +258,8 @@ function clearAll() {
 async function openPdfReport() {
   const resultEl = document.getElementById('result');
 
+  resultEl.classList.add('pdf-export');
+
   if (window.isAndroidWebView && window.isAndroidWebView()) {
     try {
       const response = await fetch('/generate-pdf', {
@@ -328,6 +330,7 @@ async function openPdfReport() {
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
         resultEl.style.letterSpacing = originalLetterSpacing;
+        resultEl.classList.remove('pdf-export');
 
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
@@ -345,7 +348,8 @@ async function openPdfReport() {
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
-        doc.text('Gracias por usar la app de Certy!', xImg - 10, pageH - 20, { align: 'right' });
+        const textX = xImg - 5;
+        doc.text('Gracias por usar la app de Certy!', textX, pageH - 20, { align: 'right' });
         finalize();
       };
       img.onerror = finalize;
