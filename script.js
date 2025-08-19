@@ -278,6 +278,7 @@ async function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const originalWordSpacing = resultEl.style.wordSpacing;
+  const originalLetterSpacing = resultEl.style.letterSpacing;
   const textNodes = [];
   const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
   while (walker.nextNode()) {
@@ -288,6 +289,7 @@ async function openPdfReport() {
     }
   }
   resultEl.style.wordSpacing = '4px';
+  resultEl.style.letterSpacing = '1px';
 
   // Save original styles using a Map to restore them later
   const originalStyles = new Map();
@@ -314,7 +316,8 @@ async function openPdfReport() {
       const pageH = doc.internal.pageSize.getHeight();
       const pageW = doc.internal.pageSize.getWidth();
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'italic');
+      doc.setFont('helvetica', 'normal');
+      doc.setCharSpace(1);
       doc.setTextColor(0, 0, 0); // Black text
 
       const finalize = () => {
@@ -324,6 +327,7 @@ async function openPdfReport() {
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
+        resultEl.style.letterSpacing = originalLetterSpacing;
 
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
@@ -335,7 +339,7 @@ async function openPdfReport() {
       };
 
       const img = new Image();
-      img.src = 'Robot.png';
+      img.src = 'Certy_saludando.png';
       img.onload = function() {
         const imgSize = 16;
         const xImg = pageW - 40 - imgSize;
