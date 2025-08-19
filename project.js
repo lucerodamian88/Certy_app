@@ -278,7 +278,7 @@ async function openPdfReport() {
   doc.html(resultEl, {
     margin: [40, 40, 40, 40],
     html2canvas: {
-      scale: 3,
+      scale: 0.8,
       logging: true,
       useCORS: true
     },
@@ -385,7 +385,7 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="suspensionGroup">
-            <p class="suspensionSuggestion suggestion-box suggestion"></p>
+            <p class="suspensionSuggestion suggestion"></p>
             <label>Suspensión ${i}:
               <input type="text" class="suspensionRange" placeholder="Seleccionar rango"/>
             </label>
