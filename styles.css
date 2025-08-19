@@ -55,7 +55,7 @@ body.dark .site-header {
 }
 
 .logo-group img {
-  height: 80px;
+  height: 120px;
 }
 
 .logo-group .dept {
@@ -91,6 +91,7 @@ body.dark .site-header {
   align-items: center;
   justify-content: center;
   line-height: 1;
+  margin-right: 8px;
 }
 
 #themeToggle:hover {
@@ -217,6 +218,8 @@ body.dark #themeToggle {
   height: 100%;
   max-height: 100px;
   width: auto;
+  -webkit-mask-image: linear-gradient(to right, black 70%, transparent);
+  mask-image: linear-gradient(to right, black 70%, transparent);
 }
 
 .card-text {
@@ -240,11 +243,16 @@ body.dark #themeToggle {
   pointer-events: none;
 }
 
+.card-button.no-icon {
+  justify-content: center;
+}
+
 .calc-mascot {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1rem;
+  margin-left: -60px;
 }
 
 .calc-mascot img {
@@ -576,6 +584,50 @@ body.dark-mode #themeToggle {
 .suspension-day {
   background: #002b6b;
   color: #fff;
+}
+
+.pause-day {
+  background: #555555;
+  color: #fff;
+}
+
+.pdf-export .work-day {
+  background: #d3d3d3 !important;
+  color: #000 !important;
+}
+
+.pdf-export .pause-day {
+  background: #7f7f7f !important;
+  color: #fff !important;
+}
+
+.pdf-export .suspension-day {
+  background: #002b6b !important;
+  color: #fff !important;
+}
+
+.pdf-export .calendar,
+.pdf-export .month {
+  page-break-inside: avoid;
+}
+
+.fojas-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.fojas-table th,
+.fojas-table td {
+  border: 1px solid #000;
+  padding: 8px;
+  height: 24px;
+  text-align: center;
+}
+
+.fojas-table td.num {
+  text-align: center;
 }
 @media (max-width: 480px) {
   body {

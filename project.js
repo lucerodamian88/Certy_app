@@ -46,7 +46,12 @@ function generarTablaFojas(fojas) {
   let tablaHTML = `
     <div class="fojas-box">
     <h3>Detalle de Fojas</h3>
-    <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse; background: white; color: black; margin-top: 1rem;">
+    <table class="fojas-table">
+      <colgroup>
+        <col style="width:25%">
+        <col style="width:37.5%">
+        <col style="width:37.5%">
+      </colgroup>
       <thead>
         <tr>
           <th>Foja Nº</th>
@@ -61,7 +66,7 @@ function generarTablaFojas(fojas) {
     const label = index === fojas.length - 1 ? `${index + 1} FINAL` : `${index + 1}`;
     tablaHTML += `
       <tr>
-        <td>${label}</td>
+        <td class="num">${label}</td>
         <td>${foja.desde}</td>
         <td>${foja.hasta}</td>
       </tr>
@@ -81,14 +86,13 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
     current.setMonth(current.getMonth() + 1);
   }
 
-  const isSuspension = date => {
-    return suspensions.some(([s, e]) => date >= s && date <= e) ||
-           pauses.some(([s, e]) => date >= s && date <= e);
-  };
-
+  const isSuspension = date => suspensions.some(([s, e]) => date >= s && date <= e);
+  const isPause = date => pauses.some(([s, e]) => date >= s && date <= e);
   const isMeasurement = date => {
-    return suspensions.some(([s, e]) => date.getTime() === addDays(e, 1).getTime()) ||
-           pauses.some(([s, e]) => date.getTime() === addDays(e, 1).getTime());
+    return (
+      suspensions.some(([s, e]) => date.getTime() === addDays(e, 1).getTime()) ||
+      pauses.some(([s, e]) => date.getTime() === addDays(e, 1).getTime())
+    );
   };
 
   let html = '<div class="calendar">';
@@ -107,6 +111,7 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
       let className = '';
       if (currentDay >= startDate && currentDay <= endDate) {
         if (isSuspension(currentDay)) className = 'suspension-day';
+        else if (isPause(currentDay)) className = 'pause-day';
         else if (isMeasurement(currentDay)) className = '';
         else className = 'work-day';
       }
@@ -255,82 +260,58 @@ async function openPdfReport() {
     }
     return;
   }
+
   const pdfWindow = window.open('', '_blank');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const originalWordSpacing = resultEl.style.wordSpacing;
-  const originalLetterSpacing = resultEl.style.letterSpacing;
-  const textNodes = [];
-  const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (node.nodeValue.includes(':')) {
-      textNodes.push({ node, text: node.nodeValue });
-      node.nodeValue = node.nodeValue.replace(/:/g, ' :');
-    }
-  }
-  resultEl.style.wordSpacing = '4px';
-  resultEl.style.letterSpacing = '1px';
 
-  const originalStyles = new Map();
-  const elements = resultEl.getElementsByTagName('*');
-  for (let el of elements) {
-    if (el.style) {
-      originalStyles.set(el, {
-        color: el.style.color,
-        backgroundColor: el.style.backgroundColor
-      });
-      el.style.color = '#000000';
-      el.style.backgroundColor = '#FFFFFF';
-    }
-  }
+  const originalFont = resultEl.style.fontFamily;
+  const originalLig = resultEl.style.fontVariantLigatures;
+  const originalSize = resultEl.style.fontSize;
+  resultEl.classList.add('pdf-export');
+  resultEl.style.fontFamily = '"Courier New", monospace';
+  resultEl.style.fontVariantLigatures = 'none';
+  resultEl.style.fontSize = '12pt';
+
+  doc.setFont('courier', 'normal');
 
   doc.html(resultEl, {
-    margin: [40, 40, 60, 40],
+    margin: [40, 40, 40, 40],
     html2canvas: {
-      scale: 0.8,
+      scale: 3,
       logging: true,
       useCORS: true
     },
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
-      const pageW = doc.internal.pageSize.getWidth();
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.setCharSpace(1);
-      doc.setTextColor(0, 0, 0);
-
-      const finalize = () => {
-        for (const [el, styles] of originalStyles.entries()) {
-          el.style.color = styles.color;
-          el.style.backgroundColor = styles.backgroundColor;
-        }
-        textNodes.forEach(({ node, text }) => (node.nodeValue = text));
-        resultEl.style.wordSpacing = originalWordSpacing;
-        resultEl.style.letterSpacing = originalLetterSpacing;
-
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-        if (pdfWindow) {
-          pdfWindow.location.href = url;
-        } else {
-          window.location.href = url;
-        }
-      };
-
+      const note = 'Gracias por usar la app de Certy!';
+      doc.setFont('courier', 'italic');
+      const x = 40;
+      const y = pageH - 40;
+      doc.text(note, x, y);
       const img = new Image();
       img.src = 'Certy_saludando.png';
       img.onload = function() {
-        const imgSize = 16;
-        const xImg = pageW - 40 - imgSize;
-        const yImg = pageH - imgSize - 20;
+        const imgSize = 32;
+        const xImg = x + doc.getTextWidth(note) + 10;
+        const yImg = y - imgSize + 8;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
-        doc.text('Gracias por usar la app de Certy!', xImg - 10, pageH - 20, { align: 'right' });
-        finalize();
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        if (pdfWindow) pdfWindow.location.href = url; else window.location.href = url;
       };
-      img.onerror = finalize;
+      img.onerror = function() {
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        if (pdfWindow) pdfWindow.location.href = url; else window.location.href = url;
+      };
     }
   });
+
+  resultEl.classList.remove('pdf-export');
+  resultEl.style.fontFamily = originalFont;
+  resultEl.style.fontVariantLigatures = originalLig;
+  resultEl.style.fontSize = originalSize;
 }
 
 document.getElementById('calculateBtn').addEventListener('click', function() {
