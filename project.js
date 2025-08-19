@@ -72,6 +72,57 @@ function generarTablaFojas(fojas) {
   return tablaHTML;
 }
 
+function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
+  const months = [];
+  let current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const last = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+  while (current <= last) {
+    months.push(new Date(current));
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  const isSuspension = date => {
+    return suspensions.some(([s, e]) => date >= s && date <= e) ||
+           pauses.some(([s, e]) => date >= s && date <= e);
+  };
+
+  const isMeasurement = date => {
+    return suspensions.some(([s, e]) => date.getTime() === addDays(e, 1).getTime()) ||
+           pauses.some(([s, e]) => date.getTime() === addDays(e, 1).getTime());
+  };
+
+  let html = '<div class="calendar">';
+  months.forEach(mDate => {
+    const year = mDate.getFullYear();
+    const month = mDate.getMonth();
+    const monthName = mDate.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+    html += `<div class="month"><h4>${monthName}</h4><table><thead><tr>`;
+    ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d => html += `<th>${d}</th>`);
+    html += '</tr></thead><tbody><tr>';
+    const firstDay = new Date(year, month, 1).getDay();
+    for (let i = 0; i < firstDay; i++) html += '<td></td>';
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const currentDay = new Date(year, month, day);
+      let className = '';
+      if (currentDay >= startDate && currentDay <= endDate) {
+        if (isSuspension(currentDay)) className = 'suspension-day';
+        else if (isMeasurement(currentDay)) className = '';
+        else className = 'work-day';
+      }
+      html += `<td class="${className}">${day}</td>`;
+      if ((firstDay + day) % 7 === 0 && day !== daysInMonth) html += '</tr><tr>';
+    }
+    const trailing = (firstDay + daysInMonth) % 7;
+    if (trailing !== 0) {
+      for (let i = 0; i < 7 - trailing; i++) html += '<td></td>';
+    }
+    html += '</tr></tbody></table></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
 function calculate() {
   const rawStart = document.getElementById("startDate").value;
   const [year, month, day] = rawStart.split("-").map(Number);
@@ -167,7 +218,10 @@ function calculate() {
   resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas.length} FINAL</p>`;
   resultHTML += generarTablaFojas(fojas);
 
-  document.getElementById("result").innerHTML = resultHTML;
+  const resultEl = document.getElementById("result");
+  resultEl.innerHTML = resultHTML;
+  const calendarHTML = generateCalendar(startDate, currentDate, suspensions, pauses);
+  resultEl.insertAdjacentHTML('beforeend', calendarHTML);
   document.getElementById('printBtn').style.display = 'block';
 }
 
@@ -205,6 +259,7 @@ async function openPdfReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const originalWordSpacing = resultEl.style.wordSpacing;
+  const originalLetterSpacing = resultEl.style.letterSpacing;
   const textNodes = [];
   const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
   while (walker.nextNode()) {
@@ -215,6 +270,7 @@ async function openPdfReport() {
     }
   }
   resultEl.style.wordSpacing = '4px';
+  resultEl.style.letterSpacing = '1px';
 
   const originalStyles = new Map();
   const elements = resultEl.getElementsByTagName('*');
@@ -240,7 +296,8 @@ async function openPdfReport() {
       const pageH = doc.internal.pageSize.getHeight();
       const pageW = doc.internal.pageSize.getWidth();
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'italic');
+      doc.setFont('helvetica', 'normal');
+      doc.setCharSpace(1);
       doc.setTextColor(0, 0, 0);
 
       const finalize = () => {
@@ -250,6 +307,7 @@ async function openPdfReport() {
         }
         textNodes.forEach(({ node, text }) => (node.nodeValue = text));
         resultEl.style.wordSpacing = originalWordSpacing;
+        resultEl.style.letterSpacing = originalLetterSpacing;
 
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
@@ -261,7 +319,7 @@ async function openPdfReport() {
       };
 
       const img = new Image();
-      img.src = 'Robot.png';
+      img.src = 'Certy_saludando.png';
       img.onload = function() {
         const imgSize = 16;
         const xImg = pageW - 40 - imgSize;
