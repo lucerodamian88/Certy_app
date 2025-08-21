@@ -55,7 +55,7 @@ body.dark .site-header {
 }
 
 .logo-group img {
-  height: 120px;
+  height: 60px;
 }
 
 .logo-group .dept {
@@ -158,10 +158,10 @@ body.dark #themeToggle {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   font-size: 1.2rem;
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 100%;
-  transform: translate(10px, -50%);
-  white-space: nowrap;
+  transform: translate(10px, 0);
+  white-space: normal;
 }
 
 .speech-bubble::after {
@@ -175,6 +175,10 @@ body.dark #themeToggle {
   background: var(--card-bg);
   clip-path: polygon(100% 0, 100% 100%, 0 50%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+body.dark .speech-bubble {
+  color: #fff;
 }
 
 .speech {
@@ -222,6 +226,8 @@ body.dark #themeToggle {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   height: 90px;
+  width: 50%;
+  justify-self: center;
 }
 
 .card-icon {
