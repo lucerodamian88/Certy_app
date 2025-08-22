@@ -221,15 +221,13 @@ body.dark .speech-bubble {
 
 .card-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .card-button {
@@ -269,12 +267,14 @@ body.dark .speech-bubble {
   text-align: left;
 }
 
-.card-button:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+
+.card-button:not([disabled]):hover,
+.card-button:not([disabled]):focus-visible {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-.card-button:active:not(.disabled) {
+.card-button:not([disabled]):active {
   transform: scale(0.98);
 }
 
@@ -283,7 +283,7 @@ body.dark .speech-bubble {
   color: #fff;
 }
 
-.card-button.disabled {
+.card-button[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
