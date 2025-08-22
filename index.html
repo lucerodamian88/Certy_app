@@ -31,24 +31,34 @@
         </h1>
       </div>
     </div>
-    <div class="card-grid">
-      <a href="calculator.html" class="card-button" aria-label="Calculadora de Días y Fojas para Obras">
-        <div class="card-icon"><img src="logo_obra.png" alt="Obras"></div>
-        <span class="card-text">Calculadora de Días y Fojas para <strong>OBRAS</strong></span>
-      </a>
-      <a href="project.html" class="card-button" aria-label="Calculadora de Días y Fojas para Proyectos">
-        <div class="card-icon"><img src="logo_proyecto.png" alt="Proyectos"></div>
-        <span class="card-text">Calculadora de Días y Fojas para <strong>PROYECTOS</strong></span>
-      </a>
-      <a href="paralizacion.html" class="card-button accent" aria-label="Solicitar paralización">
-        <div class="card-icon"><img src="Certy_procesando.png" alt="Solicitar Paralización"></div>
-        <span class="card-text">Solicitar Paralización</span>
-      </a>
-      <div class="card-button disabled" role="button" aria-label="Próximamente más funciones" aria-disabled="true" tabindex="-1">
-        <div class="card-icon"></div>
-        <span class="card-text">Próximamente Más Funciones</span>
-      </div>
-    </div>
+    <nav>
+      <ul class="card-grid">
+        <li>
+          <a href="calculator.html" class="card-button" aria-label="Calculadora de Días y Fojas para Obras">
+            <div class="card-icon"><img src="logo_obra.png" alt="Obras"></div>
+            <span class="card-text">Calculadora de Días y Fojas para <strong>OBRAS</strong></span>
+          </a>
+        </li>
+        <li>
+          <a href="project.html" class="card-button" aria-label="Calculadora de Días y Fojas para Proyectos">
+            <div class="card-icon"><img src="logo_proyecto.png" alt="Proyectos"></div>
+            <span class="card-text">Calculadora de Días y Fojas para <strong>PROYECTOS</strong></span>
+          </a>
+        </li>
+        <li>
+          <a href="paralizacion.html" class="card-button accent" aria-label="Solicitar paralización">
+            <div class="card-icon"><img src="Certy_procesando.png" alt="Solicitar Paralización"></div>
+            <span class="card-text">Solicitar Paralización</span>
+          </a>
+        </li>
+        <li>
+          <button class="card-button" aria-label="Próximamente más funciones" disabled>
+            <div class="card-icon"></div>
+            <span class="card-text">Próximamente Más Funciones</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
   </section>
 
   <button id="downloadAppBtn" onclick="installApp()" aria-label="Descargar aplicación de Certy">
