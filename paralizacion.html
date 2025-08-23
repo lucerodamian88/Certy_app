@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Solicitar Paralización</title>
+  <link rel="icon" type="image/png" href="Certy_cara.png" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,22 +12,23 @@
 </head>
 <body>
   <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
     <div class="logo-group">
       <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
+      <span class="dept">Dirección Municipal de Certificaciones</span>
     </div>
     <div class="header-actions">
-      <img src="Certy_logo.png" alt="Avatar de Certy" class="certy-avatar">
+      <div id="weather" class="weather"></div>
     </div>
   </header>
 
   <div class="form-wrapper">
-    <div class="calc-mascot">
-      <img src="Certy_trabajando.png" alt="Certy">
-      <div class="speech">Completá los datos</div>
-    </div>
     <div class="container form-container">
     <h1>Solicitar Paralización</h1>
+    <div class="intro">
+      <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
+      <p class="description">Completá los datos para solicitar la paralización.</p>
+    </div>
       <label>N° de expediente:</label>
       <div class="expediente-input">
         <input type="text" id="expedienteNumero" class="exp-number" maxlength="6" size="6" />
@@ -35,7 +37,7 @@
       </div>
       <small class="suggestion"><em>Ej: 00125-M-2025</em></small>
     <div class="button-row">
-      <button onclick="buscarExpediente()">BUSCAR</button>
+      <button onclick="buscarExpediente()">🔍 Buscar</button>
     </div>
     <div id="alert" class="alert-error" style="display:none;"></div>
     <div id="successMessage" class="alert-success" style="display:none;"></div>
@@ -59,8 +61,8 @@
       <textarea id="motivo" rows="4"></textarea>
       <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
-        <button id="sugerenciaBtn" type="button" class="sugerencia-btn">Sugerencia de redacción</button>
-        <button id="colapsarSugerenciaBtn" type="button" class="collapse-btn" style="display:none;">&#8593;</button>
+        <button id="sugerenciaBtn" type="button" class="sugerencia-btn">💡 Sugerencia de redacción</button>
+        <button id="colapsarSugerenciaBtn" type="button" class="collapse-btn" style="display:none;">⬆️</button>
       </div>
       <div id="sugerenciaSection" style="display:none;">
         <p>Seleccione una opción:</p>
@@ -83,14 +85,14 @@
           </label>
         </div>
         <div class="button-row">
-          <button id="generarSugerencia" type="button" class="sugerencia-btn">Generar</button>
+          <button id="generarSugerencia" type="button" class="sugerencia-btn">⚙️ Generar</button>
         </div>
         <label for="textoSugerido">Texto sugerido por Certy! <img src="Robot.png" alt="Robot" class="robot-icon" /></label>
         <p class="suggestion-note"><strong><em>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización" mas arriba 👆</em></strong></p>
         <textarea id="textoSugerido" rows="6"></textarea>
       </div>
       <div class="button-row">
-        <button id="solicitarBtn" type="submit">SOLICITAR</button>
+        <button id="solicitarBtn" type="submit">✉️ Solicitar</button>
       </div>
     </form>
     </div>
