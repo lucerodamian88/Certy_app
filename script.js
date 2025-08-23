@@ -309,7 +309,7 @@ async function openPdfReport() {
       const pageW = doc.internal.pageSize.getWidth();
       doc.setFontSize(12);
       doc.setFont('Arial', 'normal');
-      doc.setCharSpace(0.5);
+      doc.setCharSpace(0);
       doc.setTextColor(0, 0, 0); // Black text
 
       const finalize = () => {
@@ -329,7 +329,7 @@ async function openPdfReport() {
       };
 
       const img = new Image();
-      img.src = 'Robot.png';
+      img.src = 'Certy_saludando.png';
       img.onload = function() {
         const imgSize = 16 * 1.2;
         const xImg = pageW - 40 - imgSize;
