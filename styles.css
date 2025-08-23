@@ -72,6 +72,14 @@ body.dark .site-header {
   gap: 1rem;
 }
 
+.weather {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 .dept-title {
   position: absolute;
   left: 50%;
@@ -96,10 +104,17 @@ body.dark .site-header {
 .back-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   cursor: pointer;
   margin-right: 0.5rem;
   color: var(--color-primary);
+}
+
+.back-btn i {
+  font-size: 1.5rem;
 }
 
 .container {
@@ -109,6 +124,22 @@ body.dark .site-header {
   padding: 2rem;
   border-radius: var(--card-radius);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.intro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.calc-icon {
+  width: 75px;
+}
+
+.description {
+  color: #000;
+  margin: 0;
 }
 
 .hero {
@@ -451,6 +482,8 @@ h1 {
   text-align: center;
   margin-top: 0;
   color: var(--color-primary);
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
 }
 
 .menu h1 {
@@ -485,7 +518,7 @@ h1 {
 
 .subtitle {
   text-align: center;
-  color: #fff;
+  color: #666;
   margin-bottom: 1.5rem;
 }
 
@@ -598,19 +631,19 @@ button:hover {
 }
 
 .sugerencia-btn {
-  background: #28a745;
+  background: var(--color-primary);
 }
 
 .sugerencia-btn:hover {
-  background: #218838;
+  background: var(--color-secondary);
 }
 
 .collapse-btn {
-  background: #007bff;
+  background: var(--color-primary);
 }
 
 .collapse-btn:hover {
-  background: #0059d6;
+  background: var(--color-secondary);
 }
 
 #printBtn {

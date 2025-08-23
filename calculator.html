@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Días y Fojas</title>
+  <link rel="icon" type="image/png" href="Certy_cara.png" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,23 +18,23 @@
 </head>
 <body>
   <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
     <div class="logo-group">
       <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
+      <span class="dept">Dirección Municipal de Certificaciones</span>
     </div>
     <div class="header-actions">
-      <img src="Certy_logo.png" alt="Avatar de Certy" class="certy-avatar">
+      <div id="weather" class="weather"></div>
     </div>
   </header>
 
     <div class="form-wrapper">
-      <div class="calc-mascot">
-        <img src="Certy_trabajando.png" alt="Certy">
-        <div class="speech">Completa los datos</div>
-      </div>
       <div class="container form-container">
       <h1>Calculadora de Días y Fojas</h1>
-      <p class="subtitle">Con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
+      <div class="intro">
+        <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
+        <p class="description">Con la siguiente calculadora vamos a calcular la fecha de finalización de la obra y fojas a realizar.</p>
+      </div>
 
     
     <label>Fecha de inicio de obra:
@@ -63,12 +64,12 @@
     <div id="extensionSection"></div>
 
     <div class="button-row">
-      <button id="calculateBtn" onclick="calculate()">Calcular</button>
-      <button onclick="clearAll()">Borrar todo</button>
+      <button id="calculateBtn" onclick="calculate()">🖩 Calcular</button>
+      <button onclick="clearAll()">🗑 Borrar</button>
     </div>
 
     <div id="result"></div>
-    <button id="printBtn" onclick="openPdfReport()" style="display:none;">Imprimir informe en PDF</button>
+    <button id="printBtn" onclick="openPdfReport()" style="display:none;">🖨 Imprimir informe en PDF</button>
       </div>
     </div>
 
