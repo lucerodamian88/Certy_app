@@ -16,6 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
       applyTheme(currentTheme);
     });
   }
+
+  const downloadBtn = document.getElementById('downloadAppBtn');
+  if (downloadBtn) {
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        downloadBtn.classList.add('hide');
+        setTimeout(() => {
+          downloadBtn.style.display = 'none';
+        }, 500);
+      }, 3000);
+    });
+  }
 });
 
 function installApp() {
