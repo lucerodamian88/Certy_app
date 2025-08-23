@@ -192,7 +192,7 @@ function calculate() {
 
   let currentDate = addDays(startDate, initialDays - 1);
 
-  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR LA APP CERTY</h2>`;
+  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR CERTY</h2>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
@@ -231,7 +231,7 @@ function calculate() {
   resultEl.innerHTML = resultHTML;
   const calendarHTML = generateCalendar(startDate, currentDate, suspensions, pauses);
   resultEl.insertAdjacentHTML('beforeend', calendarHTML);
-  document.getElementById('printBtn').style.display = 'block';
+  document.getElementById('printSection').style.display = 'flex';
 }
 
 function clearAll() {
@@ -242,7 +242,7 @@ function clearAll() {
   document.getElementById('suspensionSection').innerHTML = '';
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('result').innerHTML = '';
-  document.getElementById('printBtn').style.display = 'none';
+  document.getElementById('printSection').style.display = 'none';
 }
 
 async function openPdfReport() {
@@ -269,14 +269,8 @@ async function openPdfReport() {
 
   const pdfWindow = window.open('', '_blank');
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', lineHeightFactor: 1.5 });
 
-
-  const originalFont = resultEl.style.fontFamily;
-  const originalLig = resultEl.style.fontVariantLigatures;
-  const originalSize = resultEl.style.fontSize;
-  const originalWordSpacing = resultEl.style.wordSpacing;
-  const originalLetterSpacing = resultEl.style.letterSpacing;
   const originalStyles = new Map();
   const elements = resultEl.getElementsByTagName('*');
   for (let el of elements) {
@@ -290,11 +284,7 @@ async function openPdfReport() {
     }
   }
 
-  resultEl.style.fontFamily = '"Courier New", monospace';
-  resultEl.style.fontVariantLigatures = 'none';
-  resultEl.style.fontSize = '12pt';
-
-  doc.setFont('courier', 'normal');
+  doc.setFont('helvetica', 'normal');
 
   doc.html(resultEl, {
     margin: [40, 40, 40, 40],
@@ -306,18 +296,13 @@ async function openPdfReport() {
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
       const pageW = doc.internal.pageSize.getWidth();
-      doc.setFont('courier', 'italic');
+      doc.setFont('helvetica', 'italic');
 
       const finalize = () => {
         for (const [el, styles] of originalStyles.entries()) {
           el.style.color = styles.color;
           el.style.backgroundColor = styles.backgroundColor;
         }
-        resultEl.style.fontFamily = originalFont;
-        resultEl.style.fontVariantLigatures = originalLig;
-        resultEl.style.fontSize = originalSize;
-        resultEl.style.wordSpacing = originalWordSpacing;
-        resultEl.style.letterSpacing = originalLetterSpacing;
         resultEl.classList.remove('pdf-export');
 
         const blob = doc.output('blob');
