@@ -9,72 +9,72 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-  <header class="site-header">
-    <div class="logo-group">
-      <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
+<body class="home">
+  <header class="hero-header">
+    <div class="hero-info">
+      <img src="Certy_logo.png" alt="Certy" class="hero-logo" loading="lazy">
+      <p class="hero-claim">Tu asistente digital de certificaciones</p>
+      <a href="#servicios" class="btn-primary" aria-label="Ver opciones de Certy">Comenzar</a>
     </div>
-    <h2 class="dept-title">Dirección Municipal de Certificaciones</h2>
-    <div class="header-actions">
-      <img src="Certy_logo.png" alt="Avatar de Certy" class="certy-avatar">
-      <button id="themeToggle" aria-label="Cambiar a modo oscuro">🌞</button>
-    </div>
+    <img src="Certy_celular.png" alt="Certy con celular" class="hero-img" loading="lazy">
+    <button id="themeToggle" aria-label="Cambiar a modo oscuro" class="theme-toggle">🌞</button>
   </header>
 
-  <section class="hero">
-    <div class="hero-content">
-      <div class="robot-container">
-        <img src="Certy_celular.png" alt="Certy" class="certy-hero">
-        <h1 class="speech-bubble">
-          <span>¡Hola! Soy Certy,</span><br>
-          <span>¿Qué vamos a hacer hoy?<span class="cursor">_</span></span>
-        </h1>
-      </div>
-    </div>
-    <nav>
+  <main>
+    <nav id="servicios" aria-label="Opciones de Certy">
       <ul class="card-grid">
         <li>
           <a href="calculator.html" class="card-button" aria-label="Calculadora de Días y Fojas para Obras">
-            <div class="card-icon"><img src="logo_obra.png" alt="Obras"></div>
-            <span class="card-text">Calculadora de Días y Fojas para <strong>OBRAS</strong></span>
+            <img src="logo_obra.png" alt="Obras" class="card-img" loading="lazy">
+            <div class="card-content">
+              <h3 class="card-title">Calculadora de Días y Fojas</h3>
+              <p class="card-subtitle">para <strong>OBRAS</strong></p>
+            </div>
           </a>
         </li>
         <li>
           <a href="project.html" class="card-button" aria-label="Calculadora de Días y Fojas para Proyectos">
-            <div class="card-icon"><img src="logo_proyecto.png" alt="Proyectos"></div>
-            <span class="card-text">Calculadora de Días y Fojas para <strong>PROYECTOS</strong></span>
+            <img src="logo_proyecto.png" alt="Proyectos" class="card-img" loading="lazy">
+            <div class="card-content">
+              <h3 class="card-title">Calculadora de Días y Fojas</h3>
+              <p class="card-subtitle">para <strong>PROYECTOS</strong></p>
+            </div>
           </a>
         </li>
         <li>
           <a href="paralizacion.html" class="card-button accent" aria-label="Solicitar paralización">
-            <div class="card-icon"><img src="Certy_procesando.png" alt="Solicitar Paralización"></div>
-            <span class="card-text">Solicitar Paralización (PRÓXIMAMENTE)</span>
+            <img src="Certy_procesando.png" alt="Solicitar Paralización" class="card-img" loading="lazy">
+            <div class="card-content">
+              <h3 class="card-title">Solicitar Paralización</h3>
+              <p class="card-subtitle">(PRÓXIMAMENTE)</p>
+            </div>
           </a>
         </li>
         <li>
           <button class="card-button" aria-label="Próximamente más funciones" disabled>
-            <div class="card-icon"></div>
-            <span class="card-text">Próximamente Más Funciones</span>
+            <div class="card-img placeholder"></div>
+            <div class="card-content">
+              <h3 class="card-title">Próximamente</h3>
+              <p class="card-subtitle">Más Funciones</p>
+            </div>
           </button>
         </li>
       </ul>
     </nav>
-  </section>
+  </main>
 
   <button id="downloadAppBtn" onclick="installApp()" aria-label="Descargar aplicación de Certy">
     DESCARGAR CERTY EN TU CELULAR!<br><em>Sólo válido para Android</em>
   </button>
-  <script>
-    window.addEventListener('load', function() {
-      var btn = document.getElementById('downloadAppBtn');
-      setTimeout(function() {
-        btn.classList.add('hide');
-        setTimeout(function() { btn.style.display = 'none'; }, 500);
-      }, 3000);
-    });
-  </script>
+
+  <footer class="site-footer">
+    <p>&copy; 2024 Dirección Municipal de Certificaciones</p>
+    <a href="mailto:contacto@neuquencapital.gov.ar" aria-label="Contacto por correo">contacto@neuquencapital.gov.ar</a>
+  </footer>
+
   <script src="common.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.9/mammoth.browser.min.js"></script>
 </body>
 </html>
+
