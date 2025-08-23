@@ -185,7 +185,7 @@ function calculate() {
   const finalDate = addDays(startDate, initialDays - 1);
   let currentDate = new Date(finalDate);
 
-  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR CERTY</h2>`;
+  let resultHTML = `<h1>REPORTE GENERADO POR CERTY</h1>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
@@ -240,7 +240,7 @@ function calculate() {
   }
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
-  document.getElementById("result").innerHTML = resultHTML;
+  document.getElementById("reporte").innerHTML = resultHTML;
     document.getElementById('printSection').style.display = 'flex';
 }
 
@@ -251,12 +251,12 @@ function clearAll() {
   document.getElementById('hasExtension').value = 'no';
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('extensionSection').innerHTML = '';
-  document.getElementById('result').innerHTML = '';
+  document.getElementById('reporte').innerHTML = '';
     document.getElementById('printSection').style.display = 'none';
 }
 
 async function openPdfReport() {
-  const resultEl = document.getElementById('result');
+  const resultEl = document.getElementById('reporte');
 
   resultEl.classList.add('pdf-export');
 

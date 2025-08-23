@@ -687,12 +687,6 @@ button:hover {
   display: block;
 }
 
-#result,
-#result * {
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.5;
-}
-
 #printSection {
   display: none;
   justify-content: center;
@@ -980,4 +974,60 @@ body.dark-mode img {
   .menu h1 {
     font-size: 1.2rem;
   }
+}
+
+/* Reporte Certy – formato estable para ver e imprimir */
+#reporte {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  word-spacing: 1px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 12pt;
+  max-width: 180mm;
+  margin: 0 auto;
+}
+
+#reporte h1 {
+  text-align: center;
+  font-weight: 700;
+  margin: 8mm 0 6mm;
+  letter-spacing: 0.6px;
+  text-decoration: underline;
+}
+
+#reporte .bloque { margin: 4mm 0; }
+#reporte .bloque p { margin: 2mm 0; }
+#reporte .bloque strong { display: inline-block; min-width: 55mm; }
+
+#reporte table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#reporte th,
+#reporte td {
+  border: 1pt solid #999;
+  padding: 6pt;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+#reporte th { font-weight: 700; }
+
+#reporte * { hyphens: none; }
+#reporte p,
+#reporte td,
+#reporte th {
+  white-space: normal;
+  word-break: keep-all;
+  text-align: left;
+}
+
+@page { size: A4; margin: 18mm; }
+@media print {
+  #reporte { max-width: none; }
+  a { text-decoration: none; color: black; }
 }
