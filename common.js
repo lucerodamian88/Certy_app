@@ -1,22 +1,6 @@
-// Theme toggle and shared actions
+// Shared actions
 
 document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.getElementById('themeToggle');
-  if (toggle) {
-    const applyTheme = theme => {
-      document.body.classList.toggle('dark', theme === 'dark');
-      toggle.textContent = theme === 'dark' ? '🌙' : '🌞';
-      toggle.setAttribute('aria-label', theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-    };
-    let currentTheme = localStorage.getItem('theme') || 'dark';
-    applyTheme(currentTheme);
-    toggle.addEventListener('click', () => {
-      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', currentTheme);
-      applyTheme(currentTheme);
-    });
-  }
-
   const downloadBtn = document.getElementById('downloadAppBtn');
   if (downloadBtn) {
     window.addEventListener('load', () => {
