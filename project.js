@@ -192,7 +192,7 @@ function calculate() {
 
   let currentDate = addDays(startDate, initialDays - 1);
 
-  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR CERTY</h2>`;
+  let resultHTML = `<h1>REPORTE GENERADO POR CERTY</h1>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
@@ -227,7 +227,7 @@ function calculate() {
   resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas.length} FINAL</p>`;
   resultHTML += generarTablaFojas(fojas);
 
-  const resultEl = document.getElementById("result");
+  const resultEl = document.getElementById("reporte");
   resultEl.innerHTML = resultHTML;
   const calendarHTML = generateCalendar(startDate, currentDate, suspensions, pauses);
   resultEl.insertAdjacentHTML('beforeend', calendarHTML);
@@ -241,12 +241,12 @@ function clearAll() {
   document.getElementById('hasPauses').value = 'no';
   document.getElementById('suspensionSection').innerHTML = '';
   document.getElementById('pauseSection').innerHTML = '';
-  document.getElementById('result').innerHTML = '';
+  document.getElementById('reporte').innerHTML = '';
   document.getElementById('printSection').style.display = 'none';
 }
 
 async function openPdfReport() {
-  const resultEl = document.getElementById('result');
+  const resultEl = document.getElementById('reporte');
 
   resultEl.classList.add('pdf-export');
 
