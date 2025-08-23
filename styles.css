@@ -83,7 +83,7 @@ body.dark .site-header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-right: 1rem;
+  margin-right: 2rem;
 }
 
 .weather-container {
@@ -136,6 +136,7 @@ body.dark .site-header {
   cursor: pointer;
   margin-right: 0.5rem;
   color: var(--color-primary);
+  outline: none;
 }
 
 .back-btn i {
@@ -145,6 +146,12 @@ body.dark .site-header {
 .back-btn:hover,
 .back-btn:hover i {
   text-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
+
+.back-btn:focus,
+.back-btn:active {
+  outline: none;
+  box-shadow: none;
 }
 
 .container {
@@ -678,7 +685,24 @@ button:hover {
 
 #printBtn {
   display: block;
+}
+
+#result,
+#result * {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+}
+
+#printSection {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   margin: 2rem auto 0;
+}
+
+#printSection img {
+  height: 2.5em;
 }
 
 
@@ -769,8 +793,8 @@ body.dark-mode img {
 .report-title {
   text-align: center;
   text-decoration: underline;
-  letter-spacing: 2px;
-  word-spacing: 4px;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .suggestion {

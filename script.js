@@ -185,7 +185,7 @@ function calculate() {
   const finalDate = addDays(startDate, initialDays - 1);
   let currentDate = new Date(finalDate);
 
-  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR LA APP CERTY</h2>`;
+  let resultHTML = `<h2 class="report-title">REPORTE GENERADO POR CERTY</h2>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
 
@@ -241,7 +241,7 @@ function calculate() {
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
   document.getElementById("result").innerHTML = resultHTML;
-    document.getElementById('printBtn').style.display = 'block';
+    document.getElementById('printSection').style.display = 'flex';
 }
 
 function clearAll() {
@@ -252,7 +252,7 @@ function clearAll() {
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('extensionSection').innerHTML = '';
   document.getElementById('result').innerHTML = '';
-    document.getElementById('printBtn').style.display = 'none';
+    document.getElementById('printSection').style.display = 'none';
 }
 
 async function openPdfReport() {
@@ -278,20 +278,7 @@ async function openPdfReport() {
   }
   const pdfWindow = window.open('', '_blank');
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  const originalWordSpacing = resultEl.style.wordSpacing;
-  const originalLetterSpacing = resultEl.style.letterSpacing;
-  const textNodes = [];
-  const walker = document.createTreeWalker(resultEl, NodeFilter.SHOW_TEXT, null, false);
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (node.nodeValue.includes(':')) {
-      textNodes.push({ node, text: node.nodeValue });
-      node.nodeValue = node.nodeValue.replace(/:/g, ' :');
-    }
-  }
-  resultEl.style.wordSpacing = '4px';
-  resultEl.style.letterSpacing = '1px';
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', lineHeightFactor: 1.5 });
 
   // Save original styles using a Map to restore them later
   const originalStyles = new Map();
@@ -327,9 +314,6 @@ async function openPdfReport() {
           el.style.color = styles.color;
           el.style.backgroundColor = styles.backgroundColor;
         }
-        textNodes.forEach(({ node, text }) => (node.nodeValue = text));
-        resultEl.style.wordSpacing = originalWordSpacing;
-        resultEl.style.letterSpacing = originalLetterSpacing;
         resultEl.classList.remove('pdf-export');
 
         const blob = doc.output('blob');
