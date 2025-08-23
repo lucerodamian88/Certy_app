@@ -284,7 +284,8 @@ async function openPdfReport() {
     }
   }
 
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('Arial', 'normal');
+  doc.setCharSpace(0.5);
 
   doc.html(resultEl, {
     margin: [40, 40, 40, 40],
@@ -296,7 +297,10 @@ async function openPdfReport() {
     callback: function (doc) {
       const pageH = doc.internal.pageSize.getHeight();
       const pageW = doc.internal.pageSize.getWidth();
-      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(12);
+      doc.setFont('Arial', 'normal');
+      doc.setCharSpace(0.5);
+      doc.setTextColor(0, 0, 0);
 
       const finalize = () => {
         for (const [el, styles] of originalStyles.entries()) {
@@ -311,14 +315,15 @@ async function openPdfReport() {
       };
 
       const img = new Image();
-      img.src = 'Certy_saludando.png';
+      img.src = 'Robot.png';
       img.onload = function() {
-        const imgSize = 32;
+        const imgSize = 32 * 1.2;
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
         doc.addImage(img, 'PNG', xImg, yImg, imgSize, imgSize);
-        const textX = xImg - 5;
-        doc.text('Gracias por usar la app de Certy!', textX, pageH - 20, { align: 'right' });
+        doc.setFont('Arial', 'italic');
+        const textX = xImg - 10;
+        doc.text('Gracias por usar Certy!', textX, pageH - 20, { align: 'right' });
         finalize();
       };
       img.onerror = finalize;
