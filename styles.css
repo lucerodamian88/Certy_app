@@ -205,10 +205,12 @@ body.dark .speech-bubble {
 .hero-claim {
   font-size: 1.25rem;
   margin: 0;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .hero-subclaim {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-style: italic;
   margin: 0;
 }
@@ -217,6 +219,7 @@ body.dark .speech-bubble {
   max-width: 240px;
   width: 100%;
   height: auto;
+  animation: float 4s ease-in-out infinite;
 }
 
 @media (min-width: 768px) {
@@ -654,6 +657,23 @@ button:hover {
 .site-footer a:hover,
 .site-footer a:focus-visible {
   text-decoration: underline;
+}
+
+.site-footer .contact-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.site-footer .contact-button:hover,
+.site-footer .contact-button:focus-visible {
+  background: var(--color-secondary);
+  text-decoration: none;
 }
 
 @keyframes blink {
