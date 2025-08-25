@@ -883,6 +883,11 @@ body.dark-mode img {
   color: #fff;
 }
 
+.measurement-day {
+  background: #28a745;
+  color: #fff;
+}
+
 .pdf-export .work-day {
   background: #d3d3d3 !important;
   color: #000 !important;
@@ -896,6 +901,11 @@ body.dark-mode img {
 .pdf-export .suspension-day {
   background: #2a7ff5 !important;
   color: #fff !important;
+}
+
+.pdf-export .measurement-day {
+  background: #d3d3d3 !important;
+  color: #000 !important;
 }
 
 .pdf-export .calendar {
