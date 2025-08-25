@@ -155,7 +155,8 @@ function calculate() {
 
       if (pauseStart < startDate) {
         Swal.fire({
-          icon: 'error',
+          imageUrl: 'Certy_advertencia.png',
+          imageAlt: 'Advertencia',
           text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.',
           timer: 5000,
           timerProgressBar: true
@@ -172,7 +173,8 @@ function calculate() {
     for (let i = 1; i < pauses.length; i++) {
       if (pauses[i][0] <= pauses[i - 1][1]) {
         Swal.fire({
-          icon: 'error',
+          imageUrl: 'Certy_advertencia.png',
+          imageAlt: 'Advertencia',
           text: 'Los plazos de las paralizaciones se solapan, corregir.',
           timer: 5000,
           timerProgressBar: true

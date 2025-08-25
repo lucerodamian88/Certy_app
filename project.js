@@ -21,7 +21,7 @@ function formatISO(date) {
 
 function buildFojas(startDate, finalDate, suspensions = []) {
   const fojas = [];
-  const sorted = suspensions.sort((a, b) => a[0] - b[0]);
+  const sorted = [...suspensions].sort((a, b) => a[0] - b[0]);
   let currentStart = new Date(startDate);
 
   while (currentStart <= finalDate) {
