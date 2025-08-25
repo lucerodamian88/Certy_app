@@ -861,12 +861,12 @@ body.dark-mode img {
 }
 
 .work-day {
-  background: var(--color-accent);
+  background: #f58b2a;
   color: #fff;
 }
 
 .suspension-day {
-  background: var(--color-primary);
+  background: #2a7ff5;
   color: #fff;
 }
 
@@ -894,7 +894,7 @@ body.dark-mode img {
 }
 
 .pdf-export .suspension-day {
-  background: var(--color-primary) !important;
+  background: #2a7ff5 !important;
   color: #fff !important;
 }
 
