@@ -157,6 +157,8 @@ function calculate() {
         Swal.fire({
           imageUrl: 'Certy_advertencia.png',
           imageAlt: 'Advertencia',
+          imageWidth: 202,
+          imageHeight: 252,
           text: 'La paralización no puede tener fecha anterior al de inicio de la obra. Revise los datos.',
           timer: 5000,
           timerProgressBar: true
@@ -175,6 +177,8 @@ function calculate() {
         Swal.fire({
           imageUrl: 'Certy_advertencia.png',
           imageAlt: 'Advertencia',
+          imageWidth: 202,
+          imageHeight: 252,
           text: 'Los plazos de las paralizaciones se solapan, corregir.',
           timer: 5000,
           timerProgressBar: true

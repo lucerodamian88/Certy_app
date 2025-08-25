@@ -116,7 +116,7 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
       if (currentDay >= startDate && currentDay <= endDate) {
         if (isSuspension(currentDay)) className = 'suspension-day';
         else if (isPause(currentDay)) className = 'pause-day';
-        else if (isMeasurement(currentDay)) className = '';
+        else if (isMeasurement(currentDay)) className = 'measurement-day';
         else className = 'work-day';
       }
       html += `<td class="${className}">${day}</td>`;
