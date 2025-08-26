@@ -19,6 +19,18 @@ function formatISO(date) {
   return date.toISOString().split('T')[0];
 }
 
+function endDateForWorkedDays(start, workedDays, nonWorkRanges = []) {
+  if (!(start instanceof Date) || isNaN(start)) return null;
+  let current = new Date(start);
+  let count = 1;
+  const isNonWork = d => nonWorkRanges.some(([s, e]) => d >= s && d <= e);
+  while (count < workedDays) {
+    current = addDays(current, 1);
+    if (!isNonWork(current)) count++;
+  }
+  return current;
+}
+
 function buildFojas(startDate, totalWorkedDays, suspensions = [], pauses = []) {
   const fojas = [];
   let currentDate = new Date(startDate);
@@ -72,14 +84,16 @@ function generarTablaFojas(fojas) {
     <table class="fojas-table">
       <colgroup>
         <col style="width:25%">
-        <col style="width:37.5%">
-        <col style="width:37.5%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
       </colgroup>
       <thead>
         <tr>
           <th>Foja Nº</th>
           <th>Desde</th>
           <th>Fecha de medición</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -92,6 +106,7 @@ function generarTablaFojas(fojas) {
         <td class="num">${label}</td>
         <td>${formatDate(foja.desde)}</td>
         <td>${formatDate(foja.hasta)}</td>
+        <td><button type="button" onclick="suggestSuspensionFromFoja(${index + 1})">Sugerir suspensión desde esta foja</button></td>
       </tr>
     `;
   });
@@ -381,11 +396,15 @@ document.getElementById("hasPauses").addEventListener("change", function () {
           locale: 'es',
           rangeSeparator: ' a '
         });
+        el.addEventListener('change', updateSuspensionSuggestions);
       });
     }
 
-    pauseCountInput.addEventListener("input", renderPauseInputs);
+    pauseCountInput.addEventListener("input", () => { renderPauseInputs(); updateSuspensionSuggestions(); });
     renderPauseInputs();
+    updateSuspensionSuggestions();
+  } else {
+    updateSuspensionSuggestions();
   }
 });
 
@@ -400,8 +419,6 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       </label>
       <div id="suspensionsContainer"></div>
     `;
-
-    updateSuspensionSuggestions();
 
     const countInput = document.getElementById("suspensionCount");
     const container = document.getElementById("suspensionsContainer");
@@ -434,15 +451,20 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
     countInput.addEventListener("input", () => { renderSuspensionInputs(); updateSuspensionSuggestions(); });
     renderSuspensionInputs();
     updateSuspensionSuggestions();
+  } else {
+    updateSuspensionSuggestions();
   }
 });
 
 document.getElementById('startDate').addEventListener('change', updateSuspensionSuggestions);
+document.getElementById('initialDays').addEventListener('input', updateSuspensionSuggestions);
+document.getElementById('suspensionAnchor').addEventListener('change', updateSuspensionSuggestions);
 
 function updateSuspensionSuggestions() {
   const rawStart = document.getElementById('startDate').value;
+  const initialVal = parseInt(document.getElementById('initialDays').value);
+  const anchorSelect = document.getElementById('suspensionAnchor');
   const groups = document.querySelectorAll('.suspensionGroup');
-  if (groups.length === 0) return;
 
   let startDate = null;
   if (rawStart) {
@@ -450,35 +472,102 @@ function updateSuspensionSuggestions() {
     startDate = new Date(y, m - 1, d);
   }
 
-  let prevFojaEnd = startDate ? new Date(startDate) : null;
-  groups.forEach((group, index) => {
-    const p = group.querySelector('.suspensionSuggestion');
-    let suggestion = null;
-    if (!startDate) {
-      p.textContent = 'Se le sugiere guardar 1 día de los 30 para medir después de la suspensión.';
-    } else if (index === 0) {
-      suggestion = addDays(startDate, 29);
-      p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
-    } else if (prevFojaEnd) {
-      suggestion = addDays(prevFojaEnd, 30);
-      p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
-    } else {
-      p.textContent = 'Complete la suspensión anterior para obtener sugerencia.';
+  let suspensions = [];
+  groups.forEach(g => {
+    const val = g.querySelector('.suspensionRange').value;
+    if (val && val.includes(' a ')) {
+      const [rawS, rawE] = val.split(' a ');
+      const [sY, sM, sD] = rawS.split('-').map(Number);
+      const [eY, eM, eD] = rawE.split('-').map(Number);
+      const s = new Date(sY, sM - 1, sD);
+      const e = new Date(eY, eM - 1, eD);
+      if (!isNaN(s) && !isNaN(e) && s <= e) suspensions.push([s, e]);
     }
+  });
 
-    const rangeEl = group.querySelector('.suspensionRange');
-    if (!rangeEl.value && suggestion) {
+  let pauses = [];
+  document.querySelectorAll('.pauseGroup').forEach(g => {
+    const val = g.querySelector('.pauseRange').value;
+    if (val && val.includes(' a ')) {
+      const [rawS, rawE] = val.split(' a ');
+      const [sY, sM, sD] = rawS.split('-').map(Number);
+      const [eY, eM, eD] = rawE.split('-').map(Number);
+      const s = new Date(sY, sM - 1, sD);
+      const e = new Date(eY, eM - 1, eD);
+      if (!isNaN(s) && !isNaN(e) && s <= e) pauses.push([s, e]);
+    }
+  });
+
+  if (!startDate || isNaN(initialVal)) {
+    if (anchorSelect) {
+      Array.from(anchorSelect.options).forEach(o => {
+        if (o.value.startsWith('foja-')) anchorSelect.removeChild(o);
+      });
+    }
+    return;
+  }
+
+  const fojas = buildFojas(startDate, initialVal, suspensions, pauses);
+
+  if (anchorSelect) {
+    const current = anchorSelect.value;
+    Array.from(anchorSelect.options).forEach(o => {
+      if (o.value.startsWith('foja-')) anchorSelect.removeChild(o);
+    });
+    fojas.forEach((_, idx) => {
+      const opt = document.createElement('option');
+      opt.value = `foja-${idx + 1}`;
+      opt.textContent = `Foja ${idx + 1}`;
+      anchorSelect.appendChild(opt);
+    });
+    if ([...anchorSelect.options].some(o => o.value === current)) {
+      anchorSelect.value = current;
+    }
+  }
+
+  if (groups.length === 0) return;
+
+  let anchorDate = startDate;
+  if (anchorSelect) {
+    const selVal = anchorSelect.value;
+    if (selVal === 'last') {
+      anchorDate = fojas.length ? fojas[fojas.length - 1].hasta : startDate;
+    } else if (selVal.startsWith('foja-')) {
+      const n = parseInt(selVal.split('-')[1]);
+      if (fojas[n - 1]) anchorDate = fojas[n - 1].desde;
+    }
+  }
+
+  const nonWorkRanges = suspensions.concat(pauses);
+  const suggestion = endDateForWorkedDays(anchorDate, 29, nonWorkRanges);
+
+  const targetGroup = groups[groups.length - 1];
+  const p = targetGroup.querySelector('.suspensionSuggestion');
+  if (suggestion) {
+    p.innerHTML = `Se sugiere suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
+    const rangeEl = targetGroup.querySelector('.suspensionRange');
+    if (!rangeEl.value) {
       const iso = formatISO(suggestion);
       rangeEl._flatpickr.setDate([iso, iso], false);
     }
+  } else {
+    p.textContent = 'Complete la fecha de inicio y el plazo inicial para obtener sugerencia.';
+  }
+}
 
-    const rangeVal = rangeEl.value;
-    if (rangeVal && rangeVal.includes(' a ')) {
-      const [, rawEnd] = rangeVal.split(' a ');
-      const [eY, eM, eD] = rawEnd.split('-').map(Number);
-      prevFojaEnd = addDays(new Date(eY, eM - 1, eD), 1);
-    } else {
-      prevFojaEnd = null;
-    }
-  });
+function suggestSuspensionFromFoja(n) {
+  const hasSel = document.getElementById('hasSuspensions');
+  const wasNo = hasSel.value !== 'yes';
+  if (wasNo) {
+    hasSel.value = 'yes';
+    hasSel.dispatchEvent(new Event('change'));
+  } else {
+    const countInput = document.getElementById('suspensionCount');
+    countInput.value = (parseInt(countInput.value) || 0) + 1;
+    countInput.dispatchEvent(new Event('input'));
+  }
+  const anchorSelect = document.getElementById('suspensionAnchor');
+  anchorSelect.value = `foja-${n}`;
+  anchorSelect.dispatchEvent(new Event('change'));
+  updateSuspensionSuggestions();
 }
