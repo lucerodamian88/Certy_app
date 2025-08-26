@@ -417,6 +417,7 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       <label>Foja para sugerencia:
         <select id="suspensionAnchor"></select>
       </label>
+      <p id="suspensionSuggestion" class="suspensionSuggestion suggestion"></p>
       <div id="suspensionsContainer"></div>
     `;
 
@@ -431,7 +432,6 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
       for (let i = 1; i <= count; i++) {
         container.innerHTML += `
           <div class="suspensionGroup">
-            <p class="suspensionSuggestion suggestion"></p>
             <label>Suspensión ${i}:
               <input type="text" class="suspensionRange" placeholder="Seleccionar rango"/>
             </label>
@@ -446,7 +446,6 @@ document.getElementById("hasSuspensions").addEventListener("change", function ()
           locale: 'es',
           rangeSeparator: ' a '
         });
-        el.addEventListener('change', updateSuspensionSuggestions);
       });
     }
 
@@ -539,13 +538,17 @@ function updateSuspensionSuggestions() {
   const suggestion = endDateForWorkedDays(anchorDate, 30, nonWorkRanges);
 
   const targetGroup = groups[groups.length - 1];
-  const p = targetGroup.querySelector('.suspensionSuggestion');
+  const p = document.getElementById('suspensionSuggestion');
+  if (!p) return;
+
   if (suggestion) {
     p.innerHTML = `Se le sugiere guardar 1 día de los 30 para medir después de la suspensión. Por lo tanto debería suspender a partir del <span class="suggestion-date">${formatDate(suggestion)}</span>.`;
-    const rangeEl = targetGroup.querySelector('.suspensionRange');
-    if (!rangeEl.value) {
-      const iso = formatISO(suggestion);
-      rangeEl._flatpickr.setDate([iso, iso], false);
+    if (targetGroup) {
+      const rangeEl = targetGroup.querySelector('.suspensionRange');
+      if (rangeEl && !rangeEl.value) {
+        const iso = formatISO(suggestion);
+        rangeEl._flatpickr.setDate([iso, iso], false);
+      }
     }
   } else {
     p.textContent = 'Complete la fecha de inicio y el plazo inicial para obtener sugerencia.';
