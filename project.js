@@ -19,32 +19,48 @@ function formatISO(date) {
   return date.toISOString().split('T')[0];
 }
 
-function addWorkingDays(startDate, targetWorkedDays, nonWorking = []) {
-  const ranges = [...nonWorking].sort((a, b) => a[0] - b[0]);
-  let worked = 0;
-  let current = new Date(startDate);
-  while (true) {
-    const isNonWorking = ranges.some(([s, e]) => current >= s && current <= e);
-    if (!isNonWorking) {
-      worked++;
-      if (worked === targetWorkedDays) break;
-    }
-    current = addDays(current, 1);
-  }
-  return current;
-}
-
-function buildFojas(startDate, totalWorkedDays, nonWorking = []) {
+function buildFojas(startDate, totalWorkedDays, suspensions = [], pauses = []) {
   const fojas = [];
-  let remaining = totalWorkedDays;
-  let currentStart = new Date(startDate);
-  while (remaining > 0) {
-    const chunk = Math.min(30, remaining);
-    const end = addWorkingDays(currentStart, chunk, nonWorking);
-    fojas.push({ desde: new Date(currentStart), hasta: new Date(end) });
-    remaining -= chunk;
-    currentStart = addDays(end, 1);
+  let currentDate = new Date(startDate);
+  let remaining = 30;
+  let worked = 0;
+  let fojaStart = null;
+
+  const isSuspension = date => suspensions.some(([s, e]) => date >= s && date <= e);
+  const getPause = date => pauses.find(([s, e]) => date >= s && date <= e);
+
+  while (worked < totalWorkedDays) {
+    const pause = getPause(currentDate);
+    if (pause) {
+      if (fojaStart && remaining < 30) {
+        const end = addDays(currentDate, -1);
+        fojas.push({ desde: new Date(fojaStart), hasta: end });
+      }
+      fojaStart = null;
+      currentDate = addDays(pause[1], 1);
+      continue;
+    }
+
+    if (isSuspension(currentDate)) {
+      currentDate = addDays(currentDate, 1);
+      continue;
+    }
+
+    if (!fojaStart) fojaStart = new Date(currentDate);
+
+    worked++;
+    remaining--;
+
+    const end = new Date(currentDate);
+    if (remaining === 0 || worked === totalWorkedDays) {
+      fojas.push({ desde: new Date(fojaStart), hasta: end });
+      remaining = 30;
+      fojaStart = null;
+    }
+
+    currentDate = addDays(currentDate, 1);
   }
+
   return fojas;
 }
 
@@ -213,8 +229,7 @@ function calculate() {
     resultHTML += `<p><strong>Paralizaciones:</strong> No hubo</p>`;
   }
 
-  const nonWorking = [...suspensions, ...pauses];
-  const fojas = buildFojas(startDate, initialDays, nonWorking);
+  const fojas = buildFojas(startDate, initialDays, suspensions, pauses);
   const finalDate = fojas[fojas.length - 1].hasta;
 
   resultHTML += '<hr />';
