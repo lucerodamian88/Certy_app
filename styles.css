@@ -884,8 +884,8 @@ body.dark-mode img {
 }
 
 .measurement-day {
-  background: #28a745;
-  color: #fff;
+  background: #ffeb3b;
+  color: #000;
   border: 2px solid #f58b2a;
   box-sizing: border-box;
 }
