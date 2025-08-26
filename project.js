@@ -19,29 +19,32 @@ function formatISO(date) {
   return date.toISOString().split('T')[0];
 }
 
-function buildFojas(startDate, finalDate, suspensions = []) {
-  const fojas = [];
-  const sorted = [...suspensions].sort((a, b) => a[0] - b[0]);
-  let currentStart = new Date(startDate);
-
-  while (currentStart <= finalDate) {
-    const nextBreak = addDays(currentStart, 29);
-    const nextSusp = sorted.length ? sorted[0] : null;
-
-    if (nextSusp && nextSusp[0] <= nextBreak) {
-      const measurement = addDays(nextSusp[1], 1);
-      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(measurement) });
-      currentStart = addDays(measurement, 1);
-      sorted.shift();
-    } else if (nextBreak <= finalDate) {
-      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(nextBreak) });
-      currentStart = addDays(nextBreak, 1);
-    } else {
-      fojas.push({ desde: formatDate(currentStart), hasta: formatDate(finalDate) });
-      break;
+function addWorkingDays(startDate, targetWorkedDays, nonWorking = []) {
+  const ranges = [...nonWorking].sort((a, b) => a[0] - b[0]);
+  let worked = 0;
+  let current = new Date(startDate);
+  while (true) {
+    const isNonWorking = ranges.some(([s, e]) => current >= s && current <= e);
+    if (!isNonWorking) {
+      worked++;
+      if (worked === targetWorkedDays) break;
     }
+    current = addDays(current, 1);
   }
+  return current;
+}
 
+function buildFojas(startDate, totalWorkedDays, nonWorking = []) {
+  const fojas = [];
+  let remaining = totalWorkedDays;
+  let currentStart = new Date(startDate);
+  while (remaining > 0) {
+    const chunk = Math.min(30, remaining);
+    const end = addWorkingDays(currentStart, chunk, nonWorking);
+    fojas.push({ desde: new Date(currentStart), hasta: new Date(end) });
+    remaining -= chunk;
+    currentStart = addDays(end, 1);
+  }
   return fojas;
 }
 
@@ -71,8 +74,8 @@ function generarTablaFojas(fojas) {
     tablaHTML += `
       <tr>
         <td class="num">${label}</td>
-        <td>${foja.desde}</td>
-        <td>${foja.hasta}</td>
+        <td>${formatDate(foja.desde)}</td>
+        <td>${formatDate(foja.hasta)}</td>
       </tr>
     `;
   });
@@ -81,7 +84,7 @@ function generarTablaFojas(fojas) {
   return tablaHTML;
 }
 
-function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
+function generateCalendar(startDate, endDate, suspensions = [], pauses = [], fojas = []) {
   const months = [];
   let current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
   const last = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
@@ -92,12 +95,8 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = []) {
 
   const isSuspension = date => suspensions.some(([s, e]) => date >= s && date <= e);
   const isPause = date => pauses.some(([s, e]) => date >= s && date <= e);
-  const isMeasurement = date => {
-    return (
-      suspensions.some(([s, e]) => date.getTime() === addDays(e, 1).getTime()) ||
-      pauses.some(([s, e]) => date.getTime() === addDays(e, 1).getTime())
-    );
-  };
+  const measurementDays = fojas.map(f => f.hasta.getTime());
+  const isMeasurement = date => measurementDays.includes(date.getTime());
 
   let html = '<div class="calendar">';
   months.forEach(mDate => {
@@ -190,8 +189,6 @@ function calculate() {
     }
   }
 
-  let currentDate = addDays(startDate, initialDays - 1);
-
   let resultHTML = `<h1>REPORTE GENERADO POR CERTY</h1>`;
   resultHTML += `<p><strong>Fecha de inicio:</strong> ${formatDate(startDate)}</p>`;
   resultHTML += `<p><strong>Plazo inicial:</strong> ${initialDays} días</p>`;
@@ -200,8 +197,6 @@ function calculate() {
     resultHTML += '<p><strong>Suspensiones:</strong></p><ul>';
     suspensions.forEach(([sStart, sEnd], i) => {
       resultHTML += `<li>Suspensión ${i + 1}: ${formatDate(sStart)} a ${formatDate(sEnd)}</li>`;
-      const diff = Math.round((sEnd - sStart) / (1000 * 60 * 60 * 24)) + 1;
-      currentDate = addDays(currentDate, diff);
     });
     resultHTML += '</ul>';
   } else {
@@ -212,24 +207,24 @@ function calculate() {
     resultHTML += '<p><strong>Paralizaciones:</strong></p><ul>';
     pauses.forEach(([pStart, pEnd], i) => {
       resultHTML += `<li>Paralización ${i + 1}: ${formatDate(pStart)} a ${formatDate(pEnd)}</li>`;
-      const diff = Math.round((pEnd - pStart) / (1000 * 60 * 60 * 24)) + 1;
-      currentDate = addDays(currentDate, diff);
     });
     resultHTML += '</ul>';
   } else {
     resultHTML += `<p><strong>Paralizaciones:</strong> No hubo</p>`;
   }
 
-  resultHTML += '<hr />';
-  resultHTML += `<p><strong>Fecha de finalización:</strong> ${formatDate(currentDate)}</p>`;
+  const nonWorking = [...suspensions, ...pauses];
+  const fojas = buildFojas(startDate, initialDays, nonWorking);
+  const finalDate = fojas[fojas.length - 1].hasta;
 
-  const fojas = buildFojas(startDate, currentDate, suspensions);
+  resultHTML += '<hr />';
+  resultHTML += `<p><strong>Fecha de finalización:</strong> ${formatDate(finalDate)}</p>`;
   resultHTML += `<p><strong>Foja Nº Final:</strong> ${fojas.length} FINAL</p>`;
   resultHTML += generarTablaFojas(fojas);
 
   const resultEl = document.getElementById("reporte");
   resultEl.innerHTML = resultHTML;
-  const calendarHTML = generateCalendar(startDate, currentDate, suspensions, pauses);
+  const calendarHTML = generateCalendar(startDate, finalDate, suspensions, pauses, fojas);
   resultEl.insertAdjacentHTML('beforeend', calendarHTML);
   document.getElementById('printSection').style.display = 'flex';
 }

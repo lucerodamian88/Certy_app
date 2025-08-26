@@ -861,7 +861,7 @@ body.dark-mode img {
 }
 
 .work-day {
-  background: #f58b2a;
+  background: #28a745;
   color: #fff;
 }
 
@@ -879,12 +879,12 @@ body.dark-mode img {
 }
 
 .pause-day {
-  background: #555555;
+  background: #2a7ff5;
   color: #fff;
 }
 
 .measurement-day {
-  background: #28a745;
+  background: #f58b2a;
   color: #fff;
 }
 
@@ -894,7 +894,7 @@ body.dark-mode img {
 }
 
 .pdf-export .pause-day {
-  background: #7f7f7f !important;
+  background: #2a7ff5 !important;
   color: #fff !important;
 }
 
