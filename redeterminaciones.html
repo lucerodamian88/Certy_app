@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistente de Redeterminación</title>
+  <link rel="icon" type="image/png" href="Certy_cara.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
+    <div class="logo-group">
+      <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
+      <div class="dept-group">
+        <span class="dept">Dirección Municipal de Certificaciones</span>
+        <span class="subdept">Subsecretaría de Gestión de Contrataciones de Obras Públicas</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="weather-container">
+        <div id="weather" class="weather"></div>
+        <div class="city-label">Neuquén Capital</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-wrapper">
+    <div class="container form-container">
+      <div class="asistente-header">
+        <h1>Asistente de Redeterminación de Precios</h1>
+        <button id="salirAsistente">Salir</button>
+      </div>
+      <form id="formAsistente" class="asistente-grid">
+        <fieldset>
+          <legend>Datos de la empresa</legend>
+          <label>Empresa
+            <select id="empresa">
+              <option value="" disabled selected>Seleccione</option>
+              <option>ARCO S.R.L.</option>
+              <option>BASAA SA</option>
+              <option>C.N. SAPAG S.A.</option>
+              <option>C.N, SAPAG S.A. - R.J. INGENIERIA S.A. COSTANERA RÍO NQN U.T</option>
+              <option>CODAM S.A.</option>
+              <option>DESARROLLOS INMOBILIARIOS AUSTRALES S.A</option>
+              <option>DREICON S.A.</option>
+              <option>EDUARDO ANTONIO SALUM</option>
+              <option>EMFA CONSTRUCCIONES S.R.L.</option>
+              <option>EMPRESA CONSTRUCTORA LAUTEC S.R.L.</option>
+              <option>EMPRESA CONSTRUCTORA ROQUE MOCCIOLA S.A</option>
+              <option>ESSESA S.A</option>
+              <option>GROUND S.A</option>
+              <option>HAC S.A</option>
+              <option>HIRAM S.A.</option>
+              <option>HORMIGONERA DEL INTERIOR SRL</option>
+              <option>HORMIQUEN - BASAA - UTE</option>
+              <option>HORMIQUEN S.A</option>
+              <option>HORMIX S.R.L.</option>
+              <option>ICR S.A</option>
+              <option>ING. RAUL LUJAN CRISTALDI</option>
+              <option>LIMAYSER S.R.L.</option>
+              <option>MAPIVIAL EQUIPOS SRL</option>
+              <option>OBRAS Y DUCTOS DEL COMAHUE S.A.</option>
+              <option>OMEGA MLP S.A</option>
+              <option>OMEGA MLP S.A - BASAA S.A</option>
+              <option>OMEGA MLP SA - RJ INGENIERIA SA UT</option>
+              <option>PERFIL SRL</option>
+              <option>QUIDEL OSCAR RAUL</option>
+              <option>R.J. INGENIERÍA S.A.</option>
+              <option>REGOLF CLAUDIO ALBERTO</option>
+              <option>R.J. INGENIERÍA S.A. - OMEGA MLP SRL - UT</option>
+              <option>SANTA IRENE SRL</option>
+              <option>SERVIOBRAS S.R.L.</option>
+              <option>SERVIPET S.A.</option>
+              <option>STEKLI SARITA SENOBIA</option>
+              <option value="OTRO">OTRO</option>
+            </select>
+          </label>
+          <label id="empresaOtroLabel" class="oculto">Otra empresa
+            <input type="text" id="empresaOtro">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Redeterminación</legend>
+          <label>N° de Redeterminación
+            <input type="number" id="numeroRedet" min="1">
+          </label>
+          <label>Nombre de la obra
+            <input type="text" id="nombreObra">
+          </label>
+          <div class="aprobada-por">
+            <label>Aprobada por
+              <select id="aprobadaPor">
+                <option>Resolución</option>
+                <option>Disposición</option>
+              </select>
+            </label>
+            <label>Número
+              <input type="text" id="numeroAprobacion" placeholder="xx/aaaa">
+            </label>
+            <label>Fecha
+              <input type="text" id="fechaAprobacion" placeholder="dd/mm/aaaa">
+            </label>
+          </div>
+          <label>Desde el...
+            <input type="text" id="desdeFecha" placeholder="dd/mm/aaaa">
+          </label>
+          <label>Monto Diferencia de Precios ($)
+            <input type="text" id="montoDif">
+          </label>
+          <label>Período de aplicación saldo de obra (MM/AAAA)
+            <input type="text" id="periodoSaldo" placeholder="MM/AAAA">
+          </label>
+        </fieldset>
+
+        <fieldset class="saltos">
+          <legend>Saltos FRI</legend>
+          <div class="saltos-config">
+            <label>Cantidad de saltos
+              <input type="number" id="cantidadSaltos" min="1" max="20">
+            </label>
+            <button type="button" id="generarSaltos">Generar filas</button>
+          </div>
+          <div id="saltosContainer"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Póliza</legend>
+          <label>¿Calcular póliza?
+            <select id="tienePoliza">
+              <option value="no" selected>No</option>
+              <option value="si">Sí</option>
+            </select>
+          </label>
+          <div id="polizaForm" class="oculto">
+            <label>Monto del contrato
+              <input type="text" id="montoContrato">
+            </label>
+            <label>Monto del contrato con adicionales
+              <input type="text" id="montoContratoAdic">
+            </label>
+            <label>Monto acumulado al momento de redeterminación
+              <input type="text" id="montoAcumulado">
+            </label>
+            <label>Saldo de Anticipo Financiero al momento de redeterminación
+              <input type="text" id="saldoAnticipo">
+            </label>
+            <label>Último FRI calculado
+              <input type="text" id="ultimoFriCalc">
+            </label>
+            <div class="fri-aprobado">
+              <label>Último FRI aprobado al
+                <input type="text" id="friAprobadoFecha" placeholder="MM/AA">
+              </label>
+              <label>Valor
+                <input type="text" id="friAprobadoValor" placeholder="NN,NN">
+              </label>
+            </div>
+            <label>Monto del certificado de RP modelo
+              <input type="text" id="montoCertificado">
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="acciones">
+          <button type="reset" id="limpiarFormulario">Limpiar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="loginModal" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3>Login</h3>
+      <label>Usuario
+        <input type="text" id="loginUsuario" autocomplete="username">
+      </label>
+      <label>Contraseña
+        <input type="password" id="loginClave" autocomplete="current-password">
+      </label>
+      <div id="loginError" class="login-error" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button id="loginIngresar">Ingresar</button>
+        <button id="loginCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="redeterminaciones.js"></script>
+</body>
+</html>
