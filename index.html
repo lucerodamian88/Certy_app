@@ -57,6 +57,16 @@
           </a>
         </li>
         <li>
+          <div class="card-button">
+            <img src="Certy_mareado.png" alt="Asistente de Redeterminación" class="card-img" loading="lazy">
+            <div class="card-content">
+              <h3 class="card-title">Asistente de Redeterminación de Precios</h3>
+              <p class="card-subtitle">Generá Acta, Pase, Renuncia y Excel de Póliza.</p>
+              <button id="abrirAsistente" class="card-action">Abrir</button>
+            </div>
+          </div>
+        </li>
+        <li>
           <button class="card-button" aria-label="Próximamente más funciones" disabled>
             <img src="Certy_trabajando.png" alt="Certy trabajando" class="card-img" loading="lazy">
             <div class="card-content">
@@ -67,6 +77,94 @@
         </li>
       </ul>
     </nav>
+  </main>
+
+  <div id="loginModal" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3>Login</h3>
+      <label>Usuario
+        <input type="text" id="loginUsuario" autocomplete="username">
+      </label>
+      <label>Contraseña
+        <input type="password" id="loginClave" autocomplete="current-password">
+      </label>
+      <div id="loginError" class="login-error" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button id="loginIngresar">Ingresar</button>
+        <button id="loginCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <main id="vistaAsistente" class="oculto">
+    <div class="asistente-header">
+      <h2>Asistente de Redeterminación de Precios</h2>
+      <button id="salirAsistente">Salir</button>
+    </div>
+    <form id="formAsistente" class="asistente-grid">
+      <fieldset>
+        <legend>Datos de la empresa</legend>
+        <label>Empresa
+          <input type="text" id="empresa" onchange="onEmpresaChange(this.value)">
+        </label>
+        <label>CUIT
+          <input type="text" id="cuit">
+        </label>
+        <label>Representación
+          <select id="representacion">
+            <option value="Presidente">Presidente</option>
+            <option value="Apoderado">Apoderado</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Apoderado General">Apoderado General</option>
+          </select>
+        </label>
+        <label>Nombre representante
+          <input type="text" id="nombreRepresentante">
+        </label>
+        <label>DNI representante
+          <input type="text" id="dniRepresentante">
+        </label>
+        <label>Domicilio legal
+          <input type="text" id="domicilioLegal">
+        </label>
+        <label>Email
+          <input type="email" id="emailEmpresa">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Redeterminación</legend>
+        <label>N° de Redeterminación
+          <input type="number" id="numeroRedet" min="1">
+        </label>
+        <label>Monto Diferencia de Precios ($)
+          <input type="text" id="montoDif">
+        </label>
+        <label>Monto en letras
+          <input type="text" id="montoLetras">
+        </label>
+        <label>Período de aplicación saldo de obra (MM/AAAA)
+          <input type="text" id="periodoSaldo" placeholder="MM/AAAA">
+        </label>
+      </fieldset>
+
+      <fieldset class="saltos">
+        <legend>Saltos FRI</legend>
+        <div class="saltos-config">
+          <label>Cantidad de saltos
+            <input type="number" id="cantidadSaltos" min="1" max="20">
+          </label>
+          <button type="button" id="generarSaltos">Generar filas</button>
+        </div>
+        <div id="saltosContainer"></div>
+      </fieldset>
+
+      <div class="acciones">
+        <button type="button" id="redactarClausula">Redactar Cláusula TERCERA</button>
+        <button type="reset" id="limpiarFormulario">Limpiar</button>
+      </div>
+      <textarea id="resultado" readonly></textarea>
+    </form>
   </main>
 
   <button id="downloadAppBtn" onclick="installApp()" aria-label="Descargar aplicación de Certy">
@@ -81,6 +179,7 @@
   </footer>
 
   <script src="common.js"></script>
+  <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.9/mammoth.browser.min.js"></script>
 </body>
