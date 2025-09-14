@@ -1,61 +1,69 @@
 // Lógica del Asistente de Redeterminación de Precios
 
-// Detecta si el entorno dispone de la API de Google Apps Script.
-const hasGoogleScriptRun =
-  typeof window !== 'undefined' &&
-  window.google &&
-  google.script &&
-  google.script.run;
-
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('loginModal');
-  const loginIng = document.getElementById('loginIngresar');
-  const loginCanc = document.getElementById('loginCancelar');
-  const salirBtn = document.getElementById('salirAsistente');
-  const genSaltosBtn = document.getElementById('generarSaltos');
-  const limpiarBtn = document.getElementById('limpiarFormulario');
-  const empresaSel = document.getElementById('empresa');
-  const polizaSel = document.getElementById('tienePoliza');
-
-  if (localStorage.getItem('certy_redet_auth') !== '1') {
+  if (modal && localStorage.getItem('certy_redet_auth') !== '1') {
     modal.classList.remove('oculto');
   }
 
-  loginIng.addEventListener('click', () => {
-    const user = document.getElementById('loginUsuario').value.trim();
-    const pass = document.getElementById('loginClave').value;
-    const err = document.getElementById('loginError');
-    if (user === 'LUCERODAMI' && pass === 'RED2025') {
-      localStorage.setItem('certy_redet_auth', '1');
-      err.textContent = '';
-      modal.classList.add('oculto');
-    } else {
-      err.textContent = 'Usuario o contraseña incorrectos.';
-    }
-  });
+  const loginIng = document.getElementById('loginIngresar');
+  if (loginIng) {
+    loginIng.addEventListener('click', () => {
+      const user = document.getElementById('loginUsuario');
+      const pass = document.getElementById('loginClave');
+      const err = document.getElementById('loginError');
+      if (user && pass && err) {
+        if (user.value.trim() === 'LUCERODAMI' && pass.value === 'RED2025') {
+          localStorage.setItem('certy_redet_auth', '1');
+          err.textContent = '';
+          if (modal) modal.classList.add('oculto');
+        } else {
+          err.textContent = 'Usuario o contraseña incorrectos.';
+        }
+      }
+    });
+  }
 
-  loginCanc.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
+  const loginCanc = document.getElementById('loginCancelar');
+  if (loginCanc) {
+    loginCanc.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  }
 
-  salirBtn.addEventListener('click', () => {
-    localStorage.removeItem('certy_redet_auth');
-    window.location.href = 'index.html';
-  });
+  const salirBtn = document.getElementById('salirAsistente');
+  if (salirBtn) {
+    salirBtn.addEventListener('click', () => {
+      localStorage.removeItem('certy_redet_auth');
+      window.location.href = 'index.html';
+    });
+  }
 
-  genSaltosBtn.addEventListener('click', generarSaltos);
-  limpiarBtn.addEventListener('click', limpiarFormulario);
-  empresaSel.addEventListener('change', e => toggleEmpresaOtro(e.target.value));
-  polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+  const genSaltosBtn = document.getElementById('generarSaltos');
+  if (genSaltosBtn) genSaltosBtn.addEventListener('click', generarSaltos);
 
-  if (!hasGoogleScriptRun) {
-    console.info('Entorno estándar detectado; no se utilizará google.script.run');
+  const limpiarBtn = document.getElementById('limpiarFormulario');
+  if (limpiarBtn) limpiarBtn.addEventListener('click', limpiarFormulario);
+
+  const empresaSel = document.getElementById('empresa');
+  if (empresaSel) empresaSel.addEventListener('change', e => toggleEmpresaOtro(e.target.value));
+
+  const polizaSel = document.getElementById('tienePoliza');
+  if (polizaSel) polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+
+  const enviarBtn = document.getElementById('enviarFormulario');
+  if (enviarBtn) {
+    enviarBtn.addEventListener('click', () => {
+      alert('Envío a Sheets pendiente');
+    });
   }
 });
 
 function generarSaltos() {
-  const cantidad = parseInt(document.getElementById('cantidadSaltos').value, 10);
+  const cantidadEl = document.getElementById('cantidadSaltos');
   const cont = document.getElementById('saltosContainer');
+  if (!cantidadEl || !cont) return;
+  const cantidad = parseInt(cantidadEl.value, 10);
   cont.innerHTML = '';
   if (isNaN(cantidad) || cantidad < 1 || cantidad > 20) {
     alert('Ingrese una cantidad válida de saltos (1-20).');
@@ -74,20 +82,26 @@ function generarSaltos() {
 }
 
 function limpiarFormulario() {
-  document.getElementById('formAsistente').reset();
-  document.getElementById('saltosContainer').innerHTML = '';
-  toggleEmpresaOtro(document.getElementById('empresa').value);
-  togglePoliza(document.getElementById('tienePoliza').value);
+  const form = document.getElementById('formAsistente');
+  const cont = document.getElementById('saltosContainer');
+  if (form) form.reset();
+  if (cont) cont.innerHTML = '';
+  const empresa = document.getElementById('empresa');
+  if (empresa) toggleEmpresaOtro(empresa.value);
+  const poliza = document.getElementById('tienePoliza');
+  if (poliza) togglePoliza(poliza.value);
 }
 
 function toggleEmpresaOtro(val) {
   const lbl = document.getElementById('empresaOtroLabel');
+  if (!lbl) return;
   if (val === 'OTRO') lbl.classList.remove('oculto');
   else lbl.classList.add('oculto');
 }
 
 function togglePoliza(val) {
   const form = document.getElementById('polizaForm');
+  if (!form) return;
   if (val === 'si') form.classList.remove('oculto');
   else form.classList.add('oculto');
 }

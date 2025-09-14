@@ -1122,8 +1122,3 @@ body.dark-mode img {
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
-
-#resultado {
-  width: 100%;
-  min-height: 150px;
-}
