@@ -1,40 +1,10 @@
 // Lógica del Asistente de Redeterminación de Precios
 
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('loginModal');
-  if (modal && localStorage.getItem('certy_redet_auth') !== '1') {
-    modal.classList.remove('oculto');
-  }
-
-  const loginIng = document.getElementById('loginIngresar');
-  if (loginIng) {
-    loginIng.addEventListener('click', () => {
-      const user = document.getElementById('loginUsuario');
-      const pass = document.getElementById('loginClave');
-      const err = document.getElementById('loginError');
-      if (user && pass && err) {
-        if (user.value.trim() === 'LUCERODAMI' && pass.value === 'RED2025') {
-          localStorage.setItem('certy_redet_auth', '1');
-          err.textContent = '';
-          if (modal) modal.classList.add('oculto');
-        } else {
-          err.textContent = 'Usuario o contraseña incorrectos.';
-        }
-      }
-    });
-  }
-
-  const loginCanc = document.getElementById('loginCancelar');
-  if (loginCanc) {
-    loginCanc.addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-  }
 
   const salirBtn = document.getElementById('salirAsistente');
   if (salirBtn) {
     salirBtn.addEventListener('click', () => {
-      localStorage.removeItem('certy_redet_auth');
       window.location.href = 'index.html';
     });
   }
