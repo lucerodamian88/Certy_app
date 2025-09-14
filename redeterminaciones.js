@@ -1,5 +1,12 @@
 // Lógica del Asistente de Redeterminación de Precios
 
+// Detecta si el entorno dispone de la API de Google Apps Script.
+const hasGoogleScriptRun =
+  typeof window !== 'undefined' &&
+  window.google &&
+  google.script &&
+  google.script.run;
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('loginModal');
   const loginIng = document.getElementById('loginIngresar');
@@ -40,6 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
   limpiarBtn.addEventListener('click', limpiarFormulario);
   empresaSel.addEventListener('change', e => toggleEmpresaOtro(e.target.value));
   polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+
+  if (!hasGoogleScriptRun) {
+    console.info('Entorno estándar detectado; no se utilizará google.script.run');
+  }
 });
 
 function generarSaltos() {
