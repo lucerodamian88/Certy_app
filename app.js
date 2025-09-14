@@ -50,13 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const polizaSel = document.getElementById('tienePoliza');
   if (polizaSel) polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
-
-  const enviarBtn = document.getElementById('enviarFormulario');
-  if (enviarBtn) {
-    enviarBtn.addEventListener('click', () => {
-      alert('Envío a Sheets pendiente');
-    });
-  }
 });
 
 function generarSaltos() {

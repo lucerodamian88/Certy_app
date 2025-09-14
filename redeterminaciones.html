@@ -82,38 +82,31 @@
           <label id="empresaOtroLabel" class="oculto">Otra empresa
             <input type="text" id="empresaOtro">
           </label>
+          <label>CUIT
+            <input type="text" id="CUIT">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Representante</legend>
+          <label>Tipo
+            <select id="repTipo">
+              <option>Administrador</option>
+              <option>Apoderado</option>
+            </select>
+          </label>
+          <label>Nombre
+            <input type="text" id="repNombre">
+          </label>
+          <label>DNI
+            <input type="text" id="repDNI">
+          </label>
         </fieldset>
 
         <fieldset>
           <legend>Redeterminación</legend>
           <label>N° de Redeterminación
-            <input type="number" id="numeroRedet" min="1">
-          </label>
-          <label>Nombre de la obra
-            <input type="text" id="nombreObra">
-          </label>
-          <div class="aprobada-por">
-            <label>Aprobada por
-              <select id="aprobadaPor">
-                <option>Resolución</option>
-                <option>Disposición</option>
-              </select>
-            </label>
-            <label>Número
-              <input type="text" id="numeroAprobacion" placeholder="xx/aaaa">
-            </label>
-            <label>Fecha
-              <input type="text" id="fechaAprobacion" placeholder="dd/mm/aaaa">
-            </label>
-          </div>
-          <label>Desde el...
-            <input type="text" id="desdeFecha" placeholder="dd/mm/aaaa">
-          </label>
-          <label>Monto Diferencia de Precios ($)
-            <input type="text" id="montoDif">
-          </label>
-          <label>Período de aplicación saldo de obra (MM/AAAA)
-            <input type="text" id="periodoSaldo" placeholder="MM/AAAA">
+            <input type="number" id="nRedet" min="1">
           </label>
         </fieldset>
 
@@ -136,39 +129,11 @@
               <option value="si">Sí</option>
             </select>
           </label>
-          <div id="polizaForm" class="oculto">
-            <label>Monto del contrato
-              <input type="text" id="montoContrato">
-            </label>
-            <label>Monto del contrato con adicionales
-              <input type="text" id="montoContratoAdic">
-            </label>
-            <label>Monto acumulado al momento de redeterminación
-              <input type="text" id="montoAcumulado">
-            </label>
-            <label>Saldo de Anticipo Financiero al momento de redeterminación
-              <input type="text" id="saldoAnticipo">
-            </label>
-            <label>Último FRI calculado
-              <input type="text" id="ultimoFriCalc">
-            </label>
-            <div class="fri-aprobado">
-              <label>Último FRI aprobado al
-                <input type="text" id="friAprobadoFecha" placeholder="MM/AA">
-              </label>
-              <label>Valor
-                <input type="text" id="friAprobadoValor" placeholder="NN,NN">
-              </label>
-            </div>
-            <label>Monto del certificado de RP modelo
-              <input type="text" id="montoCertificado">
-            </label>
-          </div>
+          <div id="polizaForm" class="oculto"></div>
         </fieldset>
 
         <div class="acciones">
           <button type="reset" id="limpiarFormulario">Limpiar</button>
-          <button type="button" id="enviarFormulario">Enviar (próximo paso)</button>
         </div>
       </form>
     </div>
@@ -192,6 +157,7 @@
   </div>
 
   <script src="common.js"></script>
-  <script src="redeterminaciones.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
+
