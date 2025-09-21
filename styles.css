@@ -564,6 +564,46 @@ label {
   margin-top: 1rem;
 }
 
+.field-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.aprobada-por-row {
+  display: grid;
+  gap: 0.75rem;
+  align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 1rem;
+}
+
+.aprobada-por-row label {
+  margin-top: 0;
+}
+
+.aprobada-por-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.buscar-digesto {
+  align-self: end;
+  padding: 0.6rem 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.buscar-digesto:hover {
+  background: var(--color-secondary);
+  transform: translateY(-1px);
+}
+
 input,
 select {
   width: 100%;

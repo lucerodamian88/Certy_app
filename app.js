@@ -19,6 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const polizaSel = document.getElementById('tienePoliza');
   if (polizaSel) polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+
+  const aprobadaPorSel = document.getElementById('aprobadaPor');
+  if (aprobadaPorSel) {
+    aprobadaPorSel.addEventListener('change', e => actualizarAprobadaPor(e.target.value));
+    actualizarAprobadaPor(aprobadaPorSel.value);
+  }
+
+  const buscarBtn = document.getElementById('buscarResolucion');
+  if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoResolucion);
 });
 
 function generarSaltos() {
@@ -53,6 +62,8 @@ function limpiarFormulario() {
   limpiarCamposEmpresa();
   const poliza = document.getElementById('tienePoliza');
   if (poliza) togglePoliza(poliza.value);
+  const aprobadaPor = document.getElementById('aprobadaPor');
+  if (aprobadaPor) actualizarAprobadaPor(aprobadaPor.value);
 }
 
 function toggleEmpresaOtro(val) {
@@ -152,4 +163,37 @@ function normalizarEmpresa(nombre) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-zA-Z0-9]/g, '')
     .toLowerCase();
+}
+
+function actualizarAprobadaPor(valor) {
+  const hint = document.getElementById('aprobadaPorHint');
+  const btn = document.getElementById('buscarResolucion');
+  if (hint) hint.textContent = '';
+  if (!btn) return;
+  if (valor === 'resolucion') {
+    if (hint) hint.textContent = 'Buscar la fecha en la página de Digesto';
+    btn.classList.remove('oculto');
+  } else if (valor === 'disposicion') {
+    if (hint) hint.textContent = 'Consultarle a la subsecretaría';
+    btn.classList.add('oculto');
+  } else {
+    btn.classList.add('oculto');
+  }
+}
+
+function abrirDigestoResolucion() {
+  const tipo = document.getElementById('aprobadaPor');
+  if (!tipo || tipo.value !== 'resolucion') return;
+  const numeroInput = document.getElementById('aprobadaNumero');
+  if (!numeroInput) return;
+  const valor = (numeroInput.value || '').trim();
+  const match = valor.match(/^(\d{4})\/(\d{2})$/);
+  if (!match) {
+    alert('Ingrese un número válido con el formato nnnn/aa.');
+    return;
+  }
+  const [, numero, anioCorto] = match;
+  const url = `https://www.muninqn.gov.ar/info/doc/digesto/RESOLUCIONES/20${anioCorto}/r-${numero}-${anioCorto}-.pdf`;
+  const nuevaVentana = window.open(url, '_blank');
+  if (nuevaVentana) nuevaVentana.opener = null;
 }
