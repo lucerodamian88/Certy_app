@@ -2,6 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const formContainer = document.querySelector('.form-container');
+  if (formContainer) formContainer.classList.add('loaded');
+
   const salirBtn = document.getElementById('salirAsistente');
   if (salirBtn) {
     salirBtn.addEventListener('click', () => {
