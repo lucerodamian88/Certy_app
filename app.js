@@ -181,7 +181,7 @@ function actualizarAprobadaPor(valor) {
   }
 }
 
-function abrirDigestoResolucion() {
+async function abrirDigestoResolucion() {
   const tipo = document.getElementById('aprobadaPor');
   if (!tipo || tipo.value !== 'resolucion') return;
   const numeroInput = document.getElementById('aprobadaNumero');
@@ -193,7 +193,32 @@ function abrirDigestoResolucion() {
     return;
   }
   const [, numero, anioCorto] = match;
-  const url = `https://www.muninqn.gov.ar/info/doc/digesto/RESOLUCIONES/20${anioCorto}/r-${numero}-${anioCorto}-.pdf`;
-  const nuevaVentana = window.open(url, '_blank');
-  if (nuevaVentana) nuevaVentana.opener = null;
+  const base = `https://www.muninqn.gov.ar/info/doc/digesto/RESOLUCIONES/20${anioCorto}/r-${numero}-${anioCorto}`;
+  const urlConGuionFinal = `${base}-.pdf`;
+  const urlSinGuionFinal = `${base}.pdf`;
+
+  const abrirEnNuevaPestana = url => {
+    const nuevaVentana = window.open(url, '_blank');
+    if (nuevaVentana) nuevaVentana.opener = null;
+  };
+
+  try {
+    const respuesta = await fetch(urlConGuionFinal, { method: 'HEAD' });
+    if (respuesta.ok) {
+      abrirEnNuevaPestana(urlConGuionFinal);
+      return;
+    }
+    if (respuesta.status === 404) {
+      const alternativa = await fetch(urlSinGuionFinal, { method: 'HEAD' });
+      if (alternativa.ok) {
+        abrirEnNuevaPestana(urlSinGuionFinal);
+        return;
+      }
+    }
+  } catch (error) {
+    console.warn('No se pudo verificar la resolución con guion final. Intentando alternativa.', error);
+  }
+
+  // Si no se pudo confirmar la existencia de las URLs anteriores, abrir la alternativa sin guion.
+  abrirEnNuevaPestana(urlSinGuionFinal);
 }
