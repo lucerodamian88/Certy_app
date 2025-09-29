@@ -125,10 +125,6 @@
 
         <fieldset>
           <legend>Redeterminación</legend>
-          <label>N° de Redeterminación
-            <input type="number" id="nRedet" min="1">
-          </label>
-          <small class="field-hint"><em>Sugerencia: Primera Redeterminación, Segunda Redeterminación.</em></small>
           <label>Cambios registrados desde
             <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
           </label>
@@ -136,6 +132,44 @@
           <label>Hasta
             <input type="text" id="cambiosHasta" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
           </label>
+          <label>N° de Redeterminación
+            <select id="nRedet">
+              <option value="" disabled selected>Seleccione</option>
+              <option value="1">Primera Redeterminación</option>
+              <option value="2">Segunda Redeterminación</option>
+              <option value="3">Tercera Redeterminación</option>
+              <option value="4">Cuarta Redeterminación</option>
+              <option value="5">Quinta Redeterminación</option>
+              <option value="6">Sexta Redeterminación</option>
+              <option value="7">Séptima Redeterminación</option>
+              <option value="8">Octava Redeterminación</option>
+              <option value="9">Novena Redeterminación</option>
+              <option value="10">Décima Redeterminación</option>
+              <option value="11">Undécima Redeterminación</option>
+              <option value="12">Duodécima Redeterminación</option>
+              <option value="13">Decimotercera Redeterminación</option>
+              <option value="14">Decimocuarta Redeterminación</option>
+              <option value="15">Decimoquinta Redeterminación</option>
+              <option value="16">Decimosexta Redeterminación</option>
+              <option value="17">Decimoséptima Redeterminación</option>
+              <option value="18">Decimoctava Redeterminación</option>
+              <option value="19">Decimonovena Redeterminación</option>
+              <option value="20">Vigésima Redeterminación</option>
+            </select>
+          </label>
+          <small class="field-hint"><em>Sugerencia: Primera Redeterminación, Segunda Redeterminación.</em></small>
+          <div class="saltos-bloque">
+            <div class="saltos-encabezado">
+              <span class="saltos-titulo">Saltos FRI</span>
+              <div class="saltos-config">
+                <label>Cantidad de saltos
+                  <input type="number" id="cantidadSaltos" min="1" max="20">
+                </label>
+                <button type="button" id="generarSaltos">Generar filas</button>
+              </div>
+            </div>
+            <div id="saltosContainer" class="saltos-container"></div>
+          </div>
           <label>Monto de la redeterminación
             <div class="monto-input">
               <span class="peso-signo" aria-hidden="true">$</span>
@@ -148,17 +182,6 @@
               <input type="text" id="montoRedeterminacionLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
             </label>
           </div>
-        </fieldset>
-
-        <fieldset class="saltos">
-          <legend>Saltos FRI</legend>
-          <div class="saltos-config">
-            <label>Cantidad de saltos
-              <input type="number" id="cantidadSaltos" min="1" max="20">
-            </label>
-            <button type="button" id="generarSaltos">Generar filas</button>
-          </div>
-          <div id="saltosContainer"></div>
         </fieldset>
 
         <fieldset>

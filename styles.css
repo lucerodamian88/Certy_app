@@ -1184,11 +1184,33 @@ body.dark-mode img {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+.saltos-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.saltos-encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.saltos-titulo {
+  font-weight: 600;
+}
+
 .saltos-config {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.saltos-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .salto-row {
@@ -1196,4 +1218,19 @@ body.dark-mode img {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.salto-porcentaje {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.salto-porcentaje .salto-acum {
+  flex: 1;
+}
+
+.porcentaje-signo {
+  font-weight: 600;
+  color: var(--color-primary);
 }
