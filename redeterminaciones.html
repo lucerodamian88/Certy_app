@@ -196,7 +196,7 @@
               <option value="si">Sí</option>
             </select>
           </label>
-          <div id="polizaForm" class="oculto">
+          <div id="polizaForm" class="poliza-panel" aria-hidden="true">
             <div class="poliza-grid">
               <label>Monto del contrato
                 <div class="monto-input">
@@ -227,12 +227,12 @@
               <label>SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaSaldoNeto" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaSaldoNeto" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <label>ÚLTIMO FRI A <span class="poliza-hasta" data-poliza-hasta="ultimo-fri">mm/aaaa</span>
                 <div class="salto-porcentaje">
-                  <input type="text" id="polizaUltimoFriValor" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaUltimoFriValor" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                   <span class="porcentaje-signo" aria-hidden="true">%</span>
                 </div>
                 <small class="field-hint"><em>Se toma el último valor de los saltos cargados.</em></small>
@@ -253,26 +253,26 @@
               </div>
               <label>Incremento de FRI
                 <div class="salto-porcentaje">
-                  <input type="text" id="polizaIncrementoFri" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaIncrementoFri" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                   <span class="porcentaje-signo" aria-hidden="true">%</span>
                 </div>
               </label>
               <label>BASE PARA CONTRATACIÓN DE PÓLIZA
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaBaseContratacion" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaBaseContratacion" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <label>BASE PARA CONTRATACIÓN DE PÓLIZA
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaBaseContratacionCopia" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaBaseContratacionCopia" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <label>MONTO A GARANTIZAR POR SALDO DE OBRA
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoGarantizarSaldoObra" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoGarantizarSaldoObra" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <label>CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span>
@@ -285,20 +285,20 @@
               <label>MONTO A GARANTIZAR POR R.P
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoGarantizarRp" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoGarantizarRp" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <label>MONTO TOTAL A GARANTIZAR
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoTotalGarantizar" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoTotalGarantizar" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </label>
               <div class="poliza-total">
                 <label>La póliza de ejecución de contrato que va en la cláusula SEXTA del Acta de Adhesión es de
                   <div class="monto-input">
                     <span class="peso-signo" aria-hidden="true">$</span>
-                    <input type="text" id="polizaMontoClausula" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                    <input type="text" id="polizaMontoClausula" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                   </div>
                 </label>
                 <label>Monto en letras
