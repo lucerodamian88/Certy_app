@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const buscarBtn = document.getElementById('buscarResolucion');
   if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoResolucion);
 
+  inicializarPoliza();
   inicializarMontoRedeterminacion();
 });
 
@@ -56,6 +57,7 @@ function generarSaltos() {
     `;
     cont.appendChild(row);
   }
+  actualizarCalculosPoliza();
 }
 
 function limpiarFormulario() {
@@ -72,6 +74,7 @@ function limpiarFormulario() {
   if (aprobadaPor) actualizarAprobadaPor(aprobadaPor.value);
   const montoLetras = document.getElementById('montoRedeterminacionLetras');
   if (montoLetras) montoLetras.value = '';
+  actualizarCalculosPoliza();
 }
 
 function toggleEmpresaOtro(val) {
@@ -86,6 +89,254 @@ function togglePoliza(val) {
   if (!form) return;
   if (val === 'si') form.classList.remove('oculto');
   else form.classList.add('oculto');
+  actualizarCalculosPoliza();
+}
+
+function inicializarPoliza() {
+  const form = document.getElementById('formAsistente');
+  const poliza = document.getElementById('polizaForm');
+  if (!form || !poliza) return;
+
+  polizaContext = {
+    form,
+    hastaInput: document.getElementById('cambiosHasta'),
+    montoContrato: document.getElementById('polizaMontoContrato'),
+    montoConAdicionales: document.getElementById('polizaMontoConAdicionales'),
+    montoAcumulado: document.getElementById('polizaMontoObraAcumulada'),
+    saldoAnticipo: document.getElementById('polizaSaldoAnticipo'),
+    saldoNeto: document.getElementById('polizaSaldoNeto'),
+    ultimoFriValor: document.getElementById('polizaUltimoFriValor'),
+    ultimoFriAprobadoFecha: document.getElementById('polizaUltimoFriAprobadoFecha'),
+    ultimoFriAprobadoValor: document.getElementById('polizaUltimoFriAprobadoValor'),
+    incrementoFri: document.getElementById('polizaIncrementoFri'),
+    baseContratacion: document.getElementById('polizaBaseContratacion'),
+    baseContratacionCopia: document.getElementById('polizaBaseContratacionCopia'),
+    montoGarantizarSaldo: document.getElementById('polizaMontoGarantizarSaldoObra'),
+    certificadoRp: document.getElementById('polizaCertificadoRp'),
+    montoGarantizarRp: document.getElementById('polizaMontoGarantizarRp'),
+    montoTotal: document.getElementById('polizaMontoTotalGarantizar'),
+    montoClausula: document.getElementById('polizaMontoClausula'),
+    montoClausulaLetras: document.getElementById('polizaMontoClausulaLetras'),
+    hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta'))
+  };
+
+  const camposMonto = [
+    polizaContext.montoContrato,
+    polizaContext.montoConAdicionales,
+    polizaContext.montoAcumulado,
+    polizaContext.saldoAnticipo,
+    polizaContext.certificadoRp
+  ];
+  camposMonto.forEach(campo => {
+    if (campo) {
+      campo.addEventListener('input', actualizarCalculosPoliza);
+      campo.addEventListener('blur', actualizarCalculosPoliza);
+    }
+  });
+
+  if (polizaContext.ultimoFriAprobadoValor) {
+    polizaContext.ultimoFriAprobadoValor.addEventListener('input', actualizarCalculosPoliza);
+    polizaContext.ultimoFriAprobadoValor.addEventListener('blur', actualizarCalculosPoliza);
+  }
+
+  if (polizaContext.ultimoFriAprobadoFecha) {
+    polizaContext.ultimoFriAprobadoFecha.addEventListener('input', actualizarCalculosPoliza);
+    polizaContext.ultimoFriAprobadoFecha.addEventListener('blur', actualizarCalculosPoliza);
+  }
+
+  if (polizaContext.hastaInput) {
+    polizaContext.hastaInput.addEventListener('input', actualizarTextoHastaPoliza);
+    polizaContext.hastaInput.addEventListener('blur', actualizarTextoHastaPoliza);
+  }
+
+  form.addEventListener('reset', () => {
+    setTimeout(() => {
+      actualizarTextoHastaPoliza();
+      actualizarCalculosPoliza();
+    }, 0);
+  });
+
+  const saltosContainer = document.getElementById('saltosContainer');
+  if (saltosContainer) {
+    saltosContainer.addEventListener('input', event => {
+      if (event.target && event.target.classList.contains('salto-acum')) {
+        actualizarCalculosPoliza();
+      }
+    });
+  }
+
+  actualizarTextoHastaPoliza();
+  actualizarCalculosPoliza();
+}
+
+function actualizarTextoHastaPoliza() {
+  if (!polizaContext) return;
+  const valor = obtenerValorHasta();
+  const texto = valor || 'mm/aaaa';
+  polizaContext.hastaTargets.forEach(span => {
+    span.textContent = texto;
+  });
+}
+
+const formateadorMoneda = new Intl.NumberFormat('es-AR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
+const formateadorPorcentaje = new Intl.NumberFormat('es-AR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
+function actualizarCalculosPoliza() {
+  if (!polizaContext) return;
+  const selector = document.getElementById('tienePoliza');
+  if (selector && selector.value !== 'si') {
+    limpiarResultadosPoliza();
+    return;
+  }
+
+  const montoConAdicionales = parseMonto(obtenerValorCampo(polizaContext.montoConAdicionales));
+  const montoAcumulado = parseMonto(obtenerValorCampo(polizaContext.montoAcumulado));
+  const saldoAnticipo = parseMonto(obtenerValorCampo(polizaContext.saldoAnticipo));
+
+  let saldoNeto = null;
+  if ([montoConAdicionales, montoAcumulado, saldoAnticipo].some(valor => valor !== null)) {
+    saldoNeto = redondearDosDecimales((montoConAdicionales ?? 0) - (montoAcumulado ?? 0) - (saldoAnticipo ?? 0));
+  }
+  if (polizaContext.saldoNeto) {
+    polizaContext.saldoNeto.value = saldoNeto !== null ? formatearMoneda(saldoNeto) : '';
+  }
+
+  const ultimoFri = obtenerUltimoSaltoValor();
+  if (polizaContext.ultimoFriValor) {
+    polizaContext.ultimoFriValor.value = ultimoFri !== null ? formatearPorcentaje(ultimoFri) : '';
+  }
+
+  const ultimoFriAprobado = parsePorcentaje(obtenerValorCampo(polizaContext.ultimoFriAprobadoValor));
+  const incrementoFri = ultimoFri !== null && ultimoFriAprobado !== null
+    ? redondearDosDecimales(ultimoFri - ultimoFriAprobado)
+    : null;
+  if (polizaContext.incrementoFri) {
+    polizaContext.incrementoFri.value = incrementoFri !== null ? formatearPorcentaje(incrementoFri) : '';
+  }
+
+  const baseContratacion = saldoNeto !== null && incrementoFri !== null
+    ? redondearDosDecimales(saldoNeto * (incrementoFri / 100))
+    : null;
+  if (polizaContext.baseContratacion) {
+    polizaContext.baseContratacion.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
+  }
+  if (polizaContext.baseContratacionCopia) {
+    polizaContext.baseContratacionCopia.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
+  }
+
+  const montoGarantizarSaldo = baseContratacion !== null
+    ? redondearDosDecimales(baseContratacion * 0.05)
+    : null;
+  if (polizaContext.montoGarantizarSaldo) {
+    polizaContext.montoGarantizarSaldo.value = montoGarantizarSaldo !== null ? formatearMoneda(montoGarantizarSaldo) : '';
+  }
+
+  const certificadoRp = parseMonto(obtenerValorCampo(polizaContext.certificadoRp));
+  const montoGarantizarRp = certificadoRp !== null
+    ? redondearDosDecimales(certificadoRp * 0.05)
+    : null;
+  if (polizaContext.montoGarantizarRp) {
+    polizaContext.montoGarantizarRp.value = montoGarantizarRp !== null ? formatearMoneda(montoGarantizarRp) : '';
+  }
+
+  let montoTotal = null;
+  if (montoGarantizarSaldo !== null || montoGarantizarRp !== null) {
+    montoTotal = redondearDosDecimales((montoGarantizarSaldo ?? 0) + (montoGarantizarRp ?? 0));
+  }
+  if (polizaContext.montoTotal) {
+    polizaContext.montoTotal.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
+  }
+  if (polizaContext.montoClausula) {
+    polizaContext.montoClausula.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
+  }
+  if (polizaContext.montoClausulaLetras) {
+    polizaContext.montoClausulaLetras.value = montoTotal !== null ? numeroALetras(montoTotal) : '';
+  }
+}
+
+function limpiarResultadosPoliza() {
+  if (!polizaContext) return;
+  const campos = [
+    'saldoNeto',
+    'ultimoFriValor',
+    'incrementoFri',
+    'baseContratacion',
+    'baseContratacionCopia',
+    'montoGarantizarSaldo',
+    'montoGarantizarRp',
+    'montoTotal',
+    'montoClausula'
+  ];
+  campos.forEach(nombre => {
+    const campo = polizaContext[nombre];
+    if (campo) campo.value = '';
+  });
+  if (polizaContext.montoClausulaLetras) {
+    polizaContext.montoClausulaLetras.value = '';
+  }
+}
+
+function obtenerValorCampo(campo) {
+  if (!campo) return '';
+  return (campo.value || '').trim();
+}
+
+function parseMonto(valor) {
+  if (!valor) return null;
+  const limpio = valor.replace(/\$/g, '').trim();
+  if (!limpio) return null;
+  const normalizado = normalizarMontoTexto(limpio);
+  const numero = Number(normalizado);
+  if (Number.isNaN(numero)) return null;
+  return numero;
+}
+
+function parsePorcentaje(valor) {
+  if (!valor) return null;
+  const sinSimbolo = valor.replace(/%/g, '').trim();
+  if (!sinSimbolo) return null;
+  const normalizado = normalizarMontoTexto(sinSimbolo);
+  const numero = Number(normalizado);
+  if (Number.isNaN(numero)) return null;
+  return numero;
+}
+
+function formatearMoneda(valor) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) return '';
+  return formateadorMoneda.format(valor);
+}
+
+function formatearPorcentaje(valor) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) return '';
+  return formateadorPorcentaje.format(valor);
+}
+
+function obtenerUltimoSaltoValor() {
+  const cont = document.getElementById('saltosContainer');
+  if (!cont) return null;
+  const saltos = cont.querySelectorAll('.salto-acum');
+  for (let i = saltos.length - 1; i >= 0; i -= 1) {
+    const valor = parsePorcentaje(obtenerValorCampo(saltos[i]));
+    if (valor !== null) return valor;
+  }
+  return null;
+}
+
+function obtenerValorHasta() {
+  if (!polizaContext || !polizaContext.hastaInput) return '';
+  return (polizaContext.hastaInput.value || '').trim();
+}
+
+function redondearDosDecimales(valor) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) return null;
+  return Math.round(valor * 100) / 100;
 }
 
 const ordinalesMasc = [
@@ -231,6 +482,7 @@ const VEINTI = {
   29: 'veintinueve'
 };
 
+let polizaContext = null;
 let empresasCache = null;
 let empresasPromise = null;
 

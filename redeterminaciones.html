@@ -102,6 +102,10 @@
             <input type="text" id="obraNombre">
           </label>
           <small class="field-hint"><em>Sugerencia: copiar y pegar el nombre del sistema GESOP.</em></small>
+          <label>N° de Expediente
+            <input type="text" id="obraExpediente" placeholder="nnnn-M-202X" pattern="\d{4}-M-202\d" inputmode="text">
+          </label>
+          <small class="field-hint"><em>Ejemplo de formato: 1234-M-2023.</em></small>
           <div class="aprobada-por-row">
             <div class="aprobada-por-field">
               <label>Aprobada por
@@ -192,7 +196,117 @@
               <option value="si">Sí</option>
             </select>
           </label>
-          <div id="polizaForm" class="oculto"></div>
+          <div id="polizaForm" class="oculto">
+            <div class="poliza-grid">
+              <label>Monto del contrato
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoContrato" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                </div>
+              </label>
+              <label>Monto con adicionales
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                </div>
+              </label>
+              <label>Monto Obra acumulada a <span class="poliza-hasta" data-poliza-hasta="acumulada">mm/aaaa</span>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoObraAcumulada" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "A)".</em></small>
+              </label>
+              <label>Saldo de Anticipo Financiero a <span class="poliza-hasta" data-poliza-hasta="anticipo">mm/aaaa</span>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaSaldoAnticipo" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
+              </label>
+              <label>SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaSaldoNeto" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <label>ÚLTIMO FRI A <span class="poliza-hasta" data-poliza-hasta="ultimo-fri">mm/aaaa</span>
+                <div class="salto-porcentaje">
+                  <input type="text" id="polizaUltimoFriValor" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <span class="porcentaje-signo" aria-hidden="true">%</span>
+                </div>
+                <small class="field-hint"><em>Se toma el último valor de los saltos cargados.</em></small>
+              </label>
+              <div class="poliza-ultimo-aprobado">
+                <span class="poliza-ultimo-aprobado-titulo">ÚLTIMO FRI APROBADO A</span>
+                <div class="poliza-ultimo-aprobado-campos">
+                  <label>Fecha
+                    <input type="text" id="polizaUltimoFriAprobadoFecha" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
+                  </label>
+                  <label>Porcentaje
+                    <div class="salto-porcentaje">
+                      <input type="text" id="polizaUltimoFriAprobadoValor" placeholder="NN,NN" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?">
+                      <span class="porcentaje-signo" aria-hidden="true">%</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <label>Incremento de FRI
+                <div class="salto-porcentaje">
+                  <input type="text" id="polizaIncrementoFri" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <span class="porcentaje-signo" aria-hidden="true">%</span>
+                </div>
+              </label>
+              <label>BASE PARA CONTRATACIÓN DE PÓLIZA
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaBaseContratacion" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <label>BASE PARA CONTRATACIÓN DE PÓLIZA
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaBaseContratacionCopia" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <label>MONTO A GARANTIZAR POR SALDO DE OBRA
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoGarantizarSaldoObra" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <label>CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaCertificadoRp" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el certificado de Redeterminación, en el total de la columna "Diferencia A Pagar".</em></small>
+              </label>
+              <label>MONTO A GARANTIZAR POR R.P
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoGarantizarRp" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <label>MONTO TOTAL A GARANTIZAR
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoTotalGarantizar" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </label>
+              <div class="poliza-total">
+                <label>La póliza de ejecución de contrato que va en la cláusula SEXTA del Acta de Adhesión es de
+                  <div class="monto-input">
+                    <span class="peso-signo" aria-hidden="true">$</span>
+                    <input type="text" id="polizaMontoClausula" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  </div>
+                </label>
+                <label>Monto en letras
+                  <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </label>
+              </div>
+            </div>
+          </div>
         </fieldset>
 
         <div class="acciones">

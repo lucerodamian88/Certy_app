@@ -606,6 +606,49 @@ label {
   color: #4d6fa6;
 }
 
+#polizaForm .poliza-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.poliza-hasta {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.poliza-ultimo-aprobado {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(77, 111, 166, 0.3);
+  border-radius: 8px;
+  background: rgba(153, 198, 255, 0.15);
+}
+
+.poliza-ultimo-aprobado-titulo {
+  display: block;
+  font-weight: 600;
+}
+
+.poliza-ultimo-aprobado-campos {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 0.75rem;
+}
+
+.poliza-ultimo-aprobado-campos label {
+  margin-top: 0;
+}
+
+.poliza-total {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .aprobada-por-row {
   display: grid;
   gap: 0.75rem;
