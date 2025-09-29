@@ -84,15 +84,13 @@ function togglePoliza(activa) {
   const panel = polizaContext && polizaContext.section
     ? polizaContext.section
     : document.getElementById('polizaSection');
-  const wrapper = document.querySelector('.form-wrapper');
-  if (!panel || !wrapper) return;
+  if (!panel) return;
   if (activa) {
-    wrapper.classList.add('poliza-activa');
     panel.classList.remove('oculto');
     panel.setAttribute('aria-hidden', 'false');
+    sincronizarMontoConAdicionales({ formatear: true });
     actualizarCalculosPoliza();
   } else {
-    wrapper.classList.remove('poliza-activa');
     panel.classList.add('oculto');
     panel.setAttribute('aria-hidden', 'true');
   }
@@ -117,20 +115,16 @@ function inicializarPoliza() {
     ultimoFriAprobadoValor: document.getElementById('polizaUltimoFriAprobadoValor'),
     incrementoFri: document.getElementById('polizaIncrementoFri'),
     baseContratacion: document.getElementById('polizaBaseContratacion'),
-    baseContratacionResumen: document.getElementById('polizaBaseContratacionResumen'),
     montoGarantizarSaldo: document.getElementById('polizaMontoGarantizarSaldoObra'),
     certificadoRp: document.getElementById('polizaCertificadoRp'),
     montoGarantizarRp: document.getElementById('polizaMontoGarantizarRp'),
     montoTotal: document.getElementById('polizaMontoTotalGarantizar'),
-    montoClausula: document.getElementById('polizaMontoClausula'),
     montoClausulaLetras: document.getElementById('polizaMontoClausulaLetras'),
     hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta')),
     calcularRadios: Array.from(document.querySelectorAll('input[name="calcularPoliza"]')),
-    alteracionRadios: Array.from(document.querySelectorAll('input[name="polizaAlteracion"]')),
     errorContenedor: document.getElementById('polizaError'),
     errorTexto: document.getElementById('polizaErrorTexto'),
-    recalcularBtn: document.getElementById('polizaRecalcular'),
-    restablecerBtn: document.getElementById('polizaRestablecer')
+    montoConAdicionalesEditado: false
   };
 
   const camposMoneda = [
@@ -159,12 +153,13 @@ function inicializarPoliza() {
     polizaContext.hastaInput.addEventListener('blur', actualizarTextoHastaPoliza);
   }
 
-  if (polizaContext.recalcularBtn) {
-    polizaContext.recalcularBtn.addEventListener('click', recalcularPoliza);
-  }
-
-  if (polizaContext.restablecerBtn) {
-    polizaContext.restablecerBtn.addEventListener('click', () => restablecerPoliza());
+  if (polizaContext.montoConAdicionales) {
+    polizaContext.montoConAdicionales.addEventListener('input', () => {
+      evaluarEdicionMontoConAdicionales();
+    });
+    polizaContext.montoConAdicionales.addEventListener('blur', () => {
+      evaluarEdicionMontoConAdicionales();
+    });
   }
 
   const saltosContainer = document.getElementById('saltosContainer');
@@ -189,19 +184,8 @@ function inicializarPoliza() {
         limpiarValoresBasePoliza();
         limpiarResultadosPoliza();
         ocultarAdvertenciaPoliza();
-        actualizarEstadoPoliza({ calcular: 'no', alteracion: 'no', valores: {}, reemplazarValores: true });
-        establecerRadio(polizaContext.alteracionRadios, 'no');
-        aplicarEstadoAlteracion();
+        actualizarEstadoPoliza({ calcular: 'no', valores: {}, reemplazarValores: true, adicionalesEditado: false });
       }
-    });
-  });
-
-  polizaContext.alteracionRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (!radio.checked) return;
-      actualizarEstadoPoliza({ alteracion: radio.value });
-      aplicarEstadoAlteracion();
-      actualizarCalculosPoliza();
     });
   });
 
@@ -219,8 +203,7 @@ function restaurarEstadoPoliza() {
   const estado = obtenerEstadoPoliza();
   const calcularValor = estado.calcular === 'si' ? 'si' : 'no';
   establecerRadio(polizaContext.calcularRadios, calcularValor);
-  const alteracionValor = estado.alteracion === 'si' ? 'si' : 'no';
-  establecerRadio(polizaContext.alteracionRadios, alteracionValor);
+  polizaContext.montoConAdicionalesEditado = estado.adicionalesEditado === true;
 
   const valores = estado.valores || {};
   Object.keys(valores).forEach(id => {
@@ -234,7 +217,7 @@ function restaurarEstadoPoliza() {
     }
   });
 
-  aplicarEstadoAlteracion();
+  evaluarEdicionMontoConAdicionales();
   actualizarTextoHastaPoliza();
   togglePoliza(calcularValor === 'si');
   if (calcularValor === 'si') {
@@ -376,9 +359,6 @@ function actualizarCalculosPoliza() {
   if (polizaContext.baseContratacion) {
     polizaContext.baseContratacion.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
   }
-  if (polizaContext.baseContratacionResumen) {
-    polizaContext.baseContratacionResumen.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
-  }
 
   const montoGarantizarSaldo = baseContratacion !== null
     ? redondearDosDecimales(baseContratacion * 0.05)
@@ -402,9 +382,6 @@ function actualizarCalculosPoliza() {
   if (polizaContext.montoTotal) {
     polizaContext.montoTotal.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
   }
-  if (polizaContext.montoClausula) {
-    polizaContext.montoClausula.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
-  }
   if (polizaContext.montoClausulaLetras) {
     polizaContext.montoClausulaLetras.value = montoTotal !== null ? numeroALetras(montoTotal) : '';
   }
@@ -422,11 +399,9 @@ function limpiarResultadosPoliza() {
     'ultimoFriValor',
     'incrementoFri',
     'baseContratacion',
-    'baseContratacionResumen',
     'montoGarantizarSaldo',
     'montoGarantizarRp',
-    'montoTotal',
-    'montoClausula'
+    'montoTotal'
   ];
   campos.forEach(nombre => {
     const campo = polizaContext[nombre];
@@ -451,7 +426,8 @@ function limpiarValoresBasePoliza() {
   campos.forEach(campo => {
     if (campo) campo.value = '';
   });
-  actualizarEstadoPoliza({ valores: {}, reemplazarValores: true });
+  polizaContext.montoConAdicionalesEditado = false;
+  actualizarEstadoPoliza({ valores: {}, reemplazarValores: true, adicionalesEditado: false });
 }
 
 function obtenerValorCampo(campo) {
@@ -526,43 +502,46 @@ function redondearDosDecimales(valor) {
   return Math.round(valor * 100) / 100;
 }
 
-function esAlteracionActiva() {
-  if (!polizaContext) return false;
-  return polizaContext.alteracionRadios.some(radio => radio.checked && radio.value === 'si');
-}
-
-function aplicarEstadoAlteracion() {
-  if (!polizaContext) return;
-  const campo = polizaContext.montoConAdicionales;
-  if (!campo) return;
-  const activa = esAlteracionActiva();
-  if (activa) {
-    campo.removeAttribute('readonly');
-    campo.setAttribute('aria-readonly', 'false');
-  } else {
-    campo.setAttribute('readonly', 'true');
-    campo.setAttribute('aria-readonly', 'true');
-    sincronizarMontoConAdicionales({ formatear: true });
-  }
-}
-
 function sincronizarMontoConAdicionales(opciones = {}) {
   if (!polizaContext) return;
-  if (esAlteracionActiva()) return;
   const origen = polizaContext.montoContrato;
   const destino = polizaContext.montoConAdicionales;
   if (!origen || !destino) return;
-  destino.value = origen.value;
-  if (opciones.formatear) {
+  const { forzar = false, formatear = false } = opciones;
+  if (!forzar && polizaContext.montoConAdicionalesEditado && obtenerValorCampo(destino)) {
+    if (formatear) {
+      formatearValorCampoMoneda(destino);
+    }
+    return;
+  }
+  destino.value = origen ? origen.value : '';
+  if (formatear) {
     formatearValorCampoMoneda(destino);
   }
   guardarValorBase(destino);
+  polizaContext.montoConAdicionalesEditado = false;
+  actualizarEstadoPoliza({ adicionalesEditado: false });
+  evaluarEdicionMontoConAdicionales();
 }
 
-function mostrarAdvertenciaPoliza(texto) {
-  if (!polizaContext || !polizaContext.errorContenedor || !polizaContext.errorTexto) return;
-  polizaContext.errorTexto.textContent = texto;
-  polizaContext.errorContenedor.classList.remove('oculto');
+function evaluarEdicionMontoConAdicionales() {
+  if (!polizaContext) return;
+  const origen = polizaContext.montoContrato;
+  const destino = polizaContext.montoConAdicionales;
+  if (!origen || !destino) return;
+  const textoDestino = obtenerValorCampo(destino);
+  let editado = false;
+  if (textoDestino) {
+    const valorDestino = parseMonto(textoDestino);
+    const valorOrigen = parseMonto(obtenerValorCampo(origen));
+    if (valorOrigen === null) {
+      editado = true;
+    } else if (valorDestino !== null) {
+      editado = valorDestino !== valorOrigen;
+    }
+  }
+  polizaContext.montoConAdicionalesEditado = editado;
+  actualizarEstadoPoliza({ adicionalesEditado: editado });
 }
 
 function ocultarAdvertenciaPoliza() {
@@ -573,44 +552,14 @@ function ocultarAdvertenciaPoliza() {
   }
 }
 
-function recalcularPoliza() {
-  if (!polizaContext) return;
-  ocultarAdvertenciaPoliza();
-  const contrato = obtenerValorCampo(polizaContext.montoContrato);
-  const acumulada = obtenerValorCampo(polizaContext.montoAcumulado);
-  if (!contrato || !acumulada) {
-    mostrarAdvertenciaPoliza('Completá el Monto del contrato y la Obra acumulada para calcular la póliza.');
-    return;
-  }
-  [
-    polizaContext.montoContrato,
-    polizaContext.montoConAdicionales,
-    polizaContext.montoAcumulado,
-    polizaContext.saldoAnticipo,
-    polizaContext.certificadoRp
-  ].forEach(campo => {
-    if (campo) {
-      formatearValorCampoMoneda(campo);
-      guardarValorBase(campo);
-    }
-  });
-  if (polizaContext.ultimoFriAprobadoValor) {
-    formatearValorCampoPorcentaje(polizaContext.ultimoFriAprobadoValor);
-    guardarValorBase(polizaContext.ultimoFriAprobadoValor);
-  }
-  actualizarCalculosPoliza();
-}
-
 function restablecerPoliza() {
   if (!polizaContext) return;
   establecerRadio(polizaContext.calcularRadios, 'no');
-  establecerRadio(polizaContext.alteracionRadios, 'no');
   togglePoliza(false);
   limpiarValoresBasePoliza();
   limpiarResultadosPoliza();
   ocultarAdvertenciaPoliza();
-  actualizarEstadoPoliza({ calcular: 'no', alteracion: 'no', valores: {}, reemplazarValores: true });
-  aplicarEstadoAlteracion();
+  actualizarEstadoPoliza({ calcular: 'no', valores: {}, reemplazarValores: true, adicionalesEditado: false });
 }
 
 function reiniciarPolizaDesdeFormulario() {
@@ -654,6 +603,9 @@ function obtenerEstadoPoliza() {
   if (!polizaEstadoCache.valores || typeof polizaEstadoCache.valores !== 'object') {
     polizaEstadoCache.valores = {};
   }
+  if (typeof polizaEstadoCache.adicionalesEditado !== 'boolean') {
+    polizaEstadoCache.adicionalesEditado = false;
+  }
   return polizaEstadoCache;
 }
 
@@ -671,8 +623,8 @@ function actualizarEstadoPoliza(parcial) {
   if (parcial.calcular === 'si' || parcial.calcular === 'no') {
     nuevoEstado.calcular = parcial.calcular;
   }
-  if (parcial.alteracion === 'si' || parcial.alteracion === 'no') {
-    nuevoEstado.alteracion = parcial.alteracion;
+  if ('adicionalesEditado' in parcial) {
+    nuevoEstado.adicionalesEditado = parcial.adicionalesEditado === true;
   }
   guardarEstadoPoliza(nuevoEstado);
   return nuevoEstado;
