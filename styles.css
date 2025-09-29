@@ -468,10 +468,63 @@ body.dark .speech-bubble {
   position: relative;
   max-width: 600px;
   margin: 2rem auto;
+  transition: max-width 0.4s ease;
 }
 
 .form-wrapper .container {
   margin: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.form-wrapper.poliza-activa {
+  max-width: 1100px;
+}
+
+.form-wrapper.poliza-activa .container {
+  transform: translateX(-240px);
+  opacity: 0.35;
+}
+
+.poliza-panel {
+  position: fixed;
+  top: 110px;
+  right: 2rem;
+  width: min(420px, calc(100% - 4rem));
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: 0 18px 40px rgba(12, 79, 183, 0.25);
+  padding: 1.5rem;
+  transform: translateX(120%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  z-index: 900;
+}
+
+.form-wrapper.poliza-activa .poliza-panel {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) {
+  .form-wrapper.poliza-activa {
+    max-width: 600px;
+  }
+
+  .form-wrapper.poliza-activa .container {
+    transform: none;
+    opacity: 1;
+  }
+
+  .poliza-panel {
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    max-height: calc(100vh - 130px);
+  }
 }
 
 .calc-mascot {
@@ -1249,6 +1302,12 @@ body.dark-mode img {
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+#generarSaltos {
+  padding: 0.45rem 0.9rem;
+  white-space: nowrap;
+  font-size: 0.9rem;
 }
 
 .saltos-container {

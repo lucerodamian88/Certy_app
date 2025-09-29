@@ -18,7 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const polizaSel = document.getElementById('tienePoliza');
-  if (polizaSel) polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+  if (polizaSel) {
+    polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
+    togglePoliza(polizaSel.value);
+  }
 
   const aprobadaPorSel = document.getElementById('aprobadaPor');
   if (aprobadaPorSel) {
@@ -85,10 +88,16 @@ function toggleEmpresaOtro(val) {
 }
 
 function togglePoliza(val) {
-  const form = document.getElementById('polizaForm');
-  if (!form) return;
-  if (val === 'si') form.classList.remove('oculto');
-  else form.classList.add('oculto');
+  const panel = document.getElementById('polizaForm');
+  const wrapper = document.querySelector('.form-wrapper');
+  if (!panel || !wrapper) return;
+  if (val === 'si') {
+    wrapper.classList.add('poliza-activa');
+    panel.setAttribute('aria-hidden', 'false');
+  } else {
+    wrapper.classList.remove('poliza-activa');
+    panel.setAttribute('aria-hidden', 'true');
+  }
   actualizarCalculosPoliza();
 }
 
