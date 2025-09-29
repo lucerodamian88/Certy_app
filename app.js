@@ -17,12 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     empresaSel.addEventListener('change', e => manejarCambioEmpresa(e.target.value));
   }
 
-  const polizaSel = document.getElementById('tienePoliza');
-  if (polizaSel) {
-    polizaSel.addEventListener('change', e => togglePoliza(e.target.value));
-    togglePoliza(polizaSel.value);
-  }
-
   const aprobadaPorSel = document.getElementById('aprobadaPor');
   if (aprobadaPorSel) {
     aprobadaPorSel.addEventListener('change', e => actualizarAprobadaPor(e.target.value));
@@ -71,8 +65,7 @@ function limpiarFormulario() {
   const empresa = document.getElementById('empresa');
   if (empresa) toggleEmpresaOtro(empresa.value);
   limpiarCamposEmpresa();
-  const poliza = document.getElementById('tienePoliza');
-  if (poliza) togglePoliza(poliza.value);
+  reiniciarPolizaDesdeFormulario();
   const aprobadaPor = document.getElementById('aprobadaPor');
   if (aprobadaPor) actualizarAprobadaPor(aprobadaPor.value);
   const montoLetras = document.getElementById('montoRedeterminacionLetras');
@@ -87,27 +80,32 @@ function toggleEmpresaOtro(val) {
   else lbl.classList.add('oculto');
 }
 
-function togglePoliza(val) {
-  const panel = document.getElementById('polizaForm');
+function togglePoliza(activa) {
+  const panel = polizaContext && polizaContext.section
+    ? polizaContext.section
+    : document.getElementById('polizaSection');
   const wrapper = document.querySelector('.form-wrapper');
   if (!panel || !wrapper) return;
-  if (val === 'si') {
+  if (activa) {
     wrapper.classList.add('poliza-activa');
+    panel.classList.remove('oculto');
     panel.setAttribute('aria-hidden', 'false');
+    actualizarCalculosPoliza();
   } else {
     wrapper.classList.remove('poliza-activa');
+    panel.classList.add('oculto');
     panel.setAttribute('aria-hidden', 'true');
   }
-  actualizarCalculosPoliza();
 }
 
 function inicializarPoliza() {
   const form = document.getElementById('formAsistente');
-  const poliza = document.getElementById('polizaForm');
-  if (!form || !poliza) return;
+  const section = document.getElementById('polizaSection');
+  if (!form || !section) return;
 
   polizaContext = {
     form,
+    section,
     hastaInput: document.getElementById('cambiosHasta'),
     montoContrato: document.getElementById('polizaMontoContrato'),
     montoConAdicionales: document.getElementById('polizaMontoConAdicionales'),
@@ -119,38 +117,41 @@ function inicializarPoliza() {
     ultimoFriAprobadoValor: document.getElementById('polizaUltimoFriAprobadoValor'),
     incrementoFri: document.getElementById('polizaIncrementoFri'),
     baseContratacion: document.getElementById('polizaBaseContratacion'),
-    baseContratacionCopia: document.getElementById('polizaBaseContratacionCopia'),
+    baseContratacionResumen: document.getElementById('polizaBaseContratacionResumen'),
     montoGarantizarSaldo: document.getElementById('polizaMontoGarantizarSaldoObra'),
     certificadoRp: document.getElementById('polizaCertificadoRp'),
     montoGarantizarRp: document.getElementById('polizaMontoGarantizarRp'),
     montoTotal: document.getElementById('polizaMontoTotalGarantizar'),
     montoClausula: document.getElementById('polizaMontoClausula'),
     montoClausulaLetras: document.getElementById('polizaMontoClausulaLetras'),
-    hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta'))
+    hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta')),
+    calcularRadios: Array.from(document.querySelectorAll('input[name="calcularPoliza"]')),
+    alteracionRadios: Array.from(document.querySelectorAll('input[name="polizaAlteracion"]')),
+    errorContenedor: document.getElementById('polizaError'),
+    errorTexto: document.getElementById('polizaErrorTexto'),
+    recalcularBtn: document.getElementById('polizaRecalcular'),
+    restablecerBtn: document.getElementById('polizaRestablecer')
   };
 
-  const camposMonto = [
+  const camposMoneda = [
     polizaContext.montoContrato,
     polizaContext.montoConAdicionales,
     polizaContext.montoAcumulado,
     polizaContext.saldoAnticipo,
     polizaContext.certificadoRp
   ];
-  camposMonto.forEach(campo => {
-    if (campo) {
-      campo.addEventListener('input', actualizarCalculosPoliza);
-      campo.addEventListener('blur', actualizarCalculosPoliza);
-    }
-  });
+  camposMoneda.forEach(registrarCampoMoneda);
 
-  if (polizaContext.ultimoFriAprobadoValor) {
-    polizaContext.ultimoFriAprobadoValor.addEventListener('input', actualizarCalculosPoliza);
-    polizaContext.ultimoFriAprobadoValor.addEventListener('blur', actualizarCalculosPoliza);
-  }
+  registrarCampoPorcentaje(polizaContext.ultimoFriAprobadoValor);
 
   if (polizaContext.ultimoFriAprobadoFecha) {
-    polizaContext.ultimoFriAprobadoFecha.addEventListener('input', actualizarCalculosPoliza);
-    polizaContext.ultimoFriAprobadoFecha.addEventListener('blur', actualizarCalculosPoliza);
+    polizaContext.ultimoFriAprobadoFecha.addEventListener('input', event => {
+      guardarValorBase(event.target);
+      actualizarCalculosPoliza();
+    });
+    polizaContext.ultimoFriAprobadoFecha.addEventListener('blur', event => {
+      guardarValorBase(event.target);
+    });
   }
 
   if (polizaContext.hastaInput) {
@@ -158,24 +159,164 @@ function inicializarPoliza() {
     polizaContext.hastaInput.addEventListener('blur', actualizarTextoHastaPoliza);
   }
 
-  form.addEventListener('reset', () => {
-    setTimeout(() => {
-      actualizarTextoHastaPoliza();
-      actualizarCalculosPoliza();
-    }, 0);
-  });
+  if (polizaContext.recalcularBtn) {
+    polizaContext.recalcularBtn.addEventListener('click', recalcularPoliza);
+  }
+
+  if (polizaContext.restablecerBtn) {
+    polizaContext.restablecerBtn.addEventListener('click', () => restablecerPoliza());
+  }
 
   const saltosContainer = document.getElementById('saltosContainer');
   if (saltosContainer) {
     saltosContainer.addEventListener('input', event => {
       if (event.target && event.target.classList.contains('salto-acum')) {
+        normalizarEntradaDecimal(event.target);
         actualizarCalculosPoliza();
       }
     });
   }
 
+  polizaContext.calcularRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (!radio.checked) return;
+      if (radio.value === 'si') {
+        togglePoliza(true);
+        actualizarEstadoPoliza({ calcular: 'si' });
+        actualizarCalculosPoliza();
+      } else {
+        togglePoliza(false);
+        limpiarValoresBasePoliza();
+        limpiarResultadosPoliza();
+        ocultarAdvertenciaPoliza();
+        actualizarEstadoPoliza({ calcular: 'no', alteracion: 'no', valores: {}, reemplazarValores: true });
+        establecerRadio(polizaContext.alteracionRadios, 'no');
+        aplicarEstadoAlteracion();
+      }
+    });
+  });
+
+  polizaContext.alteracionRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (!radio.checked) return;
+      actualizarEstadoPoliza({ alteracion: radio.value });
+      aplicarEstadoAlteracion();
+      actualizarCalculosPoliza();
+    });
+  });
+
+  form.addEventListener('reset', () => {
+    setTimeout(() => {
+      restablecerPoliza();
+    }, 0);
+  });
+
+  restaurarEstadoPoliza();
+}
+
+function restaurarEstadoPoliza() {
+  if (!polizaContext) return;
+  const estado = obtenerEstadoPoliza();
+  const calcularValor = estado.calcular === 'si' ? 'si' : 'no';
+  establecerRadio(polizaContext.calcularRadios, calcularValor);
+  const alteracionValor = estado.alteracion === 'si' ? 'si' : 'no';
+  establecerRadio(polizaContext.alteracionRadios, alteracionValor);
+
+  const valores = estado.valores || {};
+  Object.keys(valores).forEach(id => {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+    campo.value = valores[id];
+    if (campo === polizaContext.montoContrato || campo === polizaContext.montoConAdicionales || campo === polizaContext.montoAcumulado || campo === polizaContext.saldoAnticipo || campo === polizaContext.certificadoRp) {
+      formatearValorCampoMoneda(campo);
+    } else if (campo === polizaContext.ultimoFriAprobadoValor) {
+      formatearValorCampoPorcentaje(campo);
+    }
+  });
+
+  aplicarEstadoAlteracion();
   actualizarTextoHastaPoliza();
-  actualizarCalculosPoliza();
+  togglePoliza(calcularValor === 'si');
+  if (calcularValor === 'si') {
+    actualizarCalculosPoliza();
+  } else {
+    limpiarResultadosPoliza();
+    ocultarAdvertenciaPoliza();
+  }
+}
+
+function registrarCampoMoneda(campo) {
+  if (!campo) return;
+  campo.addEventListener('input', event => {
+    normalizarEntradaDecimal(event.target);
+    guardarValorBase(event.target);
+    if (event.target === polizaContext.montoContrato) {
+      sincronizarMontoConAdicionales();
+    }
+    actualizarCalculosPoliza();
+  });
+  campo.addEventListener('blur', () => {
+    formatearValorCampoMoneda(campo);
+    guardarValorBase(campo);
+    if (campo === polizaContext.montoContrato) {
+      sincronizarMontoConAdicionales({ formatear: true });
+    }
+    actualizarCalculosPoliza();
+  });
+}
+
+function registrarCampoPorcentaje(campo) {
+  if (!campo) return;
+  campo.addEventListener('input', event => {
+    normalizarEntradaDecimal(event.target);
+    guardarValorBase(event.target);
+    actualizarCalculosPoliza();
+  });
+  campo.addEventListener('blur', () => {
+    formatearValorCampoPorcentaje(campo);
+    guardarValorBase(campo);
+    actualizarCalculosPoliza();
+  });
+}
+
+function normalizarEntradaDecimal(campo) {
+  if (!campo) return;
+  const original = campo.value || '';
+  let limpio = original.replace(/[^0-9.,]/g, '');
+  const comaIndex = limpio.indexOf(',');
+  if (comaIndex !== -1) {
+    limpio = `${limpio.slice(0, comaIndex + 1)}${limpio.slice(comaIndex + 1).replace(/,/g, '')}`;
+  }
+  const puntoIndex = limpio.indexOf('.');
+  if (puntoIndex !== -1) {
+    limpio = `${limpio.slice(0, puntoIndex + 1)}${limpio.slice(puntoIndex + 1).replace(/\./g, '')}`;
+  }
+  if (limpio !== original) campo.value = limpio;
+}
+
+function formatearValorCampoMoneda(campo) {
+  if (!campo) return;
+  const numero = parseMonto(obtenerValorCampo(campo));
+  if (numero === null) {
+    campo.value = '';
+    return;
+  }
+  campo.value = formatearMoneda(numero);
+}
+
+function formatearValorCampoPorcentaje(campo) {
+  if (!campo) return;
+  const numero = parsePorcentaje(obtenerValorCampo(campo));
+  if (numero === null) {
+    campo.value = '';
+    return;
+  }
+  campo.value = formatearPorcentaje(numero);
+}
+
+function guardarValorBase(campo) {
+  if (!campo || !campo.id) return;
+  actualizarEstadoPoliza({ valores: { [campo.id]: campo.value } });
 }
 
 function actualizarTextoHastaPoliza() {
@@ -199,20 +340,19 @@ const formateadorPorcentaje = new Intl.NumberFormat('es-AR', {
 
 function actualizarCalculosPoliza() {
   if (!polizaContext) return;
-  const selector = document.getElementById('tienePoliza');
-  if (selector && selector.value !== 'si') {
+  if (!polizaEstaActiva()) {
     limpiarResultadosPoliza();
     return;
   }
 
-  const montoConAdicionales = parseMonto(obtenerValorCampo(polizaContext.montoConAdicionales));
-  const montoAcumulado = parseMonto(obtenerValorCampo(polizaContext.montoAcumulado));
-  const saldoAnticipo = parseMonto(obtenerValorCampo(polizaContext.saldoAnticipo));
+  const montoConAdicionales = leerMontoCampo(polizaContext.montoConAdicionales);
+  const montoAcumulado = leerMontoCampo(polizaContext.montoAcumulado);
+  const saldoAnticipo = leerMontoCampo(polizaContext.saldoAnticipo);
 
-  let saldoNeto = null;
-  if ([montoConAdicionales, montoAcumulado, saldoAnticipo].some(valor => valor !== null)) {
-    saldoNeto = redondearDosDecimales((montoConAdicionales ?? 0) - (montoAcumulado ?? 0) - (saldoAnticipo ?? 0));
-  }
+  const hayDatosSaldo = montoConAdicionales.tieneDato || montoAcumulado.tieneDato || saldoAnticipo.tieneDato;
+  const saldoNeto = hayDatosSaldo
+    ? redondearDosDecimales(montoConAdicionales.valor - montoAcumulado.valor - saldoAnticipo.valor)
+    : null;
   if (polizaContext.saldoNeto) {
     polizaContext.saldoNeto.value = saldoNeto !== null ? formatearMoneda(saldoNeto) : '';
   }
@@ -222,9 +362,9 @@ function actualizarCalculosPoliza() {
     polizaContext.ultimoFriValor.value = ultimoFri !== null ? formatearPorcentaje(ultimoFri) : '';
   }
 
-  const ultimoFriAprobado = parsePorcentaje(obtenerValorCampo(polizaContext.ultimoFriAprobadoValor));
-  const incrementoFri = ultimoFri !== null && ultimoFriAprobado !== null
-    ? redondearDosDecimales(ultimoFri - ultimoFriAprobado)
+  const ultimoFriAprobado = leerPorcentajeCampo(polizaContext.ultimoFriAprobadoValor);
+  const incrementoFri = ultimoFri !== null
+    ? redondearDosDecimales(ultimoFri - ultimoFriAprobado.valor)
     : null;
   if (polizaContext.incrementoFri) {
     polizaContext.incrementoFri.value = incrementoFri !== null ? formatearPorcentaje(incrementoFri) : '';
@@ -236,8 +376,8 @@ function actualizarCalculosPoliza() {
   if (polizaContext.baseContratacion) {
     polizaContext.baseContratacion.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
   }
-  if (polizaContext.baseContratacionCopia) {
-    polizaContext.baseContratacionCopia.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
+  if (polizaContext.baseContratacionResumen) {
+    polizaContext.baseContratacionResumen.value = baseContratacion !== null ? formatearMoneda(baseContratacion) : '';
   }
 
   const montoGarantizarSaldo = baseContratacion !== null
@@ -247,10 +387,10 @@ function actualizarCalculosPoliza() {
     polizaContext.montoGarantizarSaldo.value = montoGarantizarSaldo !== null ? formatearMoneda(montoGarantizarSaldo) : '';
   }
 
-  const certificadoRp = parseMonto(obtenerValorCampo(polizaContext.certificadoRp));
-  const montoGarantizarRp = certificadoRp !== null
-    ? redondearDosDecimales(certificadoRp * 0.05)
-    : null;
+  const certificadoRp = leerMontoCampo(polizaContext.certificadoRp);
+  const montoGarantizarRp = certificadoRp.tieneDato
+    ? redondearDosDecimales(certificadoRp.valor * 0.05)
+    : (certificadoRp.valor ? redondearDosDecimales(certificadoRp.valor * 0.05) : null);
   if (polizaContext.montoGarantizarRp) {
     polizaContext.montoGarantizarRp.value = montoGarantizarRp !== null ? formatearMoneda(montoGarantizarRp) : '';
   }
@@ -270,6 +410,11 @@ function actualizarCalculosPoliza() {
   }
 }
 
+function polizaEstaActiva() {
+  if (!polizaContext) return false;
+  return polizaContext.calcularRadios.some(radio => radio.checked && radio.value === 'si');
+}
+
 function limpiarResultadosPoliza() {
   if (!polizaContext) return;
   const campos = [
@@ -277,7 +422,7 @@ function limpiarResultadosPoliza() {
     'ultimoFriValor',
     'incrementoFri',
     'baseContratacion',
-    'baseContratacionCopia',
+    'baseContratacionResumen',
     'montoGarantizarSaldo',
     'montoGarantizarRp',
     'montoTotal',
@@ -292,9 +437,42 @@ function limpiarResultadosPoliza() {
   }
 }
 
+function limpiarValoresBasePoliza() {
+  if (!polizaContext) return;
+  const campos = [
+    polizaContext.montoContrato,
+    polizaContext.montoConAdicionales,
+    polizaContext.montoAcumulado,
+    polizaContext.saldoAnticipo,
+    polizaContext.ultimoFriAprobadoFecha,
+    polizaContext.ultimoFriAprobadoValor,
+    polizaContext.certificadoRp
+  ];
+  campos.forEach(campo => {
+    if (campo) campo.value = '';
+  });
+  actualizarEstadoPoliza({ valores: {}, reemplazarValores: true });
+}
+
 function obtenerValorCampo(campo) {
   if (!campo) return '';
   return (campo.value || '').trim();
+}
+
+function leerMontoCampo(campo) {
+  const texto = obtenerValorCampo(campo);
+  if (!texto) return { valor: 0, tieneDato: false };
+  const numero = parseMonto(texto);
+  if (numero === null) return { valor: 0, tieneDato: false };
+  return { valor: numero, tieneDato: true };
+}
+
+function leerPorcentajeCampo(campo) {
+  const texto = obtenerValorCampo(campo);
+  if (!texto) return { valor: 0, tieneDato: false };
+  const numero = parsePorcentaje(texto);
+  if (numero === null) return { valor: 0, tieneDato: false };
+  return { valor: numero, tieneDato: true };
 }
 
 function parseMonto(valor) {
@@ -348,6 +526,171 @@ function redondearDosDecimales(valor) {
   return Math.round(valor * 100) / 100;
 }
 
+function esAlteracionActiva() {
+  if (!polizaContext) return false;
+  return polizaContext.alteracionRadios.some(radio => radio.checked && radio.value === 'si');
+}
+
+function aplicarEstadoAlteracion() {
+  if (!polizaContext) return;
+  const campo = polizaContext.montoConAdicionales;
+  if (!campo) return;
+  const activa = esAlteracionActiva();
+  if (activa) {
+    campo.removeAttribute('readonly');
+    campo.setAttribute('aria-readonly', 'false');
+  } else {
+    campo.setAttribute('readonly', 'true');
+    campo.setAttribute('aria-readonly', 'true');
+    sincronizarMontoConAdicionales({ formatear: true });
+  }
+}
+
+function sincronizarMontoConAdicionales(opciones = {}) {
+  if (!polizaContext) return;
+  if (esAlteracionActiva()) return;
+  const origen = polizaContext.montoContrato;
+  const destino = polizaContext.montoConAdicionales;
+  if (!origen || !destino) return;
+  destino.value = origen.value;
+  if (opciones.formatear) {
+    formatearValorCampoMoneda(destino);
+  }
+  guardarValorBase(destino);
+}
+
+function mostrarAdvertenciaPoliza(texto) {
+  if (!polizaContext || !polizaContext.errorContenedor || !polizaContext.errorTexto) return;
+  polizaContext.errorTexto.textContent = texto;
+  polizaContext.errorContenedor.classList.remove('oculto');
+}
+
+function ocultarAdvertenciaPoliza() {
+  if (!polizaContext || !polizaContext.errorContenedor) return;
+  polizaContext.errorContenedor.classList.add('oculto');
+  if (polizaContext.errorTexto) {
+    polizaContext.errorTexto.textContent = '';
+  }
+}
+
+function recalcularPoliza() {
+  if (!polizaContext) return;
+  ocultarAdvertenciaPoliza();
+  const contrato = obtenerValorCampo(polizaContext.montoContrato);
+  const acumulada = obtenerValorCampo(polizaContext.montoAcumulado);
+  if (!contrato || !acumulada) {
+    mostrarAdvertenciaPoliza('Completá el Monto del contrato y la Obra acumulada para calcular la póliza.');
+    return;
+  }
+  [
+    polizaContext.montoContrato,
+    polizaContext.montoConAdicionales,
+    polizaContext.montoAcumulado,
+    polizaContext.saldoAnticipo,
+    polizaContext.certificadoRp
+  ].forEach(campo => {
+    if (campo) {
+      formatearValorCampoMoneda(campo);
+      guardarValorBase(campo);
+    }
+  });
+  if (polizaContext.ultimoFriAprobadoValor) {
+    formatearValorCampoPorcentaje(polizaContext.ultimoFriAprobadoValor);
+    guardarValorBase(polizaContext.ultimoFriAprobadoValor);
+  }
+  actualizarCalculosPoliza();
+}
+
+function restablecerPoliza() {
+  if (!polizaContext) return;
+  establecerRadio(polizaContext.calcularRadios, 'no');
+  establecerRadio(polizaContext.alteracionRadios, 'no');
+  togglePoliza(false);
+  limpiarValoresBasePoliza();
+  limpiarResultadosPoliza();
+  ocultarAdvertenciaPoliza();
+  actualizarEstadoPoliza({ calcular: 'no', alteracion: 'no', valores: {}, reemplazarValores: true });
+  aplicarEstadoAlteracion();
+}
+
+function reiniciarPolizaDesdeFormulario() {
+  if (!polizaContext) return;
+  restablecerPoliza();
+}
+
+function establecerRadio(radios, valor) {
+  if (!Array.isArray(radios)) return;
+  radios.forEach(radio => {
+    radio.checked = radio.value === valor;
+  });
+}
+
+function obtenerStorageSeguro() {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.localStorage;
+  } catch (err) {
+    console.warn('No se puede acceder a localStorage', err);
+    return null;
+  }
+}
+
+function obtenerEstadoPoliza() {
+  if (polizaEstadoCache) return polizaEstadoCache;
+  const storage = obtenerStorageSeguro();
+  if (storage) {
+    try {
+      const raw = storage.getItem(POLIZA_STORAGE_KEY);
+      if (raw) {
+        polizaEstadoCache = JSON.parse(raw);
+      }
+    } catch (err) {
+      console.warn('No se pudo leer el estado de póliza', err);
+    }
+  }
+  if (!polizaEstadoCache || typeof polizaEstadoCache !== 'object') {
+    polizaEstadoCache = {};
+  }
+  if (!polizaEstadoCache.valores || typeof polizaEstadoCache.valores !== 'object') {
+    polizaEstadoCache.valores = {};
+  }
+  return polizaEstadoCache;
+}
+
+function actualizarEstadoPoliza(parcial) {
+  const estadoActual = obtenerEstadoPoliza();
+  const nuevoEstado = {
+    ...estadoActual,
+    valores: estadoActual.valores ? { ...estadoActual.valores } : {}
+  };
+  if ('valores' in parcial) {
+    nuevoEstado.valores = parcial.reemplazarValores
+      ? { ...parcial.valores }
+      : { ...nuevoEstado.valores, ...parcial.valores };
+  }
+  if (parcial.calcular === 'si' || parcial.calcular === 'no') {
+    nuevoEstado.calcular = parcial.calcular;
+  }
+  if (parcial.alteracion === 'si' || parcial.alteracion === 'no') {
+    nuevoEstado.alteracion = parcial.alteracion;
+  }
+  guardarEstadoPoliza(nuevoEstado);
+  return nuevoEstado;
+}
+
+function guardarEstadoPoliza(estado) {
+  polizaEstadoCache = {
+    ...estado,
+    valores: estado.valores ? { ...estado.valores } : {}
+  };
+  const storage = obtenerStorageSeguro();
+  if (!storage) return;
+  try {
+    storage.setItem(POLIZA_STORAGE_KEY, JSON.stringify(polizaEstadoCache));
+  } catch (err) {
+    console.warn('No se pudo guardar el estado de póliza', err);
+  }
+}
 const ordinalesMasc = [
   'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo',
   'Undécimo', 'Duodécimo', 'Decimotercer', 'Decimocuarto', 'Decimoquinto', 'Decimosexto', 'Decimoséptimo', 'Decimooctavo', 'Decimonoveno', 'Vigésimo'
@@ -491,7 +834,9 @@ const VEINTI = {
   29: 'veintinueve'
 };
 
+const POLIZA_STORAGE_KEY = 'certy.poliza.estado';
 let polizaContext = null;
+let polizaEstadoCache = null;
 let empresasCache = null;
 let empresasPromise = null;
 
