@@ -48,7 +48,10 @@ function generarSaltos() {
     const etiqueta = i === 0 ? 'Salto inicial' : `${ordinalesMasc[i]} Salto`;
     row.innerHTML = `
       <span>${etiqueta}</span>
-      <input type="text" class="salto-acum" placeholder="NN,NN">
+      <div class="salto-porcentaje">
+        <input type="text" class="salto-acum" placeholder="NN,NN" inputmode="decimal" pattern="\\d+(?:[.,]\\d{1,2})?">
+        <span class="porcentaje-signo" aria-hidden="true">%</span>
+      </div>
       <input type="text" class="salto-fecha" placeholder="MM/AA">
     `;
     cont.appendChild(row);
