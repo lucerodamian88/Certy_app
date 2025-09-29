@@ -571,6 +571,41 @@ label {
   color: #555;
 }
 
+.monto-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.monto-input input {
+  flex: 1;
+}
+
+.peso-signo {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.monto-letras-wrapper label {
+  margin-top: 0.5rem;
+}
+
+.monto-letras {
+  width: 100%;
+  background: #d6ebff;
+  border: 1px solid #99c6ff;
+  border-radius: 6px;
+  padding: 0.6rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.monto-letras::placeholder {
+  color: #4d6fa6;
+}
+
 .aprobada-por-row {
   display: grid;
   gap: 0.75rem;

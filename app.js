@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const buscarBtn = document.getElementById('buscarResolucion');
   if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoResolucion);
+
+  inicializarMontoRedeterminacion();
 });
 
 function generarSaltos() {
@@ -43,8 +45,9 @@ function generarSaltos() {
   for (let i = 0; i < cantidad; i++) {
     const row = document.createElement('div');
     row.className = 'salto-row';
+    const etiqueta = i === 0 ? 'Salto inicial' : `${ordinalesMasc[i]} Salto`;
     row.innerHTML = `
-      <span>${ordinalesMasc[i]} Salto</span>
+      <span>${etiqueta}</span>
       <input type="text" class="salto-acum" placeholder="NN,NN">
       <input type="text" class="salto-fecha" placeholder="MM/AA">
     `;
@@ -64,6 +67,8 @@ function limpiarFormulario() {
   if (poliza) togglePoliza(poliza.value);
   const aprobadaPor = document.getElementById('aprobadaPor');
   if (aprobadaPor) actualizarAprobadaPor(aprobadaPor.value);
+  const montoLetras = document.getElementById('montoRedeterminacionLetras');
+  if (montoLetras) montoLetras.value = '';
 }
 
 function toggleEmpresaOtro(val) {
@@ -84,6 +89,144 @@ const ordinalesMasc = [
   'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo',
   'Undécimo', 'Duodécimo', 'Decimotercer', 'Decimocuarto', 'Decimoquinto', 'Decimosexto', 'Decimoséptimo', 'Decimooctavo', 'Decimonoveno', 'Vigésimo'
 ];
+
+function inicializarMontoRedeterminacion() {
+  const montoInput = document.getElementById('montoRedeterminacion');
+  const montoLetras = document.getElementById('montoRedeterminacionLetras');
+  const form = document.getElementById('formAsistente');
+  if (!montoInput || !montoLetras) return;
+
+  const actualizarMonto = () => {
+    const crudo = (montoInput.value || '').trim();
+    if (!crudo) {
+      montoLetras.value = '';
+      return;
+    }
+    const normalizado = normalizarMontoTexto(crudo);
+    const numero = Number(normalizado);
+    if (Number.isNaN(numero)) {
+      montoLetras.value = '';
+      return;
+    }
+    const valor = Math.round(numero * 100) / 100;
+    montoLetras.value = numeroALetras(valor);
+  };
+
+  montoInput.addEventListener('input', actualizarMonto);
+  montoInput.addEventListener('blur', actualizarMonto);
+  if (form) {
+    form.addEventListener('reset', () => {
+      setTimeout(() => {
+        montoLetras.value = '';
+      }, 0);
+    });
+  }
+  actualizarMonto();
+}
+
+function normalizarMontoTexto(valor) {
+  const limpio = valor.replace(/\s+/g, '');
+  const tieneComa = limpio.includes(',');
+  const tienePunto = limpio.includes('.');
+  if (tieneComa && tienePunto) {
+    return limpio.replace(/\./g, '').replace(',', '.');
+  }
+  if (tieneComa) return limpio.replace(',', '.');
+  if (tienePunto) {
+    const puntos = limpio.match(/\./g) || [];
+    if (puntos.length > 1) return limpio.replace(/\./g, '');
+  }
+  return limpio;
+}
+
+function numeroALetras(valor) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) return '';
+  const absoluto = Math.abs(valor);
+  const entero = Math.floor(absoluto);
+  const decimales = Math.round((absoluto - entero) * 100);
+  const textoEntero = capitalizarCadaPalabra(convertirNumeroEntero(entero));
+  const textoDecimal = String(decimales).padStart(2, '0');
+  return `${textoEntero} con ${textoDecimal}/100`;
+}
+
+function convertirNumeroEntero(num) {
+  if (num === 0) return 'cero';
+  if (num < 1000) return convertirCentenas(num);
+  if (num < 1000000) {
+    const miles = Math.floor(num / 1000);
+    const resto = num % 1000;
+    const textoMiles = miles === 1 ? 'mil' : `${ajustarUn(convertirNumeroEntero(miles))} mil`;
+    const textoResto = resto ? convertirCentenas(resto) : '';
+    return textoResto ? `${textoMiles} ${textoResto}` : textoMiles;
+  }
+  if (num < 1000000000) {
+    const millones = Math.floor(num / 1000000);
+    const resto = num % 1000000;
+    const textoMillones = millones === 1 ? 'un millón' : `${ajustarUn(convertirNumeroEntero(millones))} millones`;
+    const textoResto = resto ? convertirNumeroEntero(resto) : '';
+    return textoResto ? `${textoMillones} ${textoResto}` : textoMillones;
+  }
+  const milesDeMillones = Math.floor(num / 1000000000);
+  const resto = num % 1000000000;
+  const textoMilesMillones = milesDeMillones === 1 ? 'mil millones' : `${ajustarUn(convertirNumeroEntero(milesDeMillones))} mil millones`;
+  const textoResto = resto ? convertirNumeroEntero(resto) : '';
+  return textoResto ? `${textoMilesMillones} ${textoResto}` : textoMilesMillones;
+}
+
+function convertirCentenas(num) {
+  if (num === 0) return '';
+  if (num === 100) return 'cien';
+  const centenas = Math.floor(num / 100);
+  const resto = num % 100;
+  const textoCentena = CENTENAS[centenas];
+  const textoResto = convertirDecenas(resto);
+  if (!textoCentena) return textoResto;
+  return textoResto ? `${textoCentena} ${textoResto}` : textoCentena;
+}
+
+function convertirDecenas(num) {
+  if (num === 0) return '';
+  if (num < 10) return UNIDADES[num];
+  if (num < 20) return DIEZ_A_DIECINUEVE[num - 10];
+  if (num === 20) return 'veinte';
+  if (num < 30) return VEINTI[num];
+  const decena = Math.floor(num / 10);
+  const unidad = num % 10;
+  const textoDecena = DECENAS[decena];
+  if (unidad === 0) return textoDecena;
+  return `${textoDecena} y ${UNIDADES[unidad]}`;
+}
+
+function ajustarUn(texto) {
+  return texto
+    .replace(/uno$/, 'un')
+    .replace(/veintiuno$/, 'veintiún')
+    .replace(/y uno$/, 'y un');
+}
+
+function capitalizarCadaPalabra(texto) {
+  return texto
+    .split(' ')
+    .filter(Boolean)
+    .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+    .join(' ');
+}
+
+const UNIDADES = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+const DIEZ_A_DIECINUEVE = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+const DECENAS = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+const CENTENAS = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+const VEINTI = {
+  21: 'veintiuno',
+  22: 'veintidós',
+  23: 'veintitrés',
+  24: 'veinticuatro',
+  25: 'veinticinco',
+  26: 'veintiséis',
+  27: 'veintisiete',
+  28: 'veintiocho',
+  29: 'veintinueve'
+};
 
 let empresasCache = null;
 let empresasPromise = null;

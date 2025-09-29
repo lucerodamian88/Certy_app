@@ -128,6 +128,26 @@
           <label>N° de Redeterminación
             <input type="number" id="nRedet" min="1">
           </label>
+          <small class="field-hint"><em>Sugerencia: Primera Redeterminación, Segunda Redeterminación.</em></small>
+          <label>Cambios registrados desde
+            <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
+          </label>
+          <small class="field-hint">Si es Licitación Pública, Licitación Privada o Concurso de Precios, la fecha es del Acta de Apertura del sobre A. Si es Contratación Directa, la fecha es de la Carta de Invitación.</small>
+          <label>Hasta
+            <input type="text" id="cambiosHasta" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
+          </label>
+          <label>Monto de la redeterminación
+            <div class="monto-input">
+              <span class="peso-signo" aria-hidden="true">$</span>
+              <input type="text" id="montoRedeterminacion" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+            </div>
+            <small class="field-hint">Ingrese el monto sin separadores de miles.</small>
+          </label>
+          <div class="monto-letras-wrapper">
+            <label>Monto en letras
+              <input type="text" id="montoRedeterminacionLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
+            </label>
+          </div>
         </fieldset>
 
         <fieldset class="saltos">
