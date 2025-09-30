@@ -468,14 +468,12 @@ body.dark .speech-bubble {
   position: relative;
   max-width: 600px;
   margin: 2rem auto;
+
 }
 
 .form-wrapper .container {
   margin: 0;
-}
 
-.poliza-panel {
-  margin-top: 1rem;
 }
 
 .calc-mascot {
