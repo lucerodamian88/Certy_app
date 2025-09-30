@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const formContainer = document.querySelector('.form-container');
   if (formContainer) formContainer.classList.add('loaded');
 
+  const form = document.getElementById('formAsistente');
+  if (form) form.addEventListener('submit', manejarEnvioSolicitud);
+
   const genSaltosBtn = document.getElementById('generarSaltos');
   if (genSaltosBtn) genSaltosBtn.addEventListener('click', generarSaltos);
 
@@ -62,6 +65,7 @@ function limpiarFormulario() {
   const cont = document.getElementById('saltosContainer');
   if (form) form.reset();
   if (cont) cont.innerHTML = '';
+  ocultarEstadoSolicitud();
   const empresa = document.getElementById('empresa');
   if (empresa) toggleEmpresaOtro(empresa.value);
   limpiarCamposEmpresa();
@@ -120,6 +124,8 @@ function inicializarPoliza() {
     montoGarantizarRp: document.getElementById('polizaMontoGarantizarRp'),
     montoTotal: document.getElementById('polizaMontoTotalGarantizar'),
     montoClausulaLetras: document.getElementById('polizaMontoClausulaLetras'),
+    tipoPoliza: document.getElementById('polizaQueCorresponde'),
+    montoPoliza: document.getElementById('polizaMontoPoliza'),
     hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta')),
     calcularRadios: Array.from(document.querySelectorAll('input[name="calcularPoliza"]')),
     errorContenedor: document.getElementById('polizaError'),
@@ -382,6 +388,9 @@ function actualizarCalculosPoliza() {
   if (polizaContext.montoTotal) {
     polizaContext.montoTotal.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
   }
+  if (polizaContext.montoPoliza) {
+    polizaContext.montoPoliza.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
+  }
   if (polizaContext.montoClausulaLetras) {
     polizaContext.montoClausulaLetras.value = montoTotal !== null ? numeroALetras(montoTotal) : '';
   }
@@ -401,7 +410,8 @@ function limpiarResultadosPoliza() {
     'baseContratacion',
     'montoGarantizarSaldo',
     'montoGarantizarRp',
-    'montoTotal'
+    'montoTotal',
+    'montoPoliza'
   ];
   campos.forEach(nombre => {
     const campo = polizaContext[nombre];
@@ -421,7 +431,8 @@ function limpiarValoresBasePoliza() {
     polizaContext.saldoAnticipo,
     polizaContext.ultimoFriAprobadoFecha,
     polizaContext.ultimoFriAprobadoValor,
-    polizaContext.certificadoRp
+    polizaContext.certificadoRp,
+    polizaContext.tipoPoliza
   ];
   campos.forEach(campo => {
     if (campo) campo.value = '';
@@ -680,6 +691,145 @@ function inicializarMontoRedeterminacion() {
     });
   }
   actualizarMonto();
+}
+
+async function manejarEnvioSolicitud(event) {
+  event.preventDefault();
+  const submitBtn = document.getElementById('enviarSolicitud');
+  const originalText = submitBtn ? submitBtn.textContent : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando…';
+  }
+  ocultarEstadoSolicitud();
+  try {
+    const payload = recolectarDatosFormulario();
+    const respuesta = await fetch('/api/redeterminaciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!respuesta.ok) {
+      const detalle = await respuesta.json().catch(() => ({}));
+      const mensaje = detalle && detalle.error ? detalle.error : 'Error al registrar la solicitud';
+      throw new Error(mensaje);
+    }
+    mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente. Los documentos se generarán automáticamente en breve.');
+  } catch (error) {
+    console.error('Error enviando la solicitud de redeterminación:', error);
+    mostrarEstadoSolicitud('error', '❌ Hubo un error al registrar la solicitud. Intente nuevamente o verifique la conexión con la planilla.');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
+}
+
+function recolectarDatosFormulario() {
+  const representanteTipo = obtenerValorPorId('repTipo');
+  const representanteNombre = obtenerValorPorId('repNombreDni');
+  const representante = [representanteTipo, representanteNombre].filter(Boolean).join(' - ');
+  const ultimoFriAprobadoFecha = obtenerValorPorId('polizaUltimoFriAprobadoFecha');
+  const ultimoFriAprobadoValor = obtenerValorPorId('polizaUltimoFriAprobadoValor');
+  return {
+    expediente: obtenerValorPorId('obraExpediente'),
+    tipoRedeterminacion: obtenerValorPorId('tipoRedeterminacion'),
+    empresa: obtenerEmpresaSeleccionada(),
+    representante,
+    domicilio: obtenerValorPorId('repDomicilio'),
+    obraNombre: obtenerValorPorId('obraNombre'),
+    aprobadaPor: obtenerTextoSeleccion('aprobadaPor'),
+    numeroAdjudicacion: obtenerValorPorId('aprobadaNumero'),
+    periodoDesde: obtenerValorPorId('cambiosDesde'),
+    periodoHasta: obtenerValorPorId('cambiosHasta'),
+    numeroRedeterminacion: obtenerTextoSeleccion('nRedet'),
+    montoRedeterminacion: obtenerValorPorId('montoRedeterminacion'),
+    montoRedeterminacionLetras: obtenerValorPorId('montoRedeterminacionLetras'),
+    montoContrato: obtenerValorPorId('polizaMontoContrato'),
+    montoConAdicionales: obtenerValorPorId('polizaMontoConAdicionales'),
+    montoObraAcumulada: obtenerValorPorId('polizaMontoObraAcumulada'),
+    saldoAnticipo: obtenerValorPorId('polizaSaldoAnticipo'),
+    ultimoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriValor')),
+    ultimoFriAprobado: combinarUltimoFriAprobado(ultimoFriAprobadoFecha, ultimoFriAprobadoValor),
+    incrementoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaIncrementoFri')),
+    baseContratacion: obtenerValorPorId('polizaBaseContratacion'),
+    montoGarantizarSaldoObra: obtenerValorPorId('polizaMontoGarantizarSaldoObra'),
+    montoGarantizarRedeterminacion: obtenerValorPorId('polizaMontoGarantizarRp'),
+    montoTotalGarantizar: obtenerValorPorId('polizaMontoTotalGarantizar'),
+    polizaQueCorresponde: obtenerValorPorId('polizaQueCorresponde'),
+    montoPoliza: obtenerValorPorId('polizaMontoPoliza'),
+    montoPolizaLetras: obtenerValorPorId('polizaMontoClausulaLetras')
+  };
+}
+
+function obtenerValorPorId(id) {
+  const elemento = document.getElementById(id);
+  if (!elemento) return '';
+  return (elemento.value || '').trim();
+}
+
+function obtenerEmpresaSeleccionada() {
+  const select = document.getElementById('empresa');
+  if (!select) return '';
+  const valor = select.value;
+  if (valor === 'OTRO') {
+    return obtenerValorPorId('empresaOtro');
+  }
+  if (!valor) return '';
+  const opcion = select.options[select.selectedIndex];
+  const texto = opcion ? opcion.text : valor;
+  return texto.trim();
+}
+
+function obtenerTextoSeleccion(id) {
+  const select = document.getElementById(id);
+  if (!select) return '';
+  const indice = select.selectedIndex;
+  if (indice < 0) return '';
+  const opcion = select.options[indice];
+  return opcion ? (opcion.text || '').trim() : '';
+}
+
+function agregarSimboloPorcentaje(valor) {
+  if (!valor) return '';
+  const texto = valor.trim();
+  if (!texto) return '';
+  return /%$/.test(texto) ? texto : `${texto}%`;
+}
+
+function combinarUltimoFriAprobado(fecha, valor) {
+  const fechaLimpia = (fecha || '').trim();
+  const porcentaje = agregarSimboloPorcentaje(valor || '');
+  if (fechaLimpia && porcentaje) return `${fechaLimpia} - ${porcentaje}`;
+  if (fechaLimpia) return fechaLimpia;
+  return porcentaje;
+}
+
+function mostrarEstadoSolicitud(tipo, mensaje) {
+  const contenedor = document.getElementById('formStatus');
+  if (!contenedor) return;
+  contenedor.classList.remove('oculto', 'form-status--success', 'form-status--error');
+  const textoEl = contenedor.querySelector('.form-status-text');
+  if (textoEl) {
+    textoEl.textContent = mensaje;
+  }
+  if (tipo === 'success') {
+    contenedor.classList.add('form-status--success');
+  } else if (tipo === 'error') {
+    contenedor.classList.add('form-status--error');
+  }
+}
+
+function ocultarEstadoSolicitud() {
+  const contenedor = document.getElementById('formStatus');
+  if (!contenedor) return;
+  contenedor.classList.add('oculto');
+  contenedor.classList.remove('form-status--success', 'form-status--error');
+  const textoEl = contenedor.querySelector('.form-status-text');
+  if (textoEl) {
+    textoEl.textContent = '';
+  }
 }
 
 function normalizarMontoTexto(valor) {
