@@ -129,6 +129,9 @@
 
         <fieldset>
           <legend>Redeterminación</legend>
+          <label>Tipo de redeterminación
+            <input type="text" id="tipoRedeterminacion" placeholder="Ej.: Licitación Pública, Contratación Directa, etc.">
+          </label>
           <label>Cambios registrados desde
             <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
           </label>
@@ -311,6 +314,17 @@
                   <input type="text" id="polizaMontoTotalGarantizar" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </div>
+              <div class="form-field">
+                <label for="polizaQueCorresponde">Póliza que corresponde</label>
+                <input type="text" id="polizaQueCorresponde" placeholder="Ej.: Garantía de cumplimiento, Fondo de reparo, etc.">
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoPoliza">Monto de la póliza</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoPoliza" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
               <div class="poliza-total">
                 <label for="polizaMontoClausulaLetras">Monto en letras de la póliza</label>
                 <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
@@ -321,6 +335,11 @@
 
         <div class="acciones">
           <button type="reset" id="limpiarFormulario">Limpiar</button>
+          <button type="submit" id="enviarSolicitud" class="btn-enviar">ENVIAR SOLICITUD</button>
+        </div>
+        <div id="formStatus" class="form-status oculto" role="status" aria-live="polite">
+          <img src="Certy_celular.png" alt="Certy" class="form-status-logo" width="72" height="90">
+          <p class="form-status-text"></p>
         </div>
       </form>
     </div>

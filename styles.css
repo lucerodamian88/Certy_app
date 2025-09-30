@@ -584,6 +584,92 @@ label {
   flex: 1;
 }
 
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+#limpiarFormulario {
+  background: #e0e7ff;
+  color: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+#limpiarFormulario:hover {
+  background: #c7d2fe;
+  transform: translateY(-1px);
+}
+
+.btn-enviar {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-enviar:hover {
+  background: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.btn-enviar:disabled {
+  background: #9e9e9e;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-status {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid transparent;
+  background: #f5f7fb;
+  color: var(--color-text);
+}
+
+.form-status-logo {
+  display: none;
+  width: 72px;
+  height: auto;
+}
+
+.form-status-text {
+  margin: 0;
+  font-weight: 600;
+}
+
+.form-status--success {
+  background: #e6f4ea;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+
+.form-status--success .form-status-logo {
+  display: block;
+}
+
+.form-status--error {
+  background: #fdecea;
+  border-color: #f5c2c7;
+  color: #842029;
+}
+
 .peso-signo {
   font-weight: 600;
   color: var(--color-primary);
