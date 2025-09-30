@@ -216,24 +216,11 @@
                   <input type="text" id="polizaMontoContrato" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
                 </div>
               </div>
-              <div class="form-field poliza-alteracion">
-                <span id="polizaAlteracionLabel">¿El monto del contrato tiene adicionales?</span>
-                <div class="poliza-toggle-options" role="group" aria-labelledby="polizaAlteracionLabel">
-                  <div class="radio-option">
-                    <input type="radio" id="polizaAlteracionNo" name="polizaAlteracion" value="no" checked>
-                    <label for="polizaAlteracionNo">No</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" id="polizaAlteracionSi" name="polizaAlteracion" value="si">
-                    <label for="polizaAlteracionSi">Sí</label>
-                  </div>
-                </div>
-              </div>
               <div class="form-field">
                 <label for="polizaMontoConAdicionales">Monto con adicionales</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00" aria-describedby="polizaAlteracionLabel" readonly aria-readonly="true">
+                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
                 </div>
               </div>
               <div class="form-field">
@@ -296,13 +283,6 @@
                 </div>
               </div>
               <div class="form-field">
-                <label for="polizaBaseContratacionResumen">BASE PARA CONTRATACIÓN DE PÓLIZA</label>
-                <div class="monto-input">
-                  <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaBaseContratacionResumen" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
-                </div>
-              </div>
-              <div class="form-field">
                 <label for="polizaMontoGarantizarSaldoObra">MONTO A GARANTIZAR POR SALDO DE OBRA</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
@@ -332,18 +312,9 @@
                 </div>
               </div>
               <div class="poliza-total">
-                <label for="polizaMontoClausula">La póliza de ejecución de contrato que va en la cláusula SEXTA del Acta de Adhesión es de</label>
-                <div class="monto-input">
-                  <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoClausula" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
-                </div>
-                <label for="polizaMontoClausulaLetras">Monto en letras</label>
+                <label for="polizaMontoClausulaLetras">Monto en letras de la póliza</label>
                 <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
               </div>
-            </div>
-            <div class="poliza-acciones">
-              <button type="button" id="polizaRecalcular">Recalcular</button>
-              <button type="button" id="polizaRestablecer">Restablecer póliza</button>
             </div>
           </div>
         </fieldset>
