@@ -702,22 +702,42 @@ async function manejarEnvioSolicitud(event) {
     submitBtn.textContent = 'Enviando…';
   }
   ocultarEstadoSolicitud();
+  const endpoint = obtenerEndpointRedeterminaciones();
+  if (!endpoint) {
+    console.error('No está configurado el endpoint de la Web App de Google Apps Script para redeterminaciones.');
+    mostrarEstadoSolicitud('error', '❌ No está configurada la URL de la Web App. Configurá el atributo data-endpoint en redeterminaciones.html o la variable global REDETERMINACIONES_FORM_ENDPOINT.');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+    return;
+  }
   try {
     const payload = recolectarDatosFormulario();
-    const respuesta = await fetch('/api/redeterminaciones', {
+    const respuesta = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: construirBodySolicitudRedeterminacion(payload)
     });
-    if (!respuesta.ok) {
-      const detalle = await respuesta.json().catch(() => ({}));
+    const textoRespuesta = await respuesta.text();
+    let detalle = {};
+    if (textoRespuesta) {
+      try {
+        detalle = JSON.parse(textoRespuesta);
+      } catch (err) {
+        throw new Error('Respuesta no válida del servicio de Google Apps Script');
+      }
+    }
+    if (!respuesta.ok || detalle.success !== true) {
       const mensaje = detalle && detalle.error ? detalle.error : 'Error al registrar la solicitud';
       throw new Error(mensaje);
     }
     mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente. Los documentos se generarán automáticamente en breve.');
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
-    mostrarEstadoSolicitud('error', '❌ Hubo un error al registrar la solicitud. Intente nuevamente o verifique la conexión con la planilla.');
+    const mensaje = error && error.message
+      ? `❌ Hubo un error al registrar la solicitud: ${error.message}`
+      : '❌ Hubo un error al registrar la solicitud. Intente nuevamente o verifique la conexión con la planilla.';
+    mostrarEstadoSolicitud('error', mensaje);
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -761,6 +781,30 @@ function recolectarDatosFormulario() {
     montoPoliza: obtenerValorPorId('polizaMontoPoliza'),
     montoPolizaLetras: obtenerValorPorId('polizaMontoClausulaLetras')
   };
+}
+
+function obtenerEndpointRedeterminaciones() {
+  const form = document.getElementById('formAsistente');
+  let endpoint = '';
+  if (form && form.dataset && form.dataset.endpoint) {
+    endpoint = form.dataset.endpoint.trim();
+  }
+  if (!endpoint && typeof window !== 'undefined' && window.REDETERMINACIONES_FORM_ENDPOINT) {
+    endpoint = String(window.REDETERMINACIONES_FORM_ENDPOINT).trim();
+  }
+  if (endpoint && /REEMPLAZAR/i.test(endpoint)) {
+    return '';
+  }
+  return endpoint;
+}
+
+function construirBodySolicitudRedeterminacion(payload) {
+  const params = new URLSearchParams();
+  Object.entries(payload || {}).forEach(([clave, valor]) => {
+    if (valor === undefined || valor === null) return;
+    params.append(clave, typeof valor === 'string' ? valor : String(valor));
+  });
+  return params;
 }
 
 function obtenerValorPorId(id) {
