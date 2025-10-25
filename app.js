@@ -697,12 +697,16 @@ async function manejarEnvioSolicitud(event) {
   event.preventDefault();
   const submitBtn = document.getElementById('enviarSolicitud');
   const originalText = submitBtn ? submitBtn.textContent : '';
+
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando…';
   }
+
   ocultarEstadoSolicitud();
-  const endpoint = obtenerEndpointRedeterminaciones();
+
+  const endpoint = obtenerEndpointRedeterminaciones(); // tu URL del Web App
+
   if (!endpoint) {
     console.error('No está configurado el endpoint de la Web App de Google Apps Script para redeterminaciones.');
     mostrarEstadoSolicitud('error', '❌ No está configurada la URL de la Web App. Configurá el atributo data-endpoint en redeterminaciones.html o la variable global REDETERMINACIONES_FORM_ENDPOINT.');
@@ -712,20 +716,30 @@ async function manejarEnvioSolicitud(event) {
     }
     return;
   }
+
   try {
-    const payload = recolectarDatosFormulario();
+    const payload = recolectarDatosFormulario(); // devuelve un objeto plano tipo { campo: valor }
+
+    const formData = new URLSearchParams();
+    for (const key in payload) {
+      formData.append(key, payload[key]);
+    }
+
     const respuesta = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: construirBodySolicitudRedeterminacion(payload)
+      body: formData
     });
+
     const textoRespuesta = await respuesta.text();
     const textoNormalizado = (textoRespuesta || '').trim();
+
     if (!respuesta.ok || textoNormalizado !== 'OK') {
       throw new Error(textoNormalizado || 'Error al registrar la solicitud');
     }
+
     mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente.');
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
