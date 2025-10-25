@@ -722,7 +722,9 @@ async function manejarEnvioSolicitud(event) {
 
     const formData = new URLSearchParams();
     for (const key in payload) {
-      formData.append(key, payload[key]);
+      if (!Object.prototype.hasOwnProperty.call(payload, key)) continue;
+      const valor = payload[key] ?? '';
+      formData.append(key, valor);
     }
 
     const respuesta = await fetch(endpoint, {
@@ -735,15 +737,31 @@ async function manejarEnvioSolicitud(event) {
 
     const textoRespuesta = await respuesta.text();
     const textoNormalizado = (textoRespuesta || '').trim();
+    let jsonRespuesta = null;
+    if (textoNormalizado) {
+      try {
+        jsonRespuesta = JSON.parse(textoNormalizado);
+      } catch (parseError) {
+        jsonRespuesta = null;
+      }
+    }
 
-    if (!respuesta.ok || textoNormalizado !== 'OK') {
-      throw new Error(textoNormalizado || 'Error al registrar la solicitud');
+    const exito = jsonRespuesta && typeof jsonRespuesta === 'object'
+      ? jsonRespuesta.success === true
+      : textoNormalizado.toUpperCase() === 'OK';
+
+    if (!respuesta.ok || !exito) {
+      const mensajeError = jsonRespuesta && jsonRespuesta.error
+        ? jsonRespuesta.error
+        : textoNormalizado || 'Error al registrar la solicitud';
+      throw new Error(mensajeError);
     }
 
     mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente.');
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
-    mostrarEstadoSolicitud('error', '❌ Hubo un error al registrar la solicitud.');
+    const mensaje = error && error.message ? error.message : 'Hubo un error al registrar la solicitud.';
+    mostrarEstadoSolicitud('error', `❌ ${mensaje}`);
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -759,36 +777,40 @@ function recolectarDatosFormulario() {
     ? `${representanteTipo} - ${representanteNombre}`
     : representanteNombre || representanteTipo;
   const ultimoFriAprobadoFecha = obtenerValorPorId('polizaUltimoFriAprobadoFecha');
-  const ultimoFriAprobadoValor = obtenerValorPorId('polizaUltimoFriAprobadoValor');
+  const ultimoFriAprobadoValor = agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriAprobadoValor'));
+  const ultimoFriAprobado = [ultimoFriAprobadoFecha, ultimoFriAprobadoValor]
+    .filter(Boolean)
+    .join(' - ');
   return {
-    'Empresa': obtenerEmpresaSeleccionada(),
-    'Tipo de redeterminación': obtenerValorPorId('tipoRedeterminacion'),
-    'Representante (Nombre y DNI)': representante || '',
-    'Domicilio': obtenerValorPorId('repDomicilio'),
-    'Nombre de la Obra': obtenerValorPorId('obraNombre'),
-    'N° de Expediente': obtenerValorPorId('obraExpediente'),
-    'Aprobada por (Resolución / Disposición)': obtenerTextoSeleccion('aprobadaPor'),
-    'N° de Adjudicación': obtenerValorPorId('aprobadaNumero'),
-    'Desde (Fecha)': obtenerValorPorId('cambiosDesde'),
-    'Hasta (Fecha)': obtenerValorPorId('cambiosHasta'),
-    'N° de redeterminación (Primera / Segunda / etc)': obtenerTextoSeleccion('nRedet'),
-    'Saldos FRI': obtenerSaldosFri(),
-    'Monto de la redeterminación': obtenerValorPorId('montoRedeterminacion'),
-    'Monto en letras': obtenerValorPorId('montoRedeterminacionLetras'),
-    'Monto del contrato': obtenerValorPorId('polizaMontoContrato'),
-    'Monto con adicionales': obtenerValorPorId('polizaMontoConAdicionales'),
-    'Monto obra acumulada': obtenerValorPorId('polizaMontoObraAcumulada'),
-    'Saldo de Anticipo Financiero': obtenerValorPorId('polizaSaldoAnticipo'),
-    'Último FRI (%)': agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriValor')),
-    'Último FRI aprobado (fecha)': ultimoFriAprobadoFecha,
-    'Último FRI aprobado (%)': agregarSimboloPorcentaje(ultimoFriAprobadoValor),
-    'Incremento FRI (%)': agregarSimboloPorcentaje(obtenerValorPorId('polizaIncrementoFri')),
-    'Base para contratación de póliza': obtenerValorPorId('polizaBaseContratacion'),
-    'Monto a garantizar por saldo de obra': obtenerValorPorId('polizaMontoGarantizarSaldoObra'),
-    'Monto a garantizar por redeterminación de precios': obtenerValorPorId('polizaMontoGarantizarRp'),
-    'Monto Certificado de Redeterminación de Precios modelo': obtenerValorPorId('polizaCertificadoRp'),
-    'Monto total a garantizar': obtenerValorPorId('polizaMontoTotalGarantizar'),
-    'Monto en letras de póliza': obtenerValorPorId('polizaMontoClausulaLetras')
+    expediente: obtenerValorPorId('obraExpediente'),
+    tipoRedeterminacion: obtenerValorPorId('tipoRedeterminacion'),
+    empresa: obtenerEmpresaSeleccionada(),
+    representante: representante || '',
+    domicilio: obtenerValorPorId('repDomicilio'),
+    obraNombre: obtenerValorPorId('obraNombre'),
+    aprobadaPor: obtenerTextoSeleccion('aprobadaPor'),
+    numeroAdjudicacion: obtenerValorPorId('aprobadaNumero'),
+    periodoDesde: obtenerValorPorId('cambiosDesde'),
+    periodoHasta: obtenerValorPorId('cambiosHasta'),
+    numeroRedeterminacion: obtenerTextoSeleccion('nRedet') || obtenerValorPorId('nRedet'),
+    saltosFri: obtenerSaldosFri(),
+    montoRedeterminacion: obtenerValorPorId('montoRedeterminacion'),
+    montoRedeterminacionLetras: obtenerValorPorId('montoRedeterminacionLetras'),
+    montoContrato: obtenerValorPorId('polizaMontoContrato'),
+    montoConAdicionales: obtenerValorPorId('polizaMontoConAdicionales'),
+    montoObraAcumulada: obtenerValorPorId('polizaMontoObraAcumulada'),
+    saldoAnticipo: obtenerValorPorId('polizaSaldoAnticipo'),
+    ultimoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriValor')),
+    ultimoFriAprobado,
+    incrementoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaIncrementoFri')),
+    baseContratacion: obtenerValorPorId('polizaBaseContratacion'),
+    montoGarantizarSaldoObra: obtenerValorPorId('polizaMontoGarantizarSaldoObra'),
+    montoGarantizarRedeterminacion: obtenerValorPorId('polizaMontoGarantizarRp'),
+    montoCertificadoRedeterminacion: obtenerValorPorId('polizaCertificadoRp'),
+    montoTotalGarantizar: obtenerValorPorId('polizaMontoTotalGarantizar'),
+    polizaQueCorresponde: obtenerValorPorId('polizaQueCorresponde'),
+    montoPoliza: obtenerValorPorId('polizaMontoPoliza'),
+    montoPolizaLetras: obtenerValorPorId('polizaMontoClausulaLetras')
   };
 }
 
