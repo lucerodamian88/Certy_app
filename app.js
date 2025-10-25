@@ -695,6 +695,10 @@ function inicializarMontoRedeterminacion() {
 
 async function manejarEnvioSolicitud(event) {
   event.preventDefault();
+
+  const formulario = event.currentTarget instanceof HTMLFormElement
+    ? event.currentTarget
+    : document.getElementById('formAsistente');
   const submitBtn = document.getElementById('enviarSolicitud');
   const originalText = submitBtn ? submitBtn.textContent : '';
 
@@ -703,13 +707,21 @@ async function manejarEnvioSolicitud(event) {
     submitBtn.textContent = 'Enviando…';
   }
 
-  ocultarEstadoSolicitud();
+  if (!formulario) {
+    console.error('No se encontró el formulario de redeterminaciones.');
+    alert('❌ No se encontró el formulario.');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+    return;
+  }
 
-  const endpoint = obtenerEndpointRedeterminaciones(); // tu URL del Web App
+  const endpoint = obtenerEndpointRedeterminaciones();
 
   if (!endpoint) {
     console.error('No está configurado el endpoint de la Web App de Google Apps Script para redeterminaciones.');
-    mostrarEstadoSolicitud('error', '❌ No está configurada la URL de la Web App. Configurá el atributo data-endpoint en redeterminaciones.html o la variable global REDETERMINACIONES_FORM_ENDPOINT.');
+    alert('❌ No está configurada la URL de la Web App.');
     if (submitBtn) {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
@@ -718,50 +730,23 @@ async function manejarEnvioSolicitud(event) {
   }
 
   try {
-    const payload = recolectarDatosFormulario(); // devuelve un objeto plano tipo { campo: valor }
-
-    const formData = new URLSearchParams();
-    for (const key in payload) {
-      if (!Object.prototype.hasOwnProperty.call(payload, key)) continue;
-      const valor = payload[key] ?? '';
-      formData.append(key, valor);
-    }
+    const formData = new FormData(formulario);
 
     const respuesta = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
       body: formData
     });
 
-    const textoRespuesta = await respuesta.text();
-    const textoNormalizado = (textoRespuesta || '').trim();
-    let jsonRespuesta = null;
-    if (textoNormalizado) {
-      try {
-        jsonRespuesta = JSON.parse(textoNormalizado);
-      } catch (parseError) {
-        jsonRespuesta = null;
-      }
+    const texto = await respuesta.text();
+    if (texto.trim() === 'OK') {
+      alert('✅ La solicitud se envió correctamente.');
+      formulario.reset();
+    } else {
+      throw new Error(texto || 'Respuesta inesperada del servidor');
     }
-
-    const exito = jsonRespuesta && typeof jsonRespuesta === 'object'
-      ? jsonRespuesta.success === true
-      : textoNormalizado.toUpperCase() === 'OK';
-
-    if (!respuesta.ok || !exito) {
-      const mensajeError = jsonRespuesta && jsonRespuesta.error
-        ? jsonRespuesta.error
-        : textoNormalizado || 'Error al registrar la solicitud';
-      throw new Error(mensajeError);
-    }
-
-    mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente.');
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
-    const mensaje = error && error.message ? error.message : 'Hubo un error al registrar la solicitud.';
-    mostrarEstadoSolicitud('error', `❌ ${mensaje}`);
+    alert('❌ Hubo un error al registrar la solicitud.');
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
