@@ -716,28 +716,20 @@ async function manejarEnvioSolicitud(event) {
     const payload = recolectarDatosFormulario();
     const respuesta = await fetch(endpoint, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: construirBodySolicitudRedeterminacion(payload)
     });
     const textoRespuesta = await respuesta.text();
-    let detalle = {};
-    if (textoRespuesta) {
-      try {
-        detalle = JSON.parse(textoRespuesta);
-      } catch (err) {
-        throw new Error('Respuesta no válida del servicio de Google Apps Script');
-      }
+    const textoNormalizado = (textoRespuesta || '').trim();
+    if (!respuesta.ok || textoNormalizado !== 'OK') {
+      throw new Error(textoNormalizado || 'Error al registrar la solicitud');
     }
-    if (!respuesta.ok || detalle.success !== true) {
-      const mensaje = detalle && detalle.error ? detalle.error : 'Error al registrar la solicitud';
-      throw new Error(mensaje);
-    }
-    mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente. Los documentos se generarán automáticamente en breve.');
+    mostrarEstadoSolicitud('success', '✅ Solicitud registrada correctamente.');
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
-    const mensaje = error && error.message
-      ? `❌ Hubo un error al registrar la solicitud: ${error.message}`
-      : '❌ Hubo un error al registrar la solicitud. Intente nuevamente o verifique la conexión con la planilla.';
-    mostrarEstadoSolicitud('error', mensaje);
+    mostrarEstadoSolicitud('error', '❌ Hubo un error al registrar la solicitud.');
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -749,37 +741,40 @@ async function manejarEnvioSolicitud(event) {
 function recolectarDatosFormulario() {
   const representanteTipo = obtenerValorPorId('repTipo');
   const representanteNombre = obtenerValorPorId('repNombreDni');
-  const representante = [representanteTipo, representanteNombre].filter(Boolean).join(' - ');
+  const representante = representanteTipo && representanteNombre
+    ? `${representanteTipo} - ${representanteNombre}`
+    : representanteNombre || representanteTipo;
   const ultimoFriAprobadoFecha = obtenerValorPorId('polizaUltimoFriAprobadoFecha');
   const ultimoFriAprobadoValor = obtenerValorPorId('polizaUltimoFriAprobadoValor');
   return {
-    expediente: obtenerValorPorId('obraExpediente'),
-    tipoRedeterminacion: obtenerValorPorId('tipoRedeterminacion'),
-    empresa: obtenerEmpresaSeleccionada(),
-    representante,
-    domicilio: obtenerValorPorId('repDomicilio'),
-    obraNombre: obtenerValorPorId('obraNombre'),
-    aprobadaPor: obtenerTextoSeleccion('aprobadaPor'),
-    numeroAdjudicacion: obtenerValorPorId('aprobadaNumero'),
-    periodoDesde: obtenerValorPorId('cambiosDesde'),
-    periodoHasta: obtenerValorPorId('cambiosHasta'),
-    numeroRedeterminacion: obtenerTextoSeleccion('nRedet'),
-    montoRedeterminacion: obtenerValorPorId('montoRedeterminacion'),
-    montoRedeterminacionLetras: obtenerValorPorId('montoRedeterminacionLetras'),
-    montoContrato: obtenerValorPorId('polizaMontoContrato'),
-    montoConAdicionales: obtenerValorPorId('polizaMontoConAdicionales'),
-    montoObraAcumulada: obtenerValorPorId('polizaMontoObraAcumulada'),
-    saldoAnticipo: obtenerValorPorId('polizaSaldoAnticipo'),
-    ultimoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriValor')),
-    ultimoFriAprobado: combinarUltimoFriAprobado(ultimoFriAprobadoFecha, ultimoFriAprobadoValor),
-    incrementoFri: agregarSimboloPorcentaje(obtenerValorPorId('polizaIncrementoFri')),
-    baseContratacion: obtenerValorPorId('polizaBaseContratacion'),
-    montoGarantizarSaldoObra: obtenerValorPorId('polizaMontoGarantizarSaldoObra'),
-    montoGarantizarRedeterminacion: obtenerValorPorId('polizaMontoGarantizarRp'),
-    montoTotalGarantizar: obtenerValorPorId('polizaMontoTotalGarantizar'),
-    polizaQueCorresponde: obtenerValorPorId('polizaQueCorresponde'),
-    montoPoliza: obtenerValorPorId('polizaMontoPoliza'),
-    montoPolizaLetras: obtenerValorPorId('polizaMontoClausulaLetras')
+    'Empresa': obtenerEmpresaSeleccionada(),
+    'Tipo de redeterminación': obtenerValorPorId('tipoRedeterminacion'),
+    'Representante (Nombre y DNI)': representante || '',
+    'Domicilio': obtenerValorPorId('repDomicilio'),
+    'Nombre de la Obra': obtenerValorPorId('obraNombre'),
+    'N° de Expediente': obtenerValorPorId('obraExpediente'),
+    'Aprobada por (Resolución / Disposición)': obtenerTextoSeleccion('aprobadaPor'),
+    'N° de Adjudicación': obtenerValorPorId('aprobadaNumero'),
+    'Desde (Fecha)': obtenerValorPorId('cambiosDesde'),
+    'Hasta (Fecha)': obtenerValorPorId('cambiosHasta'),
+    'N° de redeterminación (Primera / Segunda / etc)': obtenerTextoSeleccion('nRedet'),
+    'Saldos FRI': obtenerSaldosFri(),
+    'Monto de la redeterminación': obtenerValorPorId('montoRedeterminacion'),
+    'Monto en letras': obtenerValorPorId('montoRedeterminacionLetras'),
+    'Monto del contrato': obtenerValorPorId('polizaMontoContrato'),
+    'Monto con adicionales': obtenerValorPorId('polizaMontoConAdicionales'),
+    'Monto obra acumulada': obtenerValorPorId('polizaMontoObraAcumulada'),
+    'Saldo de Anticipo Financiero': obtenerValorPorId('polizaSaldoAnticipo'),
+    'Último FRI (%)': agregarSimboloPorcentaje(obtenerValorPorId('polizaUltimoFriValor')),
+    'Último FRI aprobado (fecha)': ultimoFriAprobadoFecha,
+    'Último FRI aprobado (%)': agregarSimboloPorcentaje(ultimoFriAprobadoValor),
+    'Incremento FRI (%)': agregarSimboloPorcentaje(obtenerValorPorId('polizaIncrementoFri')),
+    'Base para contratación de póliza': obtenerValorPorId('polizaBaseContratacion'),
+    'Monto a garantizar por saldo de obra': obtenerValorPorId('polizaMontoGarantizarSaldoObra'),
+    'Monto a garantizar por redeterminación de precios': obtenerValorPorId('polizaMontoGarantizarRp'),
+    'Monto Certificado de Redeterminación de Precios modelo': obtenerValorPorId('polizaCertificadoRp'),
+    'Monto total a garantizar': obtenerValorPorId('polizaMontoTotalGarantizar'),
+    'Monto en letras de póliza': obtenerValorPorId('polizaMontoClausulaLetras')
   };
 }
 
@@ -799,12 +794,7 @@ function obtenerEndpointRedeterminaciones() {
 }
 
 function construirBodySolicitudRedeterminacion(payload) {
-  const params = new URLSearchParams();
-  Object.entries(payload || {}).forEach(([clave, valor]) => {
-    if (valor === undefined || valor === null) return;
-    params.append(clave, typeof valor === 'string' ? valor : String(valor));
-  });
-  return params;
+  return JSON.stringify(payload || {});
 }
 
 function obtenerValorPorId(id) {
@@ -835,19 +825,30 @@ function obtenerTextoSeleccion(id) {
   return opcion ? (opcion.text || '').trim() : '';
 }
 
+function obtenerSaldosFri() {
+  const cont = document.getElementById('saltosContainer');
+  if (!cont) return '';
+  const filas = cont.querySelectorAll('.salto-row');
+  const detalles = [];
+  filas.forEach((fila, index) => {
+    const porcentaje = obtenerValorCampo(fila.querySelector('.salto-acum'));
+    const fecha = obtenerValorCampo(fila.querySelector('.salto-fecha'));
+    if (!porcentaje && !fecha) return;
+    const etiquetaBase = index === 0 ? 'Salto inicial' : `${ordinalesMasc[index] || `${index + 1}º`} Salto`;
+    const partes = [];
+    if (porcentaje) partes.push(agregarSimboloPorcentaje(porcentaje));
+    if (fecha) partes.push(fecha);
+    const descripcion = partes.length > 0 ? `${etiquetaBase}: ${partes.join(' - ')}` : etiquetaBase;
+    detalles.push(descripcion);
+  });
+  return detalles.join('\n');
+}
+
 function agregarSimboloPorcentaje(valor) {
   if (!valor) return '';
   const texto = valor.trim();
   if (!texto) return '';
   return /%$/.test(texto) ? texto : `${texto}%`;
-}
-
-function combinarUltimoFriAprobado(fecha, valor) {
-  const fechaLimpia = (fecha || '').trim();
-  const porcentaje = agregarSimboloPorcentaje(valor || '');
-  if (fechaLimpia && porcentaje) return `${fechaLimpia} - ${porcentaje}`;
-  if (fechaLimpia) return fechaLimpia;
-  return porcentaje;
 }
 
 function mostrarEstadoSolicitud(tipo, mensaje) {
