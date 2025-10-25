@@ -436,6 +436,11 @@ body.dark .speech-bubble {
   font-size: 0.875rem;
 }
 
+.card-subtitle.accent-text {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
 .card-button:hover:not([disabled]),
 .card-button:focus-visible:not([disabled]) {
   transform: translateY(-4px);
