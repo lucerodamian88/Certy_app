@@ -103,9 +103,9 @@
           </label>
           <small class="field-hint"><em>Sugerencia: copiar y pegar el nombre del sistema GESOP.</em></small>
           <label>N° de Expediente
-            <input type="text" id="obraExpediente" placeholder="nnnn-M-202X" pattern="\d{4}-M-202\d" inputmode="text">
+            <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d" inputmode="text">
           </label>
-          <small class="field-hint"><em>Ejemplo de formato: 1234-M-2023.</em></small>
+          <small class="field-hint"><em>Ejemplos de formato: 1234-M-2023, 10004-M-2025.</em></small>
           <div class="aprobada-por-row">
             <div class="aprobada-por-field">
               <label>Aprobada por
@@ -139,26 +139,26 @@
           <label>N° de Redeterminación
             <select id="nRedet">
               <option value="" disabled selected>Seleccione</option>
-              <option value="1">Primera Redeterminación</option>
-              <option value="2">Segunda Redeterminación</option>
-              <option value="3">Tercera Redeterminación</option>
-              <option value="4">Cuarta Redeterminación</option>
-              <option value="5">Quinta Redeterminación</option>
-              <option value="6">Sexta Redeterminación</option>
-              <option value="7">Séptima Redeterminación</option>
-              <option value="8">Octava Redeterminación</option>
-              <option value="9">Novena Redeterminación</option>
-              <option value="10">Décima Redeterminación</option>
-              <option value="11">Undécima Redeterminación</option>
-              <option value="12">Duodécima Redeterminación</option>
-              <option value="13">Decimotercera Redeterminación</option>
-              <option value="14">Decimocuarta Redeterminación</option>
-              <option value="15">Decimoquinta Redeterminación</option>
-              <option value="16">Decimosexta Redeterminación</option>
-              <option value="17">Decimoséptima Redeterminación</option>
-              <option value="18">Decimoctava Redeterminación</option>
-              <option value="19">Decimonovena Redeterminación</option>
-              <option value="20">Vigésima Redeterminación</option>
+              <option value="Primera Redeterminación">Primera Redeterminación</option>
+              <option value="Segunda Redeterminación">Segunda Redeterminación</option>
+              <option value="Tercera Redeterminación">Tercera Redeterminación</option>
+              <option value="Cuarta Redeterminación">Cuarta Redeterminación</option>
+              <option value="Quinta Redeterminación">Quinta Redeterminación</option>
+              <option value="Sexta Redeterminación">Sexta Redeterminación</option>
+              <option value="Séptima Redeterminación">Séptima Redeterminación</option>
+              <option value="Octava Redeterminación">Octava Redeterminación</option>
+              <option value="Novena Redeterminación">Novena Redeterminación</option>
+              <option value="Décima Redeterminación">Décima Redeterminación</option>
+              <option value="Undécima Redeterminación">Undécima Redeterminación</option>
+              <option value="Duodécima Redeterminación">Duodécima Redeterminación</option>
+              <option value="Decimotercera Redeterminación">Decimotercera Redeterminación</option>
+              <option value="Decimocuarta Redeterminación">Decimocuarta Redeterminación</option>
+              <option value="Decimoquinta Redeterminación">Decimoquinta Redeterminación</option>
+              <option value="Decimosexta Redeterminación">Decimosexta Redeterminación</option>
+              <option value="Decimoséptima Redeterminación">Decimoséptima Redeterminación</option>
+              <option value="Decimoctava Redeterminación">Decimoctava Redeterminación</option>
+              <option value="Decimonovena Redeterminación">Decimonovena Redeterminación</option>
+              <option value="Vigésima Redeterminación">Vigésima Redeterminación</option>
             </select>
           </label>
           <small class="field-hint"><em>Sugerencia: Primera Redeterminación, Segunda Redeterminación.</em></small>
@@ -181,7 +181,7 @@
           <label>Monto de la redeterminación
             <div class="monto-input">
               <span class="peso-signo" aria-hidden="true">$</span>
-              <input type="text" id="montoRedeterminacion" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+              <input type="text" id="montoRedeterminacion" inputmode="decimal" placeholder="0000000,00">
             </div>
             <small class="field-hint">Ingrese el monto sin separadores de miles.</small>
           </label>
@@ -222,21 +222,21 @@
                 <label for="polizaMontoContrato">Monto del contrato</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoContrato" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                  <input type="text" id="polizaMontoContrato" inputmode="decimal" placeholder="0000000,00">
                 </div>
               </div>
               <div class="form-field">
                 <label for="polizaMontoConAdicionales">Monto con adicionales</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" placeholder="0000000,00">
                 </div>
               </div>
               <div class="form-field">
                 <label for="polizaMontoObraAcumulada">Monto Obra acumulada a <span class="poliza-hasta" data-poliza-hasta="acumulada">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoObraAcumulada" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                  <input type="text" id="polizaMontoObraAcumulada" inputmode="decimal" placeholder="0000000,00">
                 </div>
                 <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "A)".</em></small>
               </div>
@@ -244,7 +244,7 @@
                 <label for="polizaSaldoAnticipo">Saldo de Anticipo Financiero a <span class="poliza-hasta" data-poliza-hasta="anticipo">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaSaldoAnticipo" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                  <input type="text" id="polizaSaldoAnticipo" inputmode="decimal" placeholder="0000000,00">
                 </div>
                 <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
               </div>
@@ -302,7 +302,7 @@
                 <label for="polizaCertificadoRp">CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaCertificadoRp" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?" placeholder="0000000,00">
+                  <input type="text" id="polizaCertificadoRp" inputmode="decimal" placeholder="0000000,00">
                 </div>
                 <small class="field-hint"><em>El monto lo encontrás en el certificado de Redeterminación, en el total de la columna "Diferencia A Pagar".</em></small>
               </div>
@@ -429,10 +429,38 @@
         const normalizador = typeof window !== 'undefined' && typeof window.normalizarMontoTexto === 'function'
           ? window.normalizarMontoTexto
           : function (val) {
-            return val
-              .replace(/\s+/g, '')
-              .replace(/\./g, '')
-              .replace(',', '.');
+            const sinEspacios = val.replace(/\s+/g, '');
+            if (!sinEspacios) {
+              return '';
+            }
+
+            const tieneComa = sinEspacios.includes(',');
+            const tienePunto = sinEspacios.includes('.');
+
+            if (tieneComa && tienePunto) {
+              const sinPuntosMiles = sinEspacios.replace(/\.(?=\d{3}(?:\D|$))/g, '');
+              return sinPuntosMiles.replace(',', '.');
+            }
+
+            if (tieneComa) {
+              return sinEspacios.replace(',', '.');
+            }
+
+            if (tienePunto) {
+              const dotCount = (sinEspacios.match(/\./g) || []).length;
+              if (dotCount > 1) {
+                return sinEspacios.replace(/\./g, '');
+              }
+
+              const [entero, decimales = ''] = sinEspacios.split('.');
+              if (decimales.length > 0 && decimales.length <= 2) {
+                return `${entero.replace(/\./g, '')}.${decimales}`;
+              }
+
+              return sinEspacios.replace(/\./g, '');
+            }
+
+            return sinEspacios;
           };
 
         const normalizado = normalizador(texto);
