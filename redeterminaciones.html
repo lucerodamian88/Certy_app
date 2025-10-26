@@ -129,9 +129,6 @@
 
         <fieldset>
           <legend>Redeterminación</legend>
-          <label>Tipo de redeterminación
-            <input type="text" id="tipoRedeterminacion" placeholder="Ej.: Licitación Pública, Contratación Directa, etc.">
-          </label>
           <label>Cambios registrados desde
             <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
           </label>
@@ -176,6 +173,11 @@
               </div>
             </div>
             <div id="saltosContainer" class="saltos-container"></div>
+            <div class="resumen-saltos">
+              <label>Resumen de Saltos
+                <textarea id="resumenSaltos" rows="3" readonly aria-readonly="true" placeholder="Se completará automáticamente"></textarea>
+              </label>
+            </div>
           </div>
           <label>Monto de la redeterminación
             <div class="monto-input">

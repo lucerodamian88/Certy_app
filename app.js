@@ -84,7 +84,74 @@ function generarSaltos() {
     `;
     cont.appendChild(row);
   }
+  actualizarResumenSaltos();
   actualizarCalculosPoliza();
+}
+
+function actualizarResumenSaltos() {
+  const cont = document.getElementById('saltosContainer');
+  const resumen = document.getElementById('resumenSaltos');
+  if (!cont || !resumen) return;
+
+  const filas = Array.from(cont.querySelectorAll('.salto-row'));
+  const frases = [];
+  let factorAcumulado = 1;
+
+  for (let i = 0; i < filas.length; i += 1) {
+    const porcentajeCampo = filas[i].querySelector('.salto-acum');
+    const fechaCampo = filas[i].querySelector('.salto-fecha');
+    if (!porcentajeCampo || !fechaCampo) {
+      continue;
+    }
+
+    const porcentajeTexto = (porcentajeCampo.value || '').trim();
+    const fechaTexto = (fechaCampo.value || '').trim();
+    if (!porcentajeTexto || !fechaTexto) {
+      break;
+    }
+
+    const porcentajeNumero = parsePorcentaje(porcentajeTexto);
+    if (porcentajeNumero === null) {
+      break;
+    }
+
+    const porcentajeFormateado = formatearPorcentaje(porcentajeNumero) || `${porcentajeNumero}`;
+    const porcentajeMostrar = `${porcentajeFormateado}%`;
+    const factorActual = 1 + (porcentajeNumero / 100);
+
+    if (i === 0) {
+      frases.push(`Salto Inicial de ${porcentajeMostrar} al ${fechaTexto}`);
+    } else {
+      const producto = factorAcumulado * factorActual;
+      const variacion = redondearDosDecimales((producto - 1) * 100);
+      if (variacion === null) {
+        break;
+      }
+      const variacionFormateada = formatearPorcentaje(variacion) || `${variacion}`;
+      const variacionMostrar = `${variacionFormateada}%`;
+      const ordinal = ordinalesMasc[i] || `${i + 1}º`;
+      frases.push(`un ${ordinal} Salto de ${porcentajeMostrar} (${variacionMostrar} respecto del salto anterior) al ${fechaTexto}`);
+    }
+
+    factorAcumulado *= factorActual;
+  }
+
+  if (frases.length === 0) {
+    resumen.value = '';
+    return;
+  }
+
+  let textoFinal = '';
+  if (frases.length === 1) {
+    textoFinal = `${frases[0]}.`;
+  } else if (frases.length === 2) {
+    textoFinal = `${frases[0]}, y ${frases[1]}.`;
+  } else {
+    const inicio = frases.slice(0, -1).join(', ');
+    textoFinal = `${inicio}, y ${frases[frases.length - 1]}.`;
+  }
+
+  resumen.value = textoFinal;
 }
 
 function limpiarFormulario() {
@@ -92,6 +159,7 @@ function limpiarFormulario() {
   const cont = document.getElementById('saltosContainer');
   if (form) form.reset();
   if (cont) cont.innerHTML = '';
+  actualizarResumenSaltos();
   ocultarEstadoSolicitud();
   const empresa = document.getElementById('empresa');
   if (empresa) toggleEmpresaOtro(empresa.value);
@@ -202,6 +270,7 @@ function inicializarPoliza() {
         normalizarEntradaDecimal(event.target);
         actualizarCalculosPoliza();
       }
+      actualizarResumenSaltos();
     });
   }
 
