@@ -347,189 +347,134 @@
     (function () {
       'use strict';
 
-      function normalizarValorEnvio(valor) {
-        if (valor === null || typeof valor === 'undefined') {
+      const IDS_PAYLOAD = [
+        'empresa',
+        'repTipo',
+        'repNombreDni',
+        'repDomicilio',
+        'obraNombre',
+        'obraExpediente',
+        'aprobadaPor',
+        'aprobadaNumero',
+        'aprobadaFecha',
+        'cambiosDesde',
+        'cambiosHasta',
+        'nRedet',
+        'resumenSaltos',
+        'montoRedeterminacion',
+        'montoRedeterminacionLetras',
+        'cierreArticulo',
+        'polizaMontoContrato',
+        'polizaMontoConAdicionales',
+        'polizaMontoObraAcumulada',
+        'polizaSaldoAnticipo',
+        'polizaUltimoFriValor',
+        'polizaUltimoFriAprobadoFecha',
+        'polizaUltimoFriAprobadoValor',
+        'polizaIncrementoFri',
+        'polizaBaseContratacion',
+        'polizaMontoGarantizarSaldoObra',
+        'polizaCertificadoRp',
+        'polizaMontoGarantizarRp',
+        'polizaMontoTotalGarantizar',
+        'polizaMontoClausulaLetras'
+      ];
+
+      function obtenerValorCampo(id) {
+        const elemento = document.getElementById(id);
+        if (!elemento) {
           return '';
         }
-        return typeof valor === 'string' ? valor.trim() : String(valor);
-      }
 
-      function escaparSelectorCSS(valor) {
-        if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
-          return CSS.escape(valor);
-        }
-        return String(valor).replace(/([!"#$%&'()*+,./:;<=>?@[\]^`{|}~])/g, '\\$1');
-      }
-
-      function construirParametrosRedeterminacion(formulario) {
-        const params = new URLSearchParams();
-        const clavesIncluidas = new Set();
-
-        if (typeof recolectarDatosFormulario === 'function') {
-          try {
-            const datos = recolectarDatosFormulario();
-            if (datos && typeof datos === 'object') {
-              Object.entries(datos).forEach(([clave, valor]) => {
-                if (!clave) {
-                  return;
-                }
-                params.set(clave, normalizarValorEnvio(valor));
-                clavesIncluidas.add(clave);
-              });
-            }
-          } catch (error) {
-            console.error('No se pudieron recolectar los datos del formulario.', error);
+        if (id === 'empresa') {
+          const select = elemento;
+          const valorSeleccionado = (select.value || '').trim();
+          if (valorSeleccionado === 'OTRO') {
+            const otro = document.getElementById('empresaOtro');
+            return (otro && otro.value ? otro.value : '').trim();
           }
+          if (valorSeleccionado) {
+            const opcion = select.options[select.selectedIndex];
+            return opcion ? (opcion.text || valorSeleccionado).trim() : valorSeleccionado;
+          }
+          return '';
         }
 
-        if (!formulario) {
-          return params;
-        }
-
-        const radiosProcesados = new Set();
-        const elementos = formulario.querySelectorAll('input, select, textarea');
-        elementos.forEach(elemento => {
-          if (!elemento || elemento.disabled) {
-            return;
-          }
-
-          const tipo = (elemento.type || '').toLowerCase();
-          if (tipo === 'button' || tipo === 'submit' || tipo === 'reset') {
-            return;
-          }
-
-          const clave = (elemento.name || elemento.id || '').trim();
-          if (!clave || clavesIncluidas.has(clave)) {
-            return;
-          }
-
-          if (tipo === 'radio') {
-            if (radiosProcesados.has(clave)) {
-              return;
-            }
-            radiosProcesados.add(clave);
-            const selectorClave = escaparSelectorCSS(clave);
-            const seleccionado = formulario.querySelector(`input[name="${selectorClave}"]:checked`);
-            const valor = seleccionado ? seleccionado.value : '';
-            params.set(clave, normalizarValorEnvio(valor));
-            clavesIncluidas.add(clave);
-            return;
-          }
-
-          if (tipo === 'checkbox') {
-            params.set(clave, elemento.checked ? 'true' : 'false');
-            clavesIncluidas.add(clave);
-            return;
-          }
-
-          params.set(clave, normalizarValorEnvio(elemento.value));
-          clavesIncluidas.add(clave);
-        });
-
-        return params;
+        return (elemento.value || '').trim();
       }
 
-      function restablecerFormularioRedeterminacion(formulario) {
-        if (!formulario) {
+      function mostrarEstado(tipo, mensaje) {
+        const contenedor = document.getElementById('formStatus');
+        if (!contenedor) {
           return;
         }
-
-        formulario.reset();
-
-        const saltos = document.getElementById('saltosContainer');
-        if (saltos) {
-          saltos.innerHTML = '';
+        contenedor.classList.remove('oculto', 'form-status--success', 'form-status--error');
+        const texto = contenedor.querySelector('.form-status-text');
+        if (texto) {
+          texto.textContent = mensaje;
         }
-
-        if (typeof actualizarResumenSaltos === 'function') {
-          actualizarResumenSaltos();
-        }
-
-        if (typeof reiniciarPolizaDesdeFormulario === 'function') {
-          reiniciarPolizaDesdeFormulario();
-        }
-
-        if (typeof actualizarCalculosPoliza === 'function') {
-          actualizarCalculosPoliza();
-        }
-
-        const empresa = document.getElementById('empresa');
-        if (empresa && typeof toggleEmpresaOtro === 'function') {
-          toggleEmpresaOtro(empresa.value);
-        }
-
-        if (typeof limpiarCamposEmpresa === 'function') {
-          limpiarCamposEmpresa();
-        }
-
-        const aprobadaPor = document.getElementById('aprobadaPor');
-        if (aprobadaPor && typeof actualizarAprobadaPor === 'function') {
-          actualizarAprobadaPor(aprobadaPor.value);
-        }
-
-        const montoLetras = document.getElementById('montoRedeterminacionLetras');
-        if (montoLetras) {
-          montoLetras.value = '';
-        }
-
-        const cierreArticulo = document.getElementById('cierreArticulo');
-        if (cierreArticulo) {
-          cierreArticulo.value = '';
+        if (tipo === 'success') {
+          contenedor.classList.add('form-status--success');
+        } else if (tipo === 'error') {
+          contenedor.classList.add('form-status--error');
         }
       }
 
-      async function enviarRedeterminaciones(evento) {
+      function ocultarEstado() {
+        const contenedor = document.getElementById('formStatus');
+        if (!contenedor) {
+          return;
+        }
+        contenedor.classList.add('oculto');
+        contenedor.classList.remove('form-status--success', 'form-status--error');
+        const texto = contenedor.querySelector('.form-status-text');
+        if (texto) {
+          texto.textContent = '';
+        }
+      }
+
+      function construirPayload() {
+        const payload = {};
+        IDS_PAYLOAD.forEach(id => {
+          payload[id] = obtenerValorCampo(id);
+        });
+        return payload;
+      }
+
+      async function manejarSubmit(evento) {
         evento.preventDefault();
 
-        const formulario = evento.currentTarget instanceof HTMLFormElement ? evento.currentTarget : document.getElementById('formAsistente');
+        const formulario = evento.currentTarget instanceof HTMLFormElement
+          ? evento.currentTarget
+          : document.getElementById('formAsistente');
+        if (!formulario) {
+          console.error('No se encontró el formulario de redeterminaciones.');
+          mostrarEstado('error', 'No se encontró el formulario de redeterminaciones.');
+          return;
+        }
+
+        const endpoint = (formulario.getAttribute('data-endpoint') || '').trim();
+        if (!endpoint) {
+          console.error('No está configurado el endpoint del Apps Script.');
+          mostrarEstado('error', 'No está configurado el servicio de envío.');
+          return;
+        }
+
         const boton = document.getElementById('enviarSolicitud');
         const textoOriginal = boton ? boton.textContent : '';
-
         if (boton) {
           boton.disabled = true;
-          boton.textContent = 'Enviando...';
+          boton.textContent = 'Enviando…';
         }
 
-        if (typeof ocultarEstadoSolicitud === 'function') {
-          ocultarEstadoSolicitud();
-        }
-
-        if (!formulario) {
-          console.error('No se encontró el formulario de redeterminación.');
-          if (typeof mostrarEstadoSolicitud === 'function') {
-            mostrarEstadoSolicitud('error', '❌ No se encontró el formulario.');
-          }
-          if (boton) {
-            boton.disabled = false;
-            boton.textContent = textoOriginal;
-          }
-          return;
-        }
-
-        const endpoint = typeof obtenerEndpointRedeterminaciones === 'function'
-          ? obtenerEndpointRedeterminaciones()
-          : (formulario.dataset && formulario.dataset.endpoint) || '';
-
-        if (!endpoint) {
-          console.error('No está configurado el endpoint para generar los informes.');
-          if (typeof mostrarEstadoSolicitud === 'function') {
-            mostrarEstadoSolicitud('error', '❌ No está configurado el servicio para generar los informes.');
-          }
-          if (boton) {
-            boton.disabled = false;
-            boton.textContent = textoOriginal;
-          }
-          return;
-        }
+        ocultarEstado();
 
         try {
-          const body = construirParametrosRedeterminacion(formulario);
+          const payload = construirPayload();
           const respuesta = await fetch(endpoint, {
             method: 'POST',
-            body
+            body: new URLSearchParams(payload)
           });
-
-          console.log('Estado de la respuesta:', respuesta.status);
 
           const textoRespuesta = await respuesta.text();
           let datos = null;
@@ -537,48 +482,33 @@
           if (textoRespuesta) {
             try {
               datos = JSON.parse(textoRespuesta);
-            } catch (error) {
-              console.error('No se pudo interpretar la respuesta como JSON.', error);
-              console.debug('Respuesta recibida:', textoRespuesta);
-              throw new Error('No se pudo interpretar la respuesta del servidor.');
+            } catch (parseError) {
+              console.error('No se pudo interpretar la respuesta del servidor como JSON.', parseError);
+              throw new Error('Respuesta inválida del servidor.');
             }
           }
 
-          console.log('Respuesta del servidor:', datos);
-
           if (!respuesta.ok) {
-            const mensajeHttp = datos && typeof datos.error === 'string' && datos.error.trim()
+            const mensaje = datos && typeof datos.error === 'string' && datos.error.trim()
               ? datos.error.trim()
               : `Error HTTP ${respuesta.status}`;
-            throw new Error(mensajeHttp);
+            throw new Error(mensaje);
           }
 
           if (datos && datos.success) {
-            let mensajeExito = datos.message && typeof datos.message === 'string' && datos.message.trim()
-              ? datos.message.trim()
-              : 'La solicitud se registró correctamente.';
-            if (!/^✅/.test(mensajeExito)) {
-              mensajeExito = `✅ ${mensajeExito}`;
-            }
-            if (typeof mostrarEstadoSolicitud === 'function') {
-              mostrarEstadoSolicitud('success', mensajeExito);
-            }
-            restablecerFormularioRedeterminacion(formulario);
+            mostrarEstado('success', 'Redeterminación registrada correctamente');
           } else {
             const mensajeError = datos && typeof datos.error === 'string' && datos.error.trim()
               ? datos.error.trim()
-              : 'Hubo un inconveniente al registrar la solicitud.';
+              : 'Hubo un error al registrar la redeterminación.';
             throw new Error(mensajeError);
           }
         } catch (error) {
-          console.error('Error al generar los informes de redeterminación:', error);
+          console.error('Error al enviar la redeterminación:', error);
           const mensaje = error && typeof error.message === 'string' && error.message.trim()
             ? error.message.trim()
-            : 'Hubo un error al generar los informes.';
-          if (typeof mostrarEstadoSolicitud === 'function') {
-            const mensajeError = /^❌/.test(mensaje) ? mensaje : `❌ ${mensaje}`;
-            mostrarEstadoSolicitud('error', mensajeError);
-          }
+            : 'Ocurrió un error al enviar la redeterminación.';
+          mostrarEstado('error', mensaje);
         } finally {
           if (boton) {
             boton.disabled = false;
@@ -595,7 +525,7 @@
         if (typeof window !== 'undefined' && typeof window.manejarEnvioSolicitud === 'function') {
           formulario.removeEventListener('submit', window.manejarEnvioSolicitud);
         }
-        formulario.addEventListener('submit', enviarRedeterminaciones);
+        formulario.addEventListener('submit', manejarSubmit);
       });
     }());
   </script>
