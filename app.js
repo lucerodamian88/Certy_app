@@ -1,5 +1,7 @@
 // Lógica del Asistente de Redeterminación de Precios
 
+const DEFAULT_REDETERMINACIONES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyRuT8NrUX4vhuq_gzPnKoljJ3atNLkraTUWvCoOeY8joJ9wuoBSmdPoldVYk5MIAGnJA/exec';
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const formContainer = document.querySelector('.form-container');
@@ -1063,6 +1065,9 @@ function obtenerEndpointRedeterminaciones() {
   }
   if (!endpoint && typeof window !== 'undefined' && window.REDETERMINACIONES_FORM_ENDPOINT) {
     endpoint = String(window.REDETERMINACIONES_FORM_ENDPOINT).trim();
+  }
+  if (!endpoint) {
+    endpoint = DEFAULT_REDETERMINACIONES_ENDPOINT;
   }
   if (endpoint && /REEMPLAZAR/i.test(endpoint)) {
     return '';
