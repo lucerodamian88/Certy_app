@@ -33,7 +33,7 @@
       <div class="asistente-header">
         <h1>Asistente de Redeterminación de Precios</h1>
       </div>
-      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbwSEOK0XoOoLphYEP8Sn2uQNcrf7qHtlg0SdXF8WVj5M0HX2ni6QnfgrX2llrEcl-o2/exec">
+      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbyj394LyYHhjwyHH1Mm0RjwXKKPImZzErw_qRf1WfRBKdLNJOBi6wISnxs9d17axoxHaA/exec">
         <fieldset>
           <legend>Datos de la empresa</legend>
           <label>Empresa
@@ -453,8 +453,8 @@
           return;
         }
 
-        const endpoint = (formulario.getAttribute('data-endpoint') || '').trim();
-        if (!endpoint) {
+        const ENDPOINT = formulario.getAttribute('data-endpoint');
+        if (!ENDPOINT) {
           console.error('No está configurado el endpoint del Apps Script.');
           mostrarEstado('error', 'No está configurado el servicio de envío.');
           return;
@@ -464,51 +464,41 @@
         const textoOriginal = boton ? boton.textContent : '';
         if (boton) {
           boton.disabled = true;
-          boton.textContent = 'Enviando…';
+          boton.textContent = 'Enviando...';
         }
 
         ocultarEstado();
 
         try {
           const payload = construirPayload();
-          const respuesta = await fetch(endpoint, {
+          const respuesta = await fetch(ENDPOINT, {
             method: 'POST',
             body: new URLSearchParams(payload)
           });
 
           const textoRespuesta = await respuesta.text();
           let datos = null;
-
-          if (textoRespuesta) {
-            try {
-              datos = JSON.parse(textoRespuesta);
-            } catch (parseError) {
-              console.error('No se pudo interpretar la respuesta del servidor como JSON.', parseError);
-              throw new Error('Respuesta inválida del servidor.');
-            }
+          try {
+            datos = JSON.parse(textoRespuesta);
+          } catch (_) {
+            datos = null;
           }
 
-          if (!respuesta.ok) {
-            const mensaje = datos && typeof datos.error === 'string' && datos.error.trim()
-              ? datos.error.trim()
-              : `Error HTTP ${respuesta.status}`;
-            throw new Error(mensaje);
-          }
-
-          if (datos && datos.success) {
-            mostrarEstado('success', 'Redeterminación registrada correctamente');
+          if (datos && datos.success === true) {
+            const mensajeExito = typeof datos.message === 'string' && datos.message.trim()
+              ? datos.message.trim()
+              : 'Redeterminación registrada correctamente.';
+            mostrarEstado('success', mensajeExito);
+            formulario.reset();
           } else {
             const mensajeError = datos && typeof datos.error === 'string' && datos.error.trim()
               ? datos.error.trim()
-              : 'Hubo un error al registrar la redeterminación.';
-            throw new Error(mensajeError);
+              : 'Hubo un problema. Intente nuevamente.';
+            mostrarEstado('error', mensajeError);
           }
         } catch (error) {
           console.error('Error al enviar la redeterminación:', error);
-          const mensaje = error && typeof error.message === 'string' && error.message.trim()
-            ? error.message.trim()
-            : 'Ocurrió un error al enviar la redeterminación.';
-          mostrarEstado('error', mensaje);
+          mostrarEstado('error', 'Hubo un problema. Intente nuevamente.');
         } finally {
           if (boton) {
             boton.disabled = false;
