@@ -94,8 +94,7 @@ function actualizarResumenSaltos() {
   if (!cont || !resumen) return;
 
   const filas = Array.from(cont.querySelectorAll('.salto-row'));
-  const frases = [];
-  let factorAcumulado = 1;
+  const saltos = [];
 
   for (let i = 0; i < filas.length; i += 1) {
     const porcentajeCampo = filas[i].querySelector('.salto-acum');
@@ -115,30 +114,46 @@ function actualizarResumenSaltos() {
       break;
     }
 
-    const porcentajeFormateado = formatearPorcentaje(porcentajeNumero) || `${porcentajeNumero}`;
-    const porcentajeMostrar = `${porcentajeFormateado}%`;
-    const factorActual = 1 + (porcentajeNumero / 100);
-
-    if (i === 0) {
-      frases.push(`Salto Inicial de ${porcentajeMostrar} al ${fechaTexto}`);
-    } else {
-      const producto = factorAcumulado * factorActual;
-      const variacion = redondearDosDecimales((producto - 1) * 100);
-      if (variacion === null) {
-        break;
-      }
-      const variacionFormateada = formatearPorcentaje(variacion) || `${variacion}`;
-      const variacionMostrar = `${variacionFormateada}%`;
-      const ordinal = ordinalesMasc[i] || `${i + 1}º`;
-      frases.push(`un ${ordinal} Salto de ${porcentajeMostrar} (${variacionMostrar} respecto del salto anterior) al ${fechaTexto}`);
+    const porcentajeFormateado = formatearPorcentajeSeguro(porcentajeNumero);
+    if (!porcentajeFormateado) {
+      break;
     }
 
-    factorAcumulado *= factorActual;
+    saltos.push({
+      porcentaje: porcentajeNumero,
+      porcentajeTexto: `${porcentajeFormateado}%`,
+      fecha: fechaTexto
+    });
   }
 
-  if (frases.length === 0) {
+  if (saltos.length === 0) {
     resumen.value = '';
     return;
+  }
+
+  const frases = [];
+
+  for (let i = 0; i < saltos.length; i += 1) {
+    const salto = saltos[i];
+    if (i === 0) {
+      frases.push(`Salto Inicial de ${salto.porcentajeTexto} al ${salto.fecha}`);
+      continue;
+    }
+
+    const anterior = saltos[i - 1];
+    const diferencia = redondearDosDecimales(salto.porcentaje - anterior.porcentaje);
+    if (diferencia === null) {
+      break;
+    }
+
+    const diferenciaFormateada = formatearPorcentajeSeguro(diferencia);
+    if (!diferenciaFormateada) {
+      break;
+    }
+
+    const nombreSalto = obtenerNombreSalto(i);
+    const referencia = i === 1 ? 'Salto Anterior' : obtenerNombreSalto(i - 1);
+    frases.push(`un ${nombreSalto} de ${salto.porcentajeTexto} (${diferenciaFormateada}% respecto del ${referencia}) al ${salto.fecha}`);
   }
 
   let textoFinal = '';
@@ -427,6 +442,15 @@ const formateadorPorcentaje = new Intl.NumberFormat('es-AR', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 });
+
+function formatearPorcentajeSeguro(valor) {
+  if (typeof valor !== 'number' || !Number.isFinite(valor)) return '';
+  const formateado = formateadorPorcentaje.format(valor);
+  if (formateado) return formateado;
+  const redondeado = redondearDosDecimales(valor);
+  if (redondeado === null) return '';
+  return redondeado.toFixed(2).replace('.', ',');
+}
 
 function actualizarCalculosPoliza() {
   if (!polizaContext) return;
@@ -751,10 +775,28 @@ function guardarEstadoPoliza(estado) {
     console.warn('No se pudo guardar el estado de póliza', err);
   }
 }
+const nombresSaltosBase = [
+  'Salto Inicial',
+  'Segundo Salto',
+  'Tercer Salto',
+  'Cuarto Salto',
+  'Quinto Salto'
+];
+
 const ordinalesMasc = [
   'Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo',
   'Undécimo', 'Duodécimo', 'Decimotercer', 'Decimocuarto', 'Decimoquinto', 'Decimosexto', 'Decimoséptimo', 'Decimooctavo', 'Decimonoveno', 'Vigésimo'
 ];
+
+function obtenerNombreSalto(index) {
+  if (typeof index !== 'number' || index < 0) return 'Salto';
+  if (index < nombresSaltosBase.length && nombresSaltosBase[index]) {
+    return nombresSaltosBase[index];
+  }
+  if (index === 0) return 'Salto Inicial';
+  const ordinal = ordinalesMasc[index] || `${index + 1}º`;
+  return `${ordinal} Salto`;
+}
 
 function inicializarMontoRedeterminacion() {
   const montoInput = document.getElementById('montoRedeterminacion');
