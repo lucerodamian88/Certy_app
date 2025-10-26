@@ -91,7 +91,13 @@ function generarSaltos() {
 function actualizarResumenSaltos() {
   const cont = document.getElementById('saltosContainer');
   const resumen = document.getElementById('resumenSaltos');
-  if (!cont || !resumen) return;
+  if (!cont) {
+    actualizarCierreArticuloDesdeSaltos([]);
+    if (resumen) {
+      resumen.value = '';
+    }
+    return;
+  }
 
   const filas = Array.from(cont.querySelectorAll('.salto-row'));
   const saltos = [];
@@ -127,16 +133,25 @@ function actualizarResumenSaltos() {
     saltos.push({
       porcentaje: porcentajeRedondeado,
       porcentajeTexto: `${porcentajeFormateado}%`,
-      fecha: fechaTexto
+      porcentajeFormateado,
+      fecha: fechaTexto,
+      nombre: obtenerNombreSalto(i)
     });
   }
 
   if (saltos.length === 0) {
-    resumen.value = '';
+    if (resumen) {
+      resumen.value = '';
+    }
+    actualizarCierreArticuloDesdeSaltos([]);
     return;
   }
 
-  resumen.value = construirResumenSaltos(saltos);
+  const resumenTexto = construirResumenSaltos(saltos);
+  if (resumen) {
+    resumen.value = resumenTexto;
+  }
+  actualizarCierreArticuloDesdeSaltos(saltos);
 }
 
 function construirResumenSaltos(saltos) {
@@ -165,6 +180,37 @@ function construirResumenSaltos(saltos) {
   }
   const inicio = frases.slice(0, -1).join(', ');
   return `${inicio}, y ${frases[frases.length - 1]}.`;
+}
+
+function actualizarCierreArticuloDesdeSaltos(saltos) {
+  const campo = document.getElementById('cierreArticulo');
+  if (!campo) {
+    return;
+  }
+
+  if (!Array.isArray(saltos) || saltos.length === 0) {
+    campo.value = '';
+    return;
+  }
+
+  const ultimoSalto = saltos[saltos.length - 1];
+  if (!ultimoSalto || !ultimoSalto.nombre || !ultimoSalto.fecha) {
+    campo.value = '';
+    return;
+  }
+
+  const porcentajeTexto = ultimoSalto.porcentajeFormateado
+    ? ultimoSalto.porcentajeFormateado
+    : (typeof ultimoSalto.porcentajeTexto === 'string'
+      ? ultimoSalto.porcentajeTexto.replace(/%$/, '')
+      : '');
+
+  if (!porcentajeTexto) {
+    campo.value = '';
+    return;
+  }
+
+  campo.value = `El ${ultimoSalto.nombre} de ${porcentajeTexto}% acumulado será de aplicación para el saldo de obra a partir del período ${ultimoSalto.fecha}.`;
 }
 
 function construirFraseResumenSalto(saltos, index) {
@@ -854,7 +900,8 @@ function obtenerNombreSalto(index) {
   if (index < nombresSaltosBase.length && nombresSaltosBase[index]) {
     return nombresSaltosBase[index];
   }
-  return `Salto ${index + 1}`;
+  const ordinal = ordinalesMasc[index] || `${index + 1}º`;
+  return `${ordinal} Salto`;
 }
 
 function inicializarMontoRedeterminacion() {

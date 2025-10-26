@@ -700,6 +700,12 @@ label {
   color: #4d6fa6;
 }
 
+textarea.monto-letras {
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
 #polizaSection .poliza-grid {
   display: flex;
   flex-direction: column;
