@@ -29,6 +29,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const buscarBtn = document.getElementById('buscarResolucion');
   if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoResolucion);
 
+  const formularioRedeterminacion = document.getElementById('formularioRedeterminacion');
+  if (formularioRedeterminacion) {
+    formularioRedeterminacion.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(formularioRedeterminacion);
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzuNR0ZcgutVWamb7uoGm9VMGmJtUWtm1-5x9XM4X0WSlE43hRTHs12XtFrmGN7JMfRNA/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(formData)
+        });
+        const text = await response.text();
+        if (text.trim() === 'OK') {
+          alert('Formulario enviado correctamente.');
+          formularioRedeterminacion.reset();
+        } else {
+          alert(`Error al enviar el formulario: ${text}`);
+        }
+      } catch (error) {
+        console.error('Error al enviar formulario de redeterminación', error);
+        alert('Ocurrió un error al enviar el formulario. Intente nuevamente más tarde.');
+      }
+    });
+  }
+
   inicializarPoliza();
   inicializarMontoRedeterminacion();
 });
