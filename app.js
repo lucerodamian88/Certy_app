@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const buscarBtn = document.getElementById('buscarResolucion');
-  if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoResolucion);
+  if (buscarBtn) buscarBtn.addEventListener('click', abrirDigestoDocumento);
 
   const formularioRedeterminacion = document.getElementById('formularioRedeterminacion');
   if (formularioRedeterminacion) {
@@ -1346,7 +1346,7 @@ function actualizarAprobadaPor(valor) {
   const btn = document.getElementById('buscarResolucion');
   if (hint) hint.textContent = '';
   if (!btn) return;
-  if (valor === 'resolucion') {
+  if (valor === 'resolucion' || valor === 'decreto') {
     if (hint) hint.textContent = 'Buscar la fecha en la página de Digesto';
     btn.classList.remove('oculto');
   } else if (valor === 'disposicion') {
@@ -1357,9 +1357,11 @@ function actualizarAprobadaPor(valor) {
   }
 }
 
-async function abrirDigestoResolucion() {
+async function abrirDigestoDocumento() {
   const tipo = document.getElementById('aprobadaPor');
-  if (!tipo || tipo.value !== 'resolucion') return;
+  if (!tipo) return;
+  const valorTipo = tipo.value;
+  if (valorTipo !== 'resolucion' && valorTipo !== 'decreto') return;
   const numeroInput = document.getElementById('aprobadaNumero');
   if (!numeroInput) return;
   const valor = (numeroInput.value || '').trim();
@@ -1369,7 +1371,11 @@ async function abrirDigestoResolucion() {
     return;
   }
   const [, numero, anioCorto] = match;
-  const base = `https://www.muninqn.gov.ar/info/doc/digesto/RESOLUCIONES/20${anioCorto}/r-${numero}-${anioCorto}`;
+  const carpeta = valorTipo === 'resolucion'
+    ? `RESOLUCIONES/20${anioCorto}`
+    : `DECRETOS/AÑO 20${anioCorto}`;
+  const prefijo = valorTipo === 'resolucion' ? 'r-' : 'd-';
+  const base = `https://www.muninqn.gov.ar/info/doc/digesto/${encodeURI(carpeta)}/${prefijo}${numero}-${anioCorto}`;
   const urls = [`${base}-.pdf`, `${base}.pdf`];
 
   const abrirEnNuevaPestana = url => {
