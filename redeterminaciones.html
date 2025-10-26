@@ -380,6 +380,19 @@
         'polizaMontoClausulaLetras'
       ];
 
+      const CAMPOS_MONTO = new Set([
+        'montoRedeterminacion',
+        'polizaMontoContrato',
+        'polizaMontoConAdicionales',
+        'polizaMontoObraAcumulada',
+        'polizaSaldoAnticipo',
+        'polizaBaseContratacion',
+        'polizaMontoGarantizarSaldoObra',
+        'polizaCertificadoRp',
+        'polizaMontoGarantizarRp',
+        'polizaMontoTotalGarantizar'
+      ]);
+
       function obtenerValorCampo(id) {
         const elemento = document.getElementById(id);
         if (!elemento) {
@@ -401,6 +414,53 @@
         }
 
         return (elemento.value || '').trim();
+      }
+
+      function prepararMontoParaEnvio(valor) {
+        if (!valor) {
+          return '';
+        }
+
+        const texto = valor.toString().trim();
+        if (!texto) {
+          return '';
+        }
+
+        const normalizador = typeof window !== 'undefined' && typeof window.normalizarMontoTexto === 'function'
+          ? window.normalizarMontoTexto
+          : function (val) {
+            return val
+              .replace(/\s+/g, '')
+              .replace(/\./g, '')
+              .replace(',', '.');
+          };
+
+        const normalizado = normalizador(texto);
+        if (!normalizado) {
+          return '';
+        }
+
+        const numero = Number(normalizado);
+        if (Number.isFinite(numero)) {
+          const fijo = numero.toFixed(2);
+          const [entero, decimales] = fijo.split('.');
+          return decimales ? `${entero},${decimales}` : entero;
+        }
+
+        const sinEspacios = texto.replace(/\s+/g, '');
+        const sinPuntosMiles = sinEspacios.replace(/\.(?=\d{3}(\D|$))/g, '');
+        if (sinPuntosMiles.includes(',')) {
+          return sinPuntosMiles;
+        }
+        if (sinPuntosMiles.includes('.')) {
+          const partes = sinPuntosMiles.split('.');
+          if (partes.length === 2) {
+            return `${partes[0]},${partes[1]}`;
+          }
+          const decimales = partes.pop();
+          return `${partes.join('')},${decimales}`;
+        }
+        return sinPuntosMiles;
       }
 
       function mostrarEstado(tipo, mensaje) {
@@ -436,7 +496,10 @@
       function construirPayload() {
         const payload = {};
         IDS_PAYLOAD.forEach(id => {
-          payload[id] = obtenerValorCampo(id);
+          const valor = obtenerValorCampo(id);
+          payload[id] = CAMPOS_MONTO.has(id)
+            ? prepararMontoParaEnvio(valor)
+            : valor;
         });
         return payload;
       }
