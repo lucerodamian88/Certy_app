@@ -136,8 +136,6 @@ function construirFilaRedeterminacion(datos) {
     datos.montoGarantizarSaldoObra,
     datos.montoGarantizarRedeterminacion,
     datos.montoTotalGarantizar,
-    datos.polizaQueCorresponde,
-    datos.montoPoliza,
     datos.montoPolizaLetras
   ];
   return fila.map(normalizarValorCelda);

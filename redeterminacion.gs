@@ -27,8 +27,6 @@ const CAMPOS_REDET = [
   'montoCertificadoRedeterminacion',
   'montoGarantizarRedeterminacion',
   'montoTotalGarantizar',
-  'polizaQueCorresponde',
-  'montoPoliza',
   'montoPolizaLetras'
 ];
 

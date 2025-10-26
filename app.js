@@ -219,8 +219,6 @@ function inicializarPoliza() {
     montoGarantizarRp: document.getElementById('polizaMontoGarantizarRp'),
     montoTotal: document.getElementById('polizaMontoTotalGarantizar'),
     montoClausulaLetras: document.getElementById('polizaMontoClausulaLetras'),
-    tipoPoliza: document.getElementById('polizaQueCorresponde'),
-    montoPoliza: document.getElementById('polizaMontoPoliza'),
     hastaTargets: Array.from(document.querySelectorAll('.poliza-hasta')),
     calcularRadios: Array.from(document.querySelectorAll('input[name="calcularPoliza"]')),
     errorContenedor: document.getElementById('polizaError'),
@@ -236,6 +234,13 @@ function inicializarPoliza() {
     polizaContext.certificadoRp
   ];
   camposMoneda.forEach(registrarCampoMoneda);
+
+  if (polizaContext.montoTotal && polizaContext.montoClausulaLetras) {
+    polizaContext.montoTotal.addEventListener('input', () => {
+      const monto = leerMontoCampo(polizaContext.montoTotal);
+      polizaContext.montoClausulaLetras.value = monto.tieneDato ? numeroALetras(monto.valor) : '';
+    });
+  }
 
   registrarCampoPorcentaje(polizaContext.ultimoFriAprobadoValor);
 
@@ -484,11 +489,9 @@ function actualizarCalculosPoliza() {
   if (polizaContext.montoTotal) {
     polizaContext.montoTotal.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
   }
-  if (polizaContext.montoPoliza) {
-    polizaContext.montoPoliza.value = montoTotal !== null ? formatearMoneda(montoTotal) : '';
-  }
   if (polizaContext.montoClausulaLetras) {
-    polizaContext.montoClausulaLetras.value = montoTotal !== null ? numeroALetras(montoTotal) : '';
+    const montoParaLetras = polizaContext.montoTotal ? leerMontoCampo(polizaContext.montoTotal) : { tieneDato: false };
+    polizaContext.montoClausulaLetras.value = montoParaLetras.tieneDato ? numeroALetras(montoParaLetras.valor) : '';
   }
 }
 
@@ -506,8 +509,7 @@ function limpiarResultadosPoliza() {
     'baseContratacion',
     'montoGarantizarSaldo',
     'montoGarantizarRp',
-    'montoTotal',
-    'montoPoliza'
+    'montoTotal'
   ];
   campos.forEach(nombre => {
     const campo = polizaContext[nombre];
@@ -527,8 +529,7 @@ function limpiarValoresBasePoliza() {
     polizaContext.saldoAnticipo,
     polizaContext.ultimoFriAprobadoFecha,
     polizaContext.ultimoFriAprobadoValor,
-    polizaContext.certificadoRp,
-    polizaContext.tipoPoliza
+    polizaContext.certificadoRp
   ];
   campos.forEach(campo => {
     if (campo) campo.value = '';
@@ -889,8 +890,6 @@ function recolectarDatosFormulario() {
     montoGarantizarRedeterminacion: obtenerValorPorId('polizaMontoGarantizarRp'),
     montoCertificadoRedeterminacion: obtenerValorPorId('polizaCertificadoRp'),
     montoTotalGarantizar: obtenerValorPorId('polizaMontoTotalGarantizar'),
-    polizaQueCorresponde: obtenerValorPorId('polizaQueCorresponde'),
-    montoPoliza: obtenerValorPorId('polizaMontoPoliza'),
     montoPolizaLetras: obtenerValorPorId('polizaMontoClausulaLetras')
   };
 }
