@@ -506,7 +506,8 @@ body.dark .speech-bubble {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 3px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -812,7 +813,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   padding: 0.6rem;
   border: 1px solid #ccc;
@@ -883,7 +885,8 @@ select {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: var(--color-secondary);
   box-shadow: 0 0 8px var(--color-secondary);
   outline: none;
@@ -1389,6 +1392,21 @@ body.dark-mode img {
 .saltos-container {
   display: flex;
   flex-direction: column;
+}
+
+.resumen-saltos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resumen-saltos label {
+  margin-top: 0;
+}
+
+.resumen-saltos textarea {
+  min-height: 140px;
+  resize: vertical;
 }
 
 .salto-row {

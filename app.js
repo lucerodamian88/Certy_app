@@ -114,13 +114,18 @@ function actualizarResumenSaltos() {
       break;
     }
 
-    const porcentajeFormateado = formatearPorcentajeSeguro(porcentajeNumero);
+    const porcentajeRedondeado = redondearDosDecimales(porcentajeNumero);
+    if (porcentajeRedondeado === null) {
+      break;
+    }
+
+    const porcentajeFormateado = formatearPorcentajeSeguro(porcentajeRedondeado);
     if (!porcentajeFormateado) {
       break;
     }
 
     saltos.push({
-      porcentaje: porcentajeNumero,
+      porcentaje: porcentajeRedondeado,
       porcentajeTexto: `${porcentajeFormateado}%`,
       fecha: fechaTexto
     });
@@ -131,42 +136,74 @@ function actualizarResumenSaltos() {
     return;
   }
 
+  resumen.value = construirResumenSaltos(saltos);
+}
+
+function construirResumenSaltos(saltos) {
+  if (!Array.isArray(saltos) || saltos.length === 0) {
+    return '';
+  }
+
   const frases = [];
 
   for (let i = 0; i < saltos.length; i += 1) {
-    const salto = saltos[i];
-    if (i === 0) {
-      frases.push(`Salto Inicial de ${salto.porcentajeTexto} al ${salto.fecha}`);
-      continue;
-    }
-
-    const anterior = saltos[i - 1];
-    const diferencia = redondearDosDecimales(salto.porcentaje - anterior.porcentaje);
-    if (diferencia === null) {
+    const frase = construirFraseResumenSalto(saltos, i);
+    if (!frase) {
       break;
     }
-
-    const diferenciaFormateada = formatearPorcentajeSeguro(diferencia);
-    if (!diferenciaFormateada) {
-      break;
-    }
-
-    const nombreSalto = obtenerNombreSalto(i);
-    const referencia = i === 1 ? 'Salto Anterior' : obtenerNombreSalto(i - 1);
-    frases.push(`un ${nombreSalto} de ${salto.porcentajeTexto} (${diferenciaFormateada}% respecto del ${referencia}) al ${salto.fecha}`);
+    frases.push(frase);
   }
 
-  let textoFinal = '';
+  if (frases.length === 0) {
+    return '';
+  }
   if (frases.length === 1) {
-    textoFinal = `${frases[0]}.`;
-  } else if (frases.length === 2) {
-    textoFinal = `${frases[0]}, y ${frases[1]}.`;
-  } else {
-    const inicio = frases.slice(0, -1).join(', ');
-    textoFinal = `${inicio}, y ${frases[frases.length - 1]}.`;
+    return `${frases[0]}.`;
+  }
+  if (frases.length === 2) {
+    return `${frases[0]}, y ${frases[1]}.`;
+  }
+  const inicio = frases.slice(0, -1).join(', ');
+  return `${inicio}, y ${frases[frases.length - 1]}.`;
+}
+
+function construirFraseResumenSalto(saltos, index) {
+  if (!Array.isArray(saltos) || index < 0 || index >= saltos.length) {
+    return '';
   }
 
-  resumen.value = textoFinal;
+  const salto = saltos[index];
+  if (!salto || !salto.fecha || !salto.porcentajeTexto) {
+    return null;
+  }
+
+  if (index === 0) {
+    return `Salto Inicial de ${salto.porcentajeTexto} al ${salto.fecha}`;
+  }
+
+  const saltoPrevio = saltos[index - 1];
+  if (!saltoPrevio) {
+    return null;
+  }
+
+  const incremento = calcularIncrementoRelativo(saltoPrevio.porcentaje, salto.porcentaje);
+  if (incremento === null) {
+    return null;
+  }
+
+  const incrementoRedondeado = redondearDosDecimales(incremento);
+  if (incrementoRedondeado === null) {
+    return null;
+  }
+
+  const incrementoTexto = formatearPorcentajeSeguro(incrementoRedondeado);
+  if (!incrementoTexto) {
+    return null;
+  }
+
+  const nombreSalto = obtenerNombreSalto(index);
+  const referencia = index === 1 ? 'Salto Anterior' : obtenerNombreSalto(index - 1);
+  return `un ${nombreSalto} de ${salto.porcentajeTexto} (${incrementoTexto}% respecto del ${referencia}) al ${salto.fecha}`;
 }
 
 function limpiarFormulario() {
@@ -788,14 +825,36 @@ const ordinalesMasc = [
   'Undécimo', 'Duodécimo', 'Decimotercer', 'Decimocuarto', 'Decimoquinto', 'Decimosexto', 'Decimoséptimo', 'Decimooctavo', 'Decimonoveno', 'Vigésimo'
 ];
 
+function calcularIncrementoRelativo(porcentajePrevio, porcentajeActual) {
+  if (typeof porcentajePrevio !== 'number' || typeof porcentajeActual !== 'number') {
+    return null;
+  }
+  if (!Number.isFinite(porcentajePrevio) || !Number.isFinite(porcentajeActual)) {
+    return null;
+  }
+
+  const coefPrevio = 1 + (porcentajePrevio / 100);
+  const coefActual = 1 + (porcentajeActual / 100);
+  if (!Number.isFinite(coefPrevio) || !Number.isFinite(coefActual)) {
+    return null;
+  }
+  if (Math.abs(coefPrevio) < Number.EPSILON) {
+    return null;
+  }
+
+  const incremento = ((coefActual / coefPrevio) - 1) * 100;
+  if (!Number.isFinite(incremento)) {
+    return null;
+  }
+  return incremento;
+}
+
 function obtenerNombreSalto(index) {
   if (typeof index !== 'number' || index < 0) return 'Salto';
   if (index < nombresSaltosBase.length && nombresSaltosBase[index]) {
     return nombresSaltosBase[index];
   }
-  if (index === 0) return 'Salto Inicial';
-  const ordinal = ordinalesMasc[index] || `${index + 1}º`;
-  return `${ordinal} Salto`;
+  return `Salto ${index + 1}`;
 }
 
 function inicializarMontoRedeterminacion() {
