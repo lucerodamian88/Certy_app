@@ -343,6 +343,169 @@
 
   <script src="common.js"></script>
   <script src="app.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      function construirParametrosRedeterminacion() {
+        const definiciones = [
+          ['Empresa', () => (typeof obtenerEmpresaSeleccionada === 'function' ? obtenerEmpresaSeleccionada() : obtenerValorPorId('empresa'))],
+          ['Tipo', () => obtenerValorPorId('repTipo')],
+          ['NombreyDNI', () => obtenerValorPorId('repNombreDni')],
+          ['Domicilio', () => obtenerValorPorId('repDomicilio')],
+          ['NombreDeLaObra', () => obtenerValorPorId('obraNombre')],
+          ['N°DeExpediente', () => obtenerValorPorId('obraExpediente')],
+          ['AprobadaPor', () => (typeof obtenerTextoSeleccion === 'function' ? (obtenerTextoSeleccion('aprobadaPor') || obtenerValorPorId('aprobadaPor')) : obtenerValorPorId('aprobadaPor'))],
+          ['Número', () => obtenerValorPorId('aprobadaNumero')],
+          ['Fecha', () => obtenerValorPorId('aprobadaFecha')],
+          ['CambiosRegistradosDesde', () => obtenerValorPorId('cambiosDesde')],
+          ['Hasta', () => obtenerValorPorId('cambiosHasta')],
+          ['N°DeRedeterminacion', () => (typeof obtenerTextoSeleccion === 'function' ? (obtenerTextoSeleccion('nRedet') || obtenerValorPorId('nRedet')) : obtenerValorPorId('nRedet'))],
+          ['ResumenDeSaltos', () => obtenerValorPorId('resumenSaltos')],
+          ['MontoDeLaRedeterminación', () => obtenerValorPorId('montoRedeterminacion')],
+          ['MontoEnLetras', () => obtenerValorPorId('montoRedeterminacionLetras')],
+          ['CierreDelArticulo', () => obtenerValorPorId('cierreArticulo')],
+          ['MontoDelContrato', () => obtenerValorPorId('polizaMontoContrato')],
+          ['MontoConAdicionales', () => obtenerValorPorId('polizaMontoConAdicionales')],
+          ['MontoObraAcumuladaamm/aaaa', () => obtenerValorPorId('polizaMontoObraAcumulada')],
+          ['SaldoDeAnticipoFinancieroAmm/aaaa', () => obtenerValorPorId('polizaSaldoAnticipo')],
+          ['UltimoFRIAmm/aaaa', () => obtenerValorPorId('polizaUltimoFriValor')],
+          ['UltimoFRIaprobadoafecha', () => obtenerValorPorId('polizaUltimoFriAprobadoFecha')],
+          ['UltimoFRIaprobadoaporcentaje', () => obtenerValorPorId('polizaUltimoFriAprobadoValor')],
+          ['IncrementoDeFRI', () => obtenerValorPorId('polizaIncrementoFri')],
+          ['BaseParaContratacionDePoliza', () => obtenerValorPorId('polizaBaseContratacion')],
+          ['MontoAGarantizarPorSaldoDeObra', () => obtenerValorPorId('polizaMontoGarantizarSaldoObra')],
+          ['MontoDeRedeterminacionDePreciosModeloAlmm/aaaa', () => obtenerValorPorId('polizaCertificadoRp')],
+          ['MontoAGarantizarPorR.P', () => obtenerValorPorId('polizaMontoGarantizarRp')],
+          ['MontoEnLetrasDeLaPoliza', () => obtenerValorPorId('polizaMontoClausulaLetras')]
+        ];
+
+        const params = new URLSearchParams();
+        definiciones.forEach(([clave, obtenerValor]) => {
+          let valor = '';
+          try {
+            valor = obtenerValor ? obtenerValor() : '';
+          } catch (error) {
+            console.error(`No se pudo obtener el valor para "${clave}"`, error);
+            valor = '';
+          }
+          params.append(clave, typeof valor === 'string' ? valor : valor == null ? '' : String(valor));
+        });
+        return params;
+      }
+
+      async function enviarRedeterminaciones(evento) {
+        evento.preventDefault();
+
+        const formulario = evento.currentTarget instanceof HTMLFormElement ? evento.currentTarget : document.getElementById('formAsistente');
+        const boton = document.getElementById('enviarSolicitud');
+        const textoOriginal = boton ? boton.textContent : '';
+
+        if (boton) {
+          boton.disabled = true;
+          boton.textContent = 'Generando…';
+        }
+
+        if (typeof ocultarEstadoSolicitud === 'function') {
+          ocultarEstadoSolicitud();
+        }
+
+        if (!formulario) {
+          console.error('No se encontró el formulario de redeterminación.');
+          if (typeof mostrarEstadoSolicitud === 'function') {
+            mostrarEstadoSolicitud('error', '❌ No se encontró el formulario.');
+          }
+          if (boton) {
+            boton.disabled = false;
+            boton.textContent = textoOriginal;
+          }
+          return;
+        }
+
+        const endpoint = typeof obtenerEndpointRedeterminaciones === 'function'
+          ? obtenerEndpointRedeterminaciones()
+          : (formulario.dataset && formulario.dataset.endpoint) || '';
+
+        if (!endpoint) {
+          console.error('No está configurado el endpoint para generar los informes.');
+          if (typeof mostrarEstadoSolicitud === 'function') {
+            mostrarEstadoSolicitud('error', '❌ No está configurado el servicio para generar los informes.');
+          }
+          if (boton) {
+            boton.disabled = false;
+            boton.textContent = textoOriginal;
+          }
+          return;
+        }
+
+        try {
+          const body = construirParametrosRedeterminacion();
+          const respuesta = await fetch(endpoint, {
+            method: 'POST',
+            body
+          });
+
+          console.log('Estado de la respuesta:', respuesta.status);
+
+          let datos;
+          try {
+            datos = await respuesta.json();
+          } catch (error) {
+            console.error('No se pudo interpretar la respuesta como JSON.', error);
+            throw new Error('No se pudo interpretar la respuesta del servidor.');
+          }
+
+          console.log('Respuesta del servidor:', datos);
+
+          if (!respuesta.ok) {
+            const mensajeHttp = datos && typeof datos.error === 'string' && datos.error.trim()
+              ? datos.error
+              : `Error HTTP ${respuesta.status}`;
+            throw new Error(mensajeHttp);
+          }
+
+          if (datos && datos.success) {
+            const mensajeExito = datos.fileId
+              ? `✅ Informes generados correctamente. ID: ${datos.fileId}`
+              : '✅ Informes generados correctamente.';
+            if (typeof mostrarEstadoSolicitud === 'function') {
+              mostrarEstadoSolicitud('success', mensajeExito);
+            }
+            formulario.reset();
+          } else {
+            const mensajeError = datos && typeof datos.error === 'string' && datos.error.trim()
+              ? datos.error
+              : 'No se pudo generar el informe.';
+            throw new Error(mensajeError);
+          }
+        } catch (error) {
+          console.error('Error al generar los informes de redeterminación:', error);
+          const mensaje = error && typeof error.message === 'string' && error.message.trim()
+            ? error.message.trim()
+            : 'Hubo un error al generar los informes.';
+          if (typeof mostrarEstadoSolicitud === 'function') {
+            mostrarEstadoSolicitud('error', `❌ ${mensaje}`);
+          }
+        } finally {
+          if (boton) {
+            boton.disabled = false;
+            boton.textContent = textoOriginal;
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const formulario = document.getElementById('formAsistente');
+        if (!formulario) {
+          return;
+        }
+        if (typeof window !== 'undefined' && typeof window.manejarEnvioSolicitud === 'function') {
+          formulario.removeEventListener('submit', window.manejarEnvioSolicitud);
+        }
+        formulario.addEventListener('submit', enviarRedeterminaciones);
+      });
+    }());
+  </script>
 </body>
 </html>
 
