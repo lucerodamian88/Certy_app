@@ -330,13 +330,26 @@
 
         <div class="acciones">
           <button type="reset" id="limpiarFormulario">Limpiar</button>
-          <button type="submit" id="enviarSolicitud" class="btn-enviar">GENERAR INFORMES DE REDETERMINACIÓN</button>
+          <button type="button" id="enviarSolicitud" class="btn-enviar">GENERAR INFORMES DE REDETERMINACIÓN</button>
+          <button type="submit" id="enviarSolicitudReal" class="oculto" tabindex="-1" aria-hidden="true">Enviar</button>
         </div>
         <div id="formStatus" class="form-status oculto" role="status" aria-live="polite">
           <img src="Certy_celular.png" alt="Certy" class="form-status-logo" width="72" height="90">
           <p class="form-status-text"></p>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="confirmacionEnvio" class="confirmacion-envio oculto" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirmacionEnvioTitulo" aria-describedby="confirmacionEnvioDescripcion">
+    <div class="confirmacion-envio__globo">
+      <img src="Certy_advertencia.png" alt="Certy advertencia" class="confirmacion-envio__imagen" width="96" height="120">
+      <h2 id="confirmacionEnvioTitulo">¿Enviar la solicitud?</h2>
+      <p id="confirmacionEnvioDescripcion">Antes de continuar, confirmá que los datos estén completos. ¿Deseás generar los informes de redeterminación?</p>
+      <div class="confirmacion-envio__acciones">
+        <button type="button" id="confirmacionEnvioCancelar" class="confirmacion-envio__btn confirmacion-envio__btn--secundario">No, revisar</button>
+        <button type="button" id="confirmacionEnvioAceptar" class="confirmacion-envio__btn confirmacion-envio__btn--principal">Sí, enviar</button>
+      </div>
     </div>
   </div>
 
@@ -393,10 +406,26 @@
         'polizaMontoTotalGarantizar'
       ]);
 
+      const APROBADA_POR_LABELS = {
+        resolucion: 'Resolución',
+        disposicion: 'Disposición'
+      };
+
       function obtenerValorCampo(id) {
         const elemento = document.getElementById(id);
         if (!elemento) {
           return '';
+        }
+
+        if (id === 'aprobadaPor') {
+          const valorSeleccionado = (elemento.value || '').trim();
+          if (!valorSeleccionado) {
+            return '';
+          }
+          const clave = valorSeleccionado.toLowerCase();
+          return Object.prototype.hasOwnProperty.call(APROBADA_POR_LABELS, clave)
+            ? APROBADA_POR_LABELS[clave]
+            : valorSeleccionado;
         }
 
         if (id === 'empresa') {
@@ -521,6 +550,22 @@
         }
       }
 
+      function mostrarConfirmacionEnvio(overlay) {
+        if (!overlay) {
+          return;
+        }
+        overlay.classList.remove('oculto');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function ocultarConfirmacionEnvio(overlay) {
+        if (!overlay) {
+          return;
+        }
+        overlay.classList.add('oculto');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+
       function construirPayload() {
         const payload = {};
         IDS_PAYLOAD.forEach(id => {
@@ -541,6 +586,10 @@
         if (!formulario) {
           console.error('No se encontró el formulario de redeterminaciones.');
           mostrarEstado('error', 'No se encontró el formulario de redeterminaciones.');
+          return;
+        }
+
+        if (formulario.dataset.confirmado !== 'true') {
           return;
         }
 
@@ -595,6 +644,7 @@
             boton.disabled = false;
             boton.textContent = textoOriginal;
           }
+          delete formulario.dataset.confirmado;
         }
       }
 
@@ -607,6 +657,78 @@
           formulario.removeEventListener('submit', window.manejarEnvioSolicitud);
         }
         formulario.addEventListener('submit', manejarSubmit);
+
+        formulario.addEventListener('keydown', (evento) => {
+          if (evento.key === 'Enter' && evento.target && evento.target.tagName !== 'TEXTAREA') {
+            evento.preventDefault();
+          }
+        });
+
+        const overlay = document.getElementById('confirmacionEnvio');
+        const botonAbrir = document.getElementById('enviarSolicitud');
+        const botonAceptar = document.getElementById('confirmacionEnvioAceptar');
+        const botonCancelar = document.getElementById('confirmacionEnvioCancelar');
+        const botonSubmitReal = document.getElementById('enviarSolicitudReal');
+
+        function enviarFormularioConfirmado() {
+          formulario.dataset.confirmado = 'true';
+          if (typeof formulario.requestSubmit === 'function') {
+            formulario.requestSubmit(botonSubmitReal || undefined);
+          } else {
+            const eventoEnvio = new Event('submit', { bubbles: true, cancelable: true });
+            formulario.dispatchEvent(eventoEnvio);
+          }
+        }
+
+        if (botonAbrir) {
+          botonAbrir.addEventListener('click', () => {
+            if (!overlay) {
+              enviarFormularioConfirmado();
+              return;
+            }
+            mostrarConfirmacionEnvio(overlay);
+            if (botonAceptar) {
+              botonAceptar.focus();
+            }
+          });
+        }
+
+        if (botonCancelar) {
+          botonCancelar.addEventListener('click', () => {
+            ocultarConfirmacionEnvio(overlay);
+            if (botonAbrir) {
+              botonAbrir.focus();
+            }
+          });
+        }
+
+        if (botonAceptar) {
+          botonAceptar.addEventListener('click', () => {
+            ocultarConfirmacionEnvio(overlay);
+            enviarFormularioConfirmado();
+          });
+        }
+
+        document.addEventListener('keydown', (evento) => {
+          if (evento.key === 'Escape' && overlay && !overlay.classList.contains('oculto')) {
+            evento.preventDefault();
+            ocultarConfirmacionEnvio(overlay);
+            if (botonAbrir) {
+              botonAbrir.focus();
+            }
+          }
+        });
+
+        if (overlay) {
+          overlay.addEventListener('click', (evento) => {
+            if (evento.target === overlay) {
+              ocultarConfirmacionEnvio(overlay);
+              if (botonAbrir) {
+                botonAbrir.focus();
+              }
+            }
+          });
+        }
       });
     }());
   </script>

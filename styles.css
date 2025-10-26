@@ -1303,6 +1303,106 @@ body.dark-mode img {
   display: none !important;
 }
 
+.confirmacion-envio {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2500;
+}
+
+.confirmacion-envio__globo {
+  position: relative;
+  background: var(--card-bg);
+  color: var(--color-text);
+  border-radius: 24px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  max-width: 420px;
+  width: min(100%, 420px);
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(12, 79, 183, 0.25);
+}
+
+.confirmacion-envio__globo::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  background: var(--card-bg);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  box-shadow: 0 16px 40px rgba(12, 79, 183, 0.25);
+}
+
+.confirmacion-envio__imagen {
+  display: block;
+  margin: 0 auto 0.75rem;
+  animation: floatAviso 3.5s ease-in-out infinite;
+}
+
+.confirmacion-envio__globo h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  color: var(--color-primary);
+}
+
+.confirmacion-envio__globo p {
+  margin: 0 0 1.25rem;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.confirmacion-envio__acciones {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.confirmacion-envio__btn {
+  padding: 0.6rem 1.35rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.confirmacion-envio__btn:focus-visible {
+  outline: 3px solid rgba(12, 79, 183, 0.4);
+  outline-offset: 3px;
+}
+
+.confirmacion-envio__btn--principal {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(12, 79, 183, 0.35);
+}
+
+.confirmacion-envio__btn--principal:hover {
+  transform: translateY(-2px);
+}
+
+.confirmacion-envio__btn--secundario {
+  background: #f0f4ff;
+  color: var(--color-primary);
+  box-shadow: 0 8px 16px rgba(12, 79, 183, 0.18);
+}
+
+.confirmacion-envio__btn--secundario:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes floatAviso {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 .card-action {
   margin-top: 8px;
   padding: 8px 16px;
