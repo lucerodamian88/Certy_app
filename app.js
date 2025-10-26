@@ -194,7 +194,16 @@ function actualizarCierreArticuloDesdeSaltos(saltos) {
   }
 
   const ultimoSalto = saltos[saltos.length - 1];
-  if (!ultimoSalto || !ultimoSalto.nombre || !ultimoSalto.fecha) {
+  if (!ultimoSalto || !ultimoSalto.nombre) {
+    campo.value = '';
+    return;
+  }
+
+  const periodoHastaInput = document.getElementById('cambiosHasta');
+  const periodoHasta = periodoHastaInput ? (periodoHastaInput.value || '').trim() : '';
+  const periodoAplicacion = periodoHasta || ultimoSalto.fecha || '';
+
+  if (!periodoAplicacion) {
     campo.value = '';
     return;
   }
@@ -210,7 +219,7 @@ function actualizarCierreArticuloDesdeSaltos(saltos) {
     return;
   }
 
-  campo.value = `El ${ultimoSalto.nombre} de ${porcentajeTexto}% acumulado será de aplicación para el saldo de obra a partir del período ${ultimoSalto.fecha}.`;
+  campo.value = `El ${ultimoSalto.nombre} de ${porcentajeTexto}% acumulado será de aplicación para el saldo de obra a partir del período ${periodoAplicacion}.`;
 }
 
 function construirFraseResumenSalto(saltos, index) {
@@ -353,8 +362,12 @@ function inicializarPoliza() {
   }
 
   if (polizaContext.hastaInput) {
-    polizaContext.hastaInput.addEventListener('input', actualizarTextoHastaPoliza);
-    polizaContext.hastaInput.addEventListener('blur', actualizarTextoHastaPoliza);
+    const manejarCambioHasta = () => {
+      actualizarTextoHastaPoliza();
+      actualizarResumenSaltos();
+    };
+    polizaContext.hastaInput.addEventListener('input', manejarCambioHasta);
+    polizaContext.hastaInput.addEventListener('blur', manejarCambioHasta);
   }
 
   if (polizaContext.montoConAdicionales) {
