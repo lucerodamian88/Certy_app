@@ -33,7 +33,7 @@
       <div class="asistente-header">
         <h1>Asistente de Redeterminación de Precios</h1>
       </div>
-      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbyRuT8NrUX4vhuq_gzPnKoljJ3atNLkraTUWvCoOeY8joJ9wuoBSmdPoldVYk5MIAGnJA/exec">
+      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbwsl4Ows3f_Dj0SmbRw7I72aVZIrWsnMUFEpE8-hj9hTNtaAPakc6h4Ay6-MxqODSogCQ/exec">
         <fieldset>
           <legend>Datos de la empresa</legend>
           <label>Empresa
@@ -102,9 +102,14 @@
             <input type="text" id="obraNombre">
           </label>
           <small class="field-hint"><em>Sugerencia: copiar y pegar el nombre del sistema GESOP.</em></small>
-          <label>N° de Expediente
-            <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d" inputmode="text">
-          </label>
+          <div class="expediente-alcance-row">
+            <label>N° de Expediente
+              <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d" inputmode="text">
+            </label>
+            <label>Alcance
+              <input type="text" id="alcance" placeholder="01-2025" pattern="\d{2}-\d{4}" inputmode="text">
+            </label>
+          </div>
           <small class="field-hint"><em>Ejemplos de formato: 1234-M-2023, 10004-M-2025.</em></small>
           <div class="aprobada-por-row">
             <div class="aprobada-por-field">
@@ -137,6 +142,82 @@
           <label>Hasta
             <input type="text" id="cambiosHasta" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
           </label>
+          <div class="certificados-redeterminacion">
+            <span class="certificados-redeterminacion__titulo">Certificados a Redeterminar</span>
+            <div class="certificados-redeterminacion__campos">
+              <label for="certDesde">Desde
+                <select id="certDesde">
+                  <option value="" disabled selected>Seleccione</option>
+                  <option value="Anticipo Financiero">Anticipo Financiero</option>
+                  <option value="Certificado de obra N°1">Certificado de obra N°1</option>
+                  <option value="Certificado de obra N°2">Certificado de obra N°2</option>
+                  <option value="Certificado de obra N°3">Certificado de obra N°3</option>
+                  <option value="Certificado de obra N°4">Certificado de obra N°4</option>
+                  <option value="Certificado de obra N°5">Certificado de obra N°5</option>
+                  <option value="Certificado de obra N°6">Certificado de obra N°6</option>
+                  <option value="Certificado de obra N°7">Certificado de obra N°7</option>
+                  <option value="Certificado de obra N°8">Certificado de obra N°8</option>
+                  <option value="Certificado de obra N°9">Certificado de obra N°9</option>
+                  <option value="Certificado de obra N°10">Certificado de obra N°10</option>
+                  <option value="Certificado de obra N°11">Certificado de obra N°11</option>
+                  <option value="Certificado de obra N°12">Certificado de obra N°12</option>
+                  <option value="Certificado de obra N°13">Certificado de obra N°13</option>
+                  <option value="Certificado de obra N°14">Certificado de obra N°14</option>
+                  <option value="Certificado de obra N°15">Certificado de obra N°15</option>
+                  <option value="Certificado de obra N°16">Certificado de obra N°16</option>
+                  <option value="Certificado de obra N°17">Certificado de obra N°17</option>
+                  <option value="Certificado de obra N°18">Certificado de obra N°18</option>
+                  <option value="Certificado de obra N°19">Certificado de obra N°19</option>
+                  <option value="Certificado de obra N°20">Certificado de obra N°20</option>
+                  <option value="Certificado de obra N°21">Certificado de obra N°21</option>
+                  <option value="Certificado de obra N°22">Certificado de obra N°22</option>
+                  <option value="Certificado de obra N°23">Certificado de obra N°23</option>
+                  <option value="Certificado de obra N°24">Certificado de obra N°24</option>
+                  <option value="Certificado de obra N°25">Certificado de obra N°25</option>
+                  <option value="Certificado de obra N°26">Certificado de obra N°26</option>
+                  <option value="Certificado de obra N°27">Certificado de obra N°27</option>
+                  <option value="Certificado de obra N°28">Certificado de obra N°28</option>
+                  <option value="Certificado de obra N°29">Certificado de obra N°29</option>
+                  <option value="Certificado de obra N°30">Certificado de obra N°30</option>
+                </select>
+              </label>
+              <label for="certHasta">Hasta
+                <select id="certHasta">
+                  <option value="" disabled selected>Seleccione</option>
+                  <option value="Certificado de obra N°1">Certificado de obra N°1</option>
+                  <option value="Certificado de obra N°2">Certificado de obra N°2</option>
+                  <option value="Certificado de obra N°3">Certificado de obra N°3</option>
+                  <option value="Certificado de obra N°4">Certificado de obra N°4</option>
+                  <option value="Certificado de obra N°5">Certificado de obra N°5</option>
+                  <option value="Certificado de obra N°6">Certificado de obra N°6</option>
+                  <option value="Certificado de obra N°7">Certificado de obra N°7</option>
+                  <option value="Certificado de obra N°8">Certificado de obra N°8</option>
+                  <option value="Certificado de obra N°9">Certificado de obra N°9</option>
+                  <option value="Certificado de obra N°10">Certificado de obra N°10</option>
+                  <option value="Certificado de obra N°11">Certificado de obra N°11</option>
+                  <option value="Certificado de obra N°12">Certificado de obra N°12</option>
+                  <option value="Certificado de obra N°13">Certificado de obra N°13</option>
+                  <option value="Certificado de obra N°14">Certificado de obra N°14</option>
+                  <option value="Certificado de obra N°15">Certificado de obra N°15</option>
+                  <option value="Certificado de obra N°16">Certificado de obra N°16</option>
+                  <option value="Certificado de obra N°17">Certificado de obra N°17</option>
+                  <option value="Certificado de obra N°18">Certificado de obra N°18</option>
+                  <option value="Certificado de obra N°19">Certificado de obra N°19</option>
+                  <option value="Certificado de obra N°20">Certificado de obra N°20</option>
+                  <option value="Certificado de obra N°21">Certificado de obra N°21</option>
+                  <option value="Certificado de obra N°22">Certificado de obra N°22</option>
+                  <option value="Certificado de obra N°23">Certificado de obra N°23</option>
+                  <option value="Certificado de obra N°24">Certificado de obra N°24</option>
+                  <option value="Certificado de obra N°25">Certificado de obra N°25</option>
+                  <option value="Certificado de obra N°26">Certificado de obra N°26</option>
+                  <option value="Certificado de obra N°27">Certificado de obra N°27</option>
+                  <option value="Certificado de obra N°28">Certificado de obra N°28</option>
+                  <option value="Certificado de obra N°29">Certificado de obra N°29</option>
+                  <option value="Certificado de obra N°30">Certificado de obra N°30</option>
+                </select>
+              </label>
+            </div>
+          </div>
           <label>N° de Redeterminación
             <select id="nRedet">
               <option value="" disabled selected>Seleccione</option>
@@ -368,11 +449,14 @@
         'repDomicilio',
         'obraNombre',
         'obraExpediente',
+        'alcance',
         'aprobadaPor',
         'aprobadaNumero',
         'aprobadaFecha',
         'cambiosDesde',
         'cambiosHasta',
+        'certDesde',
+        'certHasta',
         'nRedet',
         'resumenSaltos',
         'montoRedeterminacion',
@@ -408,8 +492,9 @@
       ]);
 
       const APROBADA_POR_LABELS = {
-        resolucion: 'Resolución',
-        disposicion: 'Disposición'
+        resolucion: 'Resolución de Adjudicación',
+        decreto: 'Decreto de Adjudicación',
+        disposicion: 'Disposición de Adjudicación'
       };
 
       function obtenerValorCampo(id) {
@@ -575,6 +660,9 @@
             ? prepararMontoParaEnvio(valor)
             : valor;
         });
+        payload.alcance = document.getElementById('alcance') ? (document.getElementById('alcance').value || '').trim() : '';
+        payload.certDesde = document.getElementById('certDesde') ? (document.getElementById('certDesde').value || '').trim() : '';
+        payload.certHasta = document.getElementById('certHasta') ? (document.getElementById('certHasta').value || '').trim() : '';
         return payload;
       }
 
