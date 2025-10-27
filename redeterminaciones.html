@@ -64,6 +64,312 @@
         <h1>Asistente de Redeterminación de Precios</h1>
         <p class="asistente-subtitle">Esta vista integra la nueva implementación proporcionada por el equipo de Certificaciones.</p>
       </div>
+      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbwsl4Ows3f_Dj0SmbRw7I72aVZIrWsnMUFEpE8-hj9hTNtaAPakc6h4Ay6-MxqODSogCQ/exec">
+        <fieldset>
+          <legend>Datos de la empresa</legend>
+          <label>Empresa
+            <select id="empresa">
+              <option value="" disabled selected>Seleccione</option>
+              <option>ARCO S.R.L.</option>
+              <option>BASAA SA</option>
+              <option>C.N. SAPAG S.A.</option>
+              <option>C.N, SAPAG S.A. - R.J. INGENIERIA S.A. COSTANERA RÍO NQN U.T</option>
+              <option>CODAM S.A.</option>
+              <option>DESARROLLOS INMOBILIARIOS AUSTRALES S.A</option>
+              <option>DREICON S.A.</option>
+              <option>EDUARDO ANTONIO SALUM</option>
+              <option>EMFA CONSTRUCCIONES S.R.L.</option>
+              <option>EMPRESA CONSTRUCTORA LAUTEC S.R.L.</option>
+              <option>EMPRESA CONSTRUCTORA ROQUE MOCCIOLA S.A</option>
+              <option>ESSESA S.A</option>
+              <option>GROUND S.A</option>
+              <option>HAC S.A</option>
+              <option>HIRAM S.A.</option>
+              <option>HORMIGONERA DEL INTERIOR SRL</option>
+              <option>HORMIQUEN - BASAA - UTE</option>
+              <option>HORMIQUEN S.A</option>
+              <option>HORMIX S.R.L.</option>
+              <option>ICR S.A</option>
+              <option>ING. RAUL LUJAN CRISTALDI</option>
+              <option>LIMAYSER S.R.L.</option>
+              <option>MAPIVIAL EQUIPOS SRL</option>
+              <option>OBRAS Y DUCTOS DEL COMAHUE S.A.</option>
+              <option>OMEGA MLP S.A</option>
+              <option>OMEGA MLP S.A - BASAA S.A</option>
+              <option>OMEGA MLP SA - RJ INGENIERIA SA UT</option>
+              <option>PERFIL SRL</option>
+              <option>QUIDEL OSCAR RAUL</option>
+              <option>R.J. INGENIERÍA S.A.</option>
+              <option>REGOLF CLAUDIO ALBERTO</option>
+              <option>R.J. INGENIERÍA S.A. - OMEGA MLP SRL - UT</option>
+              <option>SANTA IRENE SRL</option>
+              <option>SERVIOBRAS S.R.L.</option>
+              <option>SERVIPET S.A.</option>
+              <option>STEKLI SARITA SENOBIA</option>
+              <option value="OTRO">OTRO</option>
+            </select>
+          </label>
+          <label id="empresaOtroLabel" class="oculto">Otra empresa
+            <input type="text" id="empresaOtro">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Representante</legend>
+          <label>Tipo
+            <input type="text" id="repTipo">
+          </label>
+          <label>Nombre y DNI
+            <input type="text" id="repNombreDni">
+          </label>
+          <label>Domicilio
+            <input type="text" id="repDomicilio">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Datos de la obra</legend>
+          <label>Nombre de la obra
+            <input type="text" id="obraNombre">
+          </label>
+          <small class="field-hint"><em>Sugerencia: copiar y pegar el nombre del sistema GESOP.</em></small>
+          <label>N° de Expediente
+            <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d" inputmode="text">
+          </label>
+          <small class="field-hint"><em>Ejemplos de formato: 1234-M-2023, 10004-M-2025.</em></small>
+          <div class="aprobada-por-row">
+            <div class="aprobada-por-field">
+              <label>Aprobada por
+                <select id="aprobadaPor">
+                  <option value="" disabled selected>Seleccione</option>
+                  <option value="resolucion">Resolución de Adjudicación</option>
+                  <option value="decreto">Decreto de Adjudicación</option>
+                  <option value="disposicion">Disposición de Adjudicación</option>
+                </select>
+              </label>
+              <small class="field-hint"><em id="aprobadaPorHint"></em></small>
+            </div>
+            <label>Número
+              <input type="text" id="aprobadaNumero" placeholder="nnnn/aa" pattern="\d{4}/\d{2}" maxlength="7" inputmode="numeric">
+            </label>
+            <label>Fecha
+              <input type="text" id="aprobadaFecha" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
+            </label>
+            <button type="button" id="buscarResolucion" class="buscar-digesto oculto">BUSCAR</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Redeterminación</legend>
+          <label>Cambios registrados desde
+            <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
+          </label>
+          <small class="field-hint">Si es Licitación Pública, Licitación Privada o Concurso de Precios, la fecha es del Acta de Apertura del sobre A. Si es Contratación Directa, la fecha es de la Carta de Invitación.</small>
+          <label>Hasta
+            <input type="text" id="cambiosHasta" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
+          </label>
+          <label>N° de Redeterminación
+            <select id="nRedet">
+              <option value="" disabled selected>Seleccione</option>
+              <option value="Primera Redeterminación">Primera Redeterminación</option>
+              <option value="Segunda Redeterminación">Segunda Redeterminación</option>
+              <option value="Tercera Redeterminación">Tercera Redeterminación</option>
+              <option value="Cuarta Redeterminación">Cuarta Redeterminación</option>
+              <option value="Quinta Redeterminación">Quinta Redeterminación</option>
+              <option value="Sexta Redeterminación">Sexta Redeterminación</option>
+              <option value="Séptima Redeterminación">Séptima Redeterminación</option>
+              <option value="Octava Redeterminación">Octava Redeterminación</option>
+              <option value="Novena Redeterminación">Novena Redeterminación</option>
+              <option value="Décima Redeterminación">Décima Redeterminación</option>
+              <option value="Undécima Redeterminación">Undécima Redeterminación</option>
+              <option value="Duodécima Redeterminación">Duodécima Redeterminación</option>
+              <option value="Decimotercera Redeterminación">Decimotercera Redeterminación</option>
+              <option value="Decimocuarta Redeterminación">Decimocuarta Redeterminación</option>
+              <option value="Decimoquinta Redeterminación">Decimoquinta Redeterminación</option>
+              <option value="Decimosexta Redeterminación">Decimosexta Redeterminación</option>
+              <option value="Decimoséptima Redeterminación">Decimoséptima Redeterminación</option>
+              <option value="Decimoctava Redeterminación">Decimoctava Redeterminación</option>
+              <option value="Decimonovena Redeterminación">Decimonovena Redeterminación</option>
+              <option value="Vigésima Redeterminación">Vigésima Redeterminación</option>
+            </select>
+          </label>
+          <small class="field-hint"><em>Sugerencia: Primera Redeterminación, Segunda Redeterminación.</em></small>
+          <div class="saltos-bloque">
+            <div class="saltos-encabezado">
+              <span class="saltos-titulo">Saltos FRI</span>
+              <div class="saltos-config">
+                <label>Cantidad de saltos
+                  <input type="number" id="cantidadSaltos" min="1" max="20">
+                </label>
+                <button type="button" id="generarSaltos">Generar filas</button>
+              </div>
+            </div>
+            <div id="saltosContainer" class="saltos-container"></div>
+            <div class="resumen-saltos">
+              <label for="resumenSaltos">Resumen de Saltos</label>
+              <textarea id="resumenSaltos" class="monto-letras" rows="6" readonly aria-readonly="true" placeholder="Se completará automáticamente"></textarea>
+            </div>
+          </div>
+          <label>Monto de la redeterminación
+            <div class="monto-input">
+              <span class="peso-signo" aria-hidden="true">$</span>
+              <input type="text" id="montoRedeterminacion" inputmode="decimal" placeholder="0000000,00">
+            </div>
+            <small class="field-hint">Ingrese el monto sin separadores de miles.</small>
+          </label>
+          <div class="monto-letras-wrapper">
+            <label>Monto en letras
+              <input type="text" id="montoRedeterminacionLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
+            </label>
+          </div>
+          <div class="monto-letras-wrapper">
+            <label>Cierre de Artículo
+              <input type="text" id="cierreArticulo" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Póliza</legend>
+          <div class="poliza-toggle" role="group" aria-labelledby="polizaToggleLabel">
+            <span id="polizaToggleLabel">¿Calcular póliza?</span>
+            <div class="poliza-toggle-options">
+              <div class="radio-option">
+                <input type="radio" id="polizaCalcularNo" name="calcularPoliza" value="no" checked>
+                <label for="polizaCalcularNo">No</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="polizaCalcularSi" name="calcularPoliza" value="si">
+                <label for="polizaCalcularSi">Sí</label>
+              </div>
+            </div>
+          </div>
+          <div id="polizaError" class="poliza-error oculto" role="alert" aria-live="assertive">
+            <img src="Certy_advertencia.png" alt="Advertencia" width="72" height="90">
+            <p id="polizaErrorTexto"></p>
+          </div>
+          <div id="polizaSection" class="poliza-panel oculto" aria-hidden="true">
+            <div class="poliza-grid">
+              <div class="form-field">
+                <label for="polizaMontoContrato">Monto del contrato</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoContrato" inputmode="decimal" placeholder="0000000,00">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoConAdicionales">Monto con adicionales</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoConAdicionales" inputmode="decimal" placeholder="0000000,00">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoObraAcumulada">Monto Obra acumulada a <span class="poliza-hasta" data-poliza-hasta="acumulada">mm/aaaa</span></label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoObraAcumulada" inputmode="decimal" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "A)".</em></small>
+              </div>
+              <div class="form-field">
+                <label for="polizaSaldoAnticipo">Saldo de Anticipo Financiero a <span class="poliza-hasta" data-poliza-hasta="anticipo">mm/aaaa</span></label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaSaldoAnticipo" inputmode="decimal" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
+              </div>
+              <div class="form-field">
+                <label for="polizaSaldoNeto">SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span></label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaSaldoNeto" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaUltimoFriValor">ÚLTIMO FRI A <span class="poliza-hasta" data-poliza-hasta="ultimo-fri">mm/aaaa</span></label>
+                <div class="salto-porcentaje">
+                  <input type="text" id="polizaUltimoFriValor" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <span class="porcentaje-signo" aria-hidden="true">%</span>
+                </div>
+                <small class="field-hint"><em>Se toma el último valor de los saltos cargados.</em></small>
+              </div>
+              <div class="poliza-ultimo-aprobado">
+                <span class="poliza-ultimo-aprobado-titulo">ÚLTIMO FRI APROBADO A</span>
+                <div class="poliza-ultimo-aprobado-campos">
+                  <label for="polizaUltimoFriAprobadoFecha">Fecha
+                    <input type="text" id="polizaUltimoFriAprobadoFecha" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
+                  </label>
+                  <label for="polizaUltimoFriAprobadoValor">Porcentaje
+                    <div class="salto-porcentaje">
+                      <input type="text" id="polizaUltimoFriAprobadoValor" placeholder="NN,NN" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?">
+                      <span class="porcentaje-signo" aria-hidden="true">%</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaIncrementoFri">Incremento de FRI</label>
+                <div class="salto-porcentaje">
+                  <input type="text" id="polizaIncrementoFri" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <span class="porcentaje-signo" aria-hidden="true">%</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaBaseContratacion">BASE PARA CONTRATACIÓN DE PÓLIZA</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaBaseContratacion" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoGarantizarSaldoObra">MONTO A GARANTIZAR POR SALDO DE OBRA</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoGarantizarSaldoObra" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaCertificadoRp">CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span></label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaCertificadoRp" inputmode="decimal" placeholder="0000000,00">
+                </div>
+                <small class="field-hint"><em>El monto lo encontrás en el certificado de Redeterminación, en el total de la columna "Diferencia A Pagar".</em></small>
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoGarantizarRp">MONTO A GARANTIZAR POR R.P</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoGarantizarRp" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="polizaMontoTotalGarantizar">MONTO TOTAL A GARANTIZAR</label>
+                <div class="monto-input">
+                  <span class="peso-signo" aria-hidden="true">$</span>
+                  <input type="text" id="polizaMontoTotalGarantizar" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                </div>
+              </div>
+              <div class="poliza-total">
+                <label for="polizaMontoClausulaLetras">Monto en letras de la póliza</label>
+                <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="acciones">
+          <button type="reset" id="limpiarFormulario">Limpiar</button>
+          <button type="button" id="enviarSolicitud" class="btn-enviar">GENERAR INFORMES DE REDETERMINACIÓN</button>
+          <button type="submit" id="enviarSolicitudReal" class="oculto" tabindex="-1" aria-hidden="true">Enviar</button>
+        </div>
+        <div id="formStatus" class="form-status oculto" role="status" aria-live="polite">
+          <img src="Certy_celular.png" alt="Certy" class="form-status-logo" width="72" height="90">
+          <p class="form-status-text"></p>
+        </div>
+      </form>
     </div>
 
     <div class="iframe-wrapper">
