@@ -1,6 +1,6 @@
 // Lógica del Asistente de Redeterminación de Precios
 
-const DEFAULT_REDETERMINACIONES_ENDPOINT = '/api/redeterminaciones';
+const DEFAULT_REDETERMINACIONES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyRuT8NrUX4vhuq_gzPnKoljJ3atNLkraTUWvCoOeY8joJ9wuoBSmdPoldVYk5MIAGnJA/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -8,19 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (formContainer) formContainer.classList.add('loaded');
 
   const form = document.getElementById('formAsistente');
-  if (form) {
-    form.addEventListener('submit', manejarEnvioSolicitud);
-    const enviarBtn = document.getElementById('enviarSolicitud');
-    if (enviarBtn) {
-      enviarBtn.addEventListener('click', () => {
-        if (typeof form.requestSubmit === 'function') {
-          form.requestSubmit();
-        } else {
-          form.submit();
-        }
-      });
-    }
-  }
+  if (form) form.addEventListener('submit', manejarEnvioSolicitud);
 
   const genSaltosBtn = document.getElementById('generarSaltos');
   if (genSaltosBtn) genSaltosBtn.addEventListener('click', generarSaltos);
@@ -992,8 +980,8 @@ async function manejarEnvioSolicitud(event) {
   const endpoint = obtenerEndpointRedeterminaciones();
 
   if (!endpoint) {
-    console.error('No está configurado el endpoint para redeterminaciones.');
-    alert('❌ No está configurada la URL para enviar la solicitud.');
+    console.error('No está configurado el endpoint de la Web App de Google Apps Script para redeterminaciones.');
+    alert('❌ No está configurada la URL de la Web App.');
     if (submitBtn) {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
@@ -1002,49 +990,23 @@ async function manejarEnvioSolicitud(event) {
   }
 
   try {
-    const esGoogleAppsScript = /script\.google\.com|script\.googleusercontent\.com/i.test(endpoint);
+    const formData = new FormData(formulario);
 
-    if (esGoogleAppsScript) {
-      const formData = new FormData(formulario);
-      const respuesta = await fetch(endpoint, {
-        method: 'POST',
-        body: formData
-      });
-      const texto = await respuesta.text();
-      if (texto.trim() === 'OK') {
-        alert('✅ La solicitud se envió correctamente.');
-        formulario.reset();
-      } else {
-        throw new Error(texto || 'Respuesta inesperada del servidor');
-      }
-    } else {
-      const payload = recolectarDatosFormulario();
-      const respuesta = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: construirBodySolicitudRedeterminacion(payload)
-      });
+    const respuesta = await fetch(endpoint, {
+      method: 'POST',
+      body: formData
+    });
 
-      let cuerpo = {};
-      try {
-        cuerpo = await respuesta.json();
-      } catch (parseError) {
-        console.warn('No se pudo parsear la respuesta como JSON.', parseError);
-      }
-
-      if (!respuesta.ok || cuerpo.error) {
-        const mensajeError = cuerpo.error || `Error ${respuesta.status}`;
-        throw new Error(mensajeError);
-      }
-
+    const texto = await respuesta.text();
+    if (texto.trim() === 'OK') {
       alert('✅ La solicitud se envió correctamente.');
       formulario.reset();
+    } else {
+      throw new Error(texto || 'Respuesta inesperada del servidor');
     }
   } catch (error) {
     console.error('Error enviando la solicitud de redeterminación:', error);
-    alert(`❌ Hubo un error al registrar la solicitud.${error?.message ? `\nDetalle: ${error.message}` : ''}`);
+    alert('❌ Hubo un error al registrar la solicitud.');
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
