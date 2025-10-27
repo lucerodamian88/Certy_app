@@ -797,6 +797,39 @@ textarea.monto-letras {
   margin-top: 0;
 }
 
+.expediente-row {
+  display: grid;
+  gap: 0.75rem;
+  align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 1rem;
+}
+
+.expediente-row label {
+  margin-top: 0;
+}
+
+.certificados-redet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.certificados-redet__titulo {
+  font-weight: 600;
+}
+
+.certificados-redet__campos {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.certificados-redet__campos label {
+  margin-top: 0;
+}
+
 .aprobada-por-field {
   display: flex;
   flex-direction: column;

@@ -9,6 +9,36 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .iframe-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 1rem;
+      height: calc(100vh - 140px);
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .iframe-wrapper iframe {
+      flex: 1;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+      background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .iframe-wrapper {
+        height: calc(100vh - 120px);
+        padding: 0.5rem;
+      }
+
+      .iframe-wrapper iframe {
+        border-radius: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -28,10 +58,11 @@
     </div>
   </header>
 
-  <div class="form-wrapper">
+  <main class="form-wrapper">
     <div class="container form-container">
       <div class="asistente-header">
         <h1>Asistente de Redeterminación de Precios</h1>
+        <p class="asistente-subtitle">Esta vista integra la nueva implementación proporcionada por el equipo de Certificaciones.</p>
       </div>
       <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbwsl4Ows3f_Dj0SmbRw7I72aVZIrWsnMUFEpE8-hj9hTNtaAPakc6h4Ay6-MxqODSogCQ/exec">
         <fieldset>
@@ -340,399 +371,12 @@
         </div>
       </form>
     </div>
-  </div>
 
-  <div id="confirmacionEnvio" class="confirmacion-envio oculto" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirmacionEnvioTitulo" aria-describedby="confirmacionEnvioDescripcion">
-    <div class="confirmacion-envio__globo">
-      <img src="Certy_advertencia.png" alt="Certy advertencia" class="confirmacion-envio__imagen" width="96" height="120">
-      <h2 id="confirmacionEnvioTitulo">¿Enviar la solicitud?</h2>
-      <p id="confirmacionEnvioDescripcion">Antes de continuar, confirmá que los datos estén completos. ¿Deseás generar los informes de redeterminación?</p>
-      <div class="confirmacion-envio__acciones">
-        <button type="button" id="confirmacionEnvioCancelar" class="confirmacion-envio__btn confirmacion-envio__btn--secundario">No, revisar</button>
-        <button type="button" id="confirmacionEnvioAceptar" class="confirmacion-envio__btn confirmacion-envio__btn--principal">Sí, enviar</button>
-      </div>
+    <div class="iframe-wrapper">
+      <iframe src="https://script.google.com/macros/s/AKfycbwsl4Ows3f_Dj0SmbRw7I72aVZIrWsnMUFEpE8-hj9hTNtaAPakc6h4Ay6-MxqODSogCQ/exec" title="Nueva implementación del asistente" loading="lazy" allowfullscreen></iframe>
     </div>
-  </div>
-
+  </main>
 
   <script src="common.js"></script>
-  <script src="app.js"></script>
-  <script>
-    (function () {
-      'use strict';
-
-      const IDS_PAYLOAD = [
-        'empresa',
-        'repTipo',
-        'repNombreDni',
-        'repDomicilio',
-        'obraNombre',
-        'obraExpediente',
-        'aprobadaPor',
-        'aprobadaNumero',
-        'aprobadaFecha',
-        'cambiosDesde',
-        'cambiosHasta',
-        'nRedet',
-        'resumenSaltos',
-        'montoRedeterminacion',
-        'montoRedeterminacionLetras',
-        'cierreArticulo',
-        'polizaMontoContrato',
-        'polizaMontoConAdicionales',
-        'polizaMontoObraAcumulada',
-        'polizaSaldoAnticipo',
-        'polizaUltimoFriValor',
-        'polizaUltimoFriAprobadoFecha',
-        'polizaUltimoFriAprobadoValor',
-        'polizaIncrementoFri',
-        'polizaBaseContratacion',
-        'polizaMontoGarantizarSaldoObra',
-        'polizaCertificadoRp',
-        'polizaMontoGarantizarRp',
-        'polizaMontoTotalGarantizar',
-        'polizaMontoClausulaLetras'
-      ];
-
-      const CAMPOS_MONTO = new Set([
-        'montoRedeterminacion',
-        'polizaMontoContrato',
-        'polizaMontoConAdicionales',
-        'polizaMontoObraAcumulada',
-        'polizaSaldoAnticipo',
-        'polizaBaseContratacion',
-        'polizaMontoGarantizarSaldoObra',
-        'polizaCertificadoRp',
-        'polizaMontoGarantizarRp',
-        'polizaMontoTotalGarantizar'
-      ]);
-
-      const APROBADA_POR_LABELS = {
-        resolucion: 'Resolución',
-        disposicion: 'Disposición'
-      };
-
-      function obtenerValorCampo(id) {
-        const elemento = document.getElementById(id);
-        if (!elemento) {
-          return '';
-        }
-
-        if (id === 'aprobadaPor') {
-          const valorSeleccionado = (elemento.value || '').trim();
-          if (!valorSeleccionado) {
-            return '';
-          }
-          const clave = valorSeleccionado.toLowerCase();
-          return Object.prototype.hasOwnProperty.call(APROBADA_POR_LABELS, clave)
-            ? APROBADA_POR_LABELS[clave]
-            : valorSeleccionado;
-        }
-
-        if (id === 'empresa') {
-          const select = elemento;
-          const valorSeleccionado = (select.value || '').trim();
-          if (valorSeleccionado === 'OTRO') {
-            const otro = document.getElementById('empresaOtro');
-            return (otro && otro.value ? otro.value : '').trim();
-          }
-          if (valorSeleccionado) {
-            const opcion = select.options[select.selectedIndex];
-            return opcion ? (opcion.text || valorSeleccionado).trim() : valorSeleccionado;
-          }
-          return '';
-        }
-
-        return (elemento.value || '').trim();
-      }
-
-      function prepararMontoParaEnvio(valor) {
-        if (!valor) {
-          return '';
-        }
-
-        const texto = valor.toString().trim();
-        if (!texto) {
-          return '';
-        }
-
-        const normalizador = typeof window !== 'undefined' && typeof window.normalizarMontoTexto === 'function'
-          ? window.normalizarMontoTexto
-          : function (val) {
-            const sinEspacios = val.replace(/\s+/g, '');
-            if (!sinEspacios) {
-              return '';
-            }
-
-            const tieneComa = sinEspacios.includes(',');
-            const tienePunto = sinEspacios.includes('.');
-
-            if (tieneComa && tienePunto) {
-              const sinPuntosMiles = sinEspacios.replace(/\.(?=\d{3}(?:\D|$))/g, '');
-              return sinPuntosMiles.replace(',', '.');
-            }
-
-            if (tieneComa) {
-              return sinEspacios.replace(',', '.');
-            }
-
-            if (tienePunto) {
-              const dotCount = (sinEspacios.match(/\./g) || []).length;
-              if (dotCount > 1) {
-                return sinEspacios.replace(/\./g, '');
-              }
-
-              const [entero, decimales = ''] = sinEspacios.split('.');
-              if (decimales.length > 0 && decimales.length <= 2) {
-                return `${entero.replace(/\./g, '')}.${decimales}`;
-              }
-
-              return sinEspacios.replace(/\./g, '');
-            }
-
-            return sinEspacios;
-          };
-
-        const normalizado = normalizador(texto);
-        if (!normalizado) {
-          return '';
-        }
-
-        const numero = Number(normalizado);
-        if (Number.isFinite(numero)) {
-          const fijo = numero.toFixed(2);
-          const [entero, decimales] = fijo.split('.');
-          return decimales ? `${entero},${decimales}` : entero;
-        }
-
-        const sinEspacios = texto.replace(/\s+/g, '');
-        const sinPuntosMiles = sinEspacios.replace(/\.(?=\d{3}(\D|$))/g, '');
-        if (sinPuntosMiles.includes(',')) {
-          return sinPuntosMiles;
-        }
-        if (sinPuntosMiles.includes('.')) {
-          const partes = sinPuntosMiles.split('.');
-          if (partes.length === 2) {
-            return `${partes[0]},${partes[1]}`;
-          }
-          const decimales = partes.pop();
-          return `${partes.join('')},${decimales}`;
-        }
-        return sinPuntosMiles;
-      }
-
-      function mostrarEstado(tipo, mensaje) {
-        const contenedor = document.getElementById('formStatus');
-        if (!contenedor) {
-          return;
-        }
-        contenedor.classList.remove('oculto', 'form-status--success', 'form-status--error');
-        const texto = contenedor.querySelector('.form-status-text');
-        if (texto) {
-          texto.textContent = mensaje;
-        }
-        if (tipo === 'success') {
-          contenedor.classList.add('form-status--success');
-        } else if (tipo === 'error') {
-          contenedor.classList.add('form-status--error');
-        }
-      }
-
-      function ocultarEstado() {
-        const contenedor = document.getElementById('formStatus');
-        if (!contenedor) {
-          return;
-        }
-        contenedor.classList.add('oculto');
-        contenedor.classList.remove('form-status--success', 'form-status--error');
-        const texto = contenedor.querySelector('.form-status-text');
-        if (texto) {
-          texto.textContent = '';
-        }
-      }
-
-      function mostrarConfirmacionEnvio(overlay) {
-        if (!overlay) {
-          return;
-        }
-        overlay.classList.remove('oculto');
-        overlay.setAttribute('aria-hidden', 'false');
-      }
-
-      function ocultarConfirmacionEnvio(overlay) {
-        if (!overlay) {
-          return;
-        }
-        overlay.classList.add('oculto');
-        overlay.setAttribute('aria-hidden', 'true');
-      }
-
-      function construirPayload() {
-        const payload = {};
-        IDS_PAYLOAD.forEach(id => {
-          const valor = obtenerValorCampo(id);
-          payload[id] = CAMPOS_MONTO.has(id)
-            ? prepararMontoParaEnvio(valor)
-            : valor;
-        });
-        return payload;
-      }
-
-      async function manejarSubmit(evento) {
-        evento.preventDefault();
-
-        const formulario = evento.currentTarget instanceof HTMLFormElement
-          ? evento.currentTarget
-          : document.getElementById('formAsistente');
-        if (!formulario) {
-          console.error('No se encontró el formulario de redeterminaciones.');
-          mostrarEstado('error', 'No se encontró el formulario de redeterminaciones.');
-          return;
-        }
-
-        if (formulario.dataset.confirmado !== 'true') {
-          return;
-        }
-
-        const ENDPOINT = formulario.getAttribute('data-endpoint');
-        if (!ENDPOINT) {
-          console.error('No está configurado el endpoint del Apps Script.');
-          mostrarEstado('error', 'No está configurado el servicio de envío.');
-          return;
-        }
-
-        const boton = document.getElementById('enviarSolicitud');
-        const textoOriginal = boton ? boton.textContent : '';
-        if (boton) {
-          boton.disabled = true;
-          boton.textContent = 'Enviando...';
-        }
-
-        ocultarEstado();
-
-        try {
-          const payload = construirPayload();
-          const respuesta = await fetch(ENDPOINT, {
-            method: 'POST',
-            body: new URLSearchParams(payload)
-          });
-
-          const textoRespuesta = await respuesta.text();
-          let datos = null;
-          try {
-            datos = JSON.parse(textoRespuesta);
-          } catch (_) {
-            datos = null;
-          }
-
-          if (datos && datos.success === true) {
-            const mensajeExito = typeof datos.message === 'string' && datos.message.trim()
-              ? datos.message.trim()
-              : 'Redeterminación registrada correctamente.';
-            mostrarEstado('success', mensajeExito);
-            formulario.reset();
-          } else {
-            const mensajeError = datos && typeof datos.error === 'string' && datos.error.trim()
-              ? datos.error.trim()
-              : 'Hubo un problema. Intente nuevamente.';
-            mostrarEstado('error', mensajeError);
-          }
-        } catch (error) {
-          console.error('Error al enviar la redeterminación:', error);
-          mostrarEstado('error', 'Hubo un problema. Intente nuevamente.');
-        } finally {
-          if (boton) {
-            boton.disabled = false;
-            boton.textContent = textoOriginal;
-          }
-          delete formulario.dataset.confirmado;
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', () => {
-        const formulario = document.getElementById('formAsistente');
-        if (!formulario) {
-          return;
-        }
-        if (typeof window !== 'undefined' && typeof window.manejarEnvioSolicitud === 'function') {
-          formulario.removeEventListener('submit', window.manejarEnvioSolicitud);
-        }
-        formulario.addEventListener('submit', manejarSubmit);
-
-        formulario.addEventListener('keydown', (evento) => {
-          if (evento.key === 'Enter' && evento.target && evento.target.tagName !== 'TEXTAREA') {
-            evento.preventDefault();
-          }
-        });
-
-        const overlay = document.getElementById('confirmacionEnvio');
-        const botonAbrir = document.getElementById('enviarSolicitud');
-        const botonAceptar = document.getElementById('confirmacionEnvioAceptar');
-        const botonCancelar = document.getElementById('confirmacionEnvioCancelar');
-        const botonSubmitReal = document.getElementById('enviarSolicitudReal');
-
-        function enviarFormularioConfirmado() {
-          formulario.dataset.confirmado = 'true';
-          if (typeof formulario.requestSubmit === 'function') {
-            formulario.requestSubmit(botonSubmitReal || undefined);
-          } else {
-            const eventoEnvio = new Event('submit', { bubbles: true, cancelable: true });
-            formulario.dispatchEvent(eventoEnvio);
-          }
-        }
-
-        if (botonAbrir) {
-          botonAbrir.addEventListener('click', () => {
-            if (!overlay) {
-              enviarFormularioConfirmado();
-              return;
-            }
-            mostrarConfirmacionEnvio(overlay);
-            if (botonAceptar) {
-              botonAceptar.focus();
-            }
-          });
-        }
-
-        if (botonCancelar) {
-          botonCancelar.addEventListener('click', () => {
-            ocultarConfirmacionEnvio(overlay);
-            if (botonAbrir) {
-              botonAbrir.focus();
-            }
-          });
-        }
-
-        if (botonAceptar) {
-          botonAceptar.addEventListener('click', () => {
-            ocultarConfirmacionEnvio(overlay);
-            enviarFormularioConfirmado();
-          });
-        }
-
-        document.addEventListener('keydown', (evento) => {
-          if (evento.key === 'Escape' && overlay && !overlay.classList.contains('oculto')) {
-            evento.preventDefault();
-            ocultarConfirmacionEnvio(overlay);
-            if (botonAbrir) {
-              botonAbrir.focus();
-            }
-          }
-        });
-
-        if (overlay) {
-          overlay.addEventListener('click', (evento) => {
-            if (evento.target === overlay) {
-              ocultarConfirmacionEnvio(overlay);
-              if (botonAbrir) {
-                botonAbrir.focus();
-              }
-            }
-          });
-        }
-      });
-    }());
-  </script>
 </body>
 </html>
-
