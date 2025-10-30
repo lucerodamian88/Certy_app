@@ -148,7 +148,7 @@
               <label for="certDesde">Desde
                 <select id="certDesde">
                   <option value="" disabled selected>Seleccione</option>
-                  <option value="Anticipo Financiero">Anticipo Financiero</option>
+                  <option value="Certificado de Anticipo Financiero">Certificado de Anticipo Financiero</option>
                   <option value="Certificado de obra N°1">Certificado de obra N°1</option>
                   <option value="Certificado de obra N°2">Certificado de obra N°2</option>
                   <option value="Certificado de obra N°3">Certificado de obra N°3</option>
@@ -608,6 +608,25 @@
         return sinPuntosMiles;
       }
 
+      function formatearNumeroAprobacion(valor) {
+        if (!valor) {
+          return '';
+        }
+
+        const texto = valor.toString().trim();
+        if (!texto) {
+          return '';
+        }
+
+        const coincidencia = texto.match(/^(\d{4})\/(\d{2})$/);
+        if (!coincidencia) {
+          return texto;
+        }
+
+        const [, numero, anioCorto] = coincidencia;
+        return `${numero}/20${anioCorto}`;
+      }
+
       function mostrarEstado(tipo, mensaje) {
         const contenedor = document.getElementById('formStatus');
         if (!contenedor) {
@@ -660,10 +679,21 @@
         };
         IDS_PAYLOAD.forEach(id => {
           const valor = obtenerValorCampo(id);
-          payload[id] = CAMPOS_MONTO.has(id)
-            ? prepararMontoParaEnvio(valor)
-            : valor;
+          if (id === 'aprobadaNumero') {
+            payload[id] = formatearNumeroAprobacion(valor);
+          } else {
+            payload[id] = CAMPOS_MONTO.has(id)
+              ? prepararMontoParaEnvio(valor)
+              : valor;
+          }
         });
+
+        const ultimoFriAprobadoFecha = (payload.polizaUltimoFriAprobadoFecha || '').trim();
+        const ultimoFriAprobadoValor = (payload.polizaUltimoFriAprobadoValor || '').trim();
+        if (!ultimoFriAprobadoFecha && !ultimoFriAprobadoValor) {
+          payload.polizaUltimoFriAprobadoFecha = '-';
+          payload.polizaUltimoFriAprobadoValor = '-';
+        }
         payload.alcance = document.getElementById('alcance') ? (document.getElementById('alcance').value || '').trim() : '';
         payload.certDesde = document.getElementById('certDesde') ? (document.getElementById('certDesde').value || '').trim() : '';
         payload.certHasta = document.getElementById('certHasta') ? (document.getElementById('certHasta').value || '').trim() : '';
