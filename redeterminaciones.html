@@ -33,7 +33,7 @@
       <div class="asistente-header">
         <h1>Asistente de Redeterminación de Precios</h1>
       </div>
-      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbwcGJu-4Mqgv7Qg4_ArJVXvcI0aMUhS_3z6XbiF2QNzi8lGzkrRPFWBtNz4y2C6pji-3w/exec">
+      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbxZG6Nt2Qfu1hxUiUe_1JS46Zm7BtM9TxZEXiwyNrSwKLfwgXXoesdqRK0x-se4ejyhxQ/exec">
         <fieldset>
           <legend>Datos de la empresa</legend>
           <label>Empresa
@@ -331,10 +331,10 @@
                 <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
               </div>
               <div class="form-field">
-                <label for="polizaSaldoNeto">SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span></label>
+                <label for="polizaSaldoObraNetoAnticipo">SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaSaldoNeto" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaSaldoObraNetoAnticipo" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="form-field">
@@ -466,6 +466,7 @@
         'polizaMontoConAdicionales',
         'polizaMontoObraAcumulada',
         'polizaSaldoAnticipo',
+        'polizaSaldoObraNetoAnticipo',
         'polizaUltimoFriValor',
         'polizaUltimoFriAprobadoFecha',
         'polizaUltimoFriAprobadoValor',
@@ -484,6 +485,7 @@
         'polizaMontoConAdicionales',
         'polizaMontoObraAcumulada',
         'polizaSaldoAnticipo',
+        'polizaSaldoObraNetoAnticipo',
         'polizaBaseContratacion',
         'polizaMontoGarantizarSaldoObra',
         'polizaCertificadoRp',
@@ -653,7 +655,9 @@
       }
 
       function construirPayload() {
-        const payload = {};
+        const payload = {
+          polizaSaldoObraNetoAnticipo: document.getElementById('polizaSaldoObraNetoAnticipo').value,
+        };
         IDS_PAYLOAD.forEach(id => {
           const valor = obtenerValorCampo(id);
           payload[id] = CAMPOS_MONTO.has(id)
