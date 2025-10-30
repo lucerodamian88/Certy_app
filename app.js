@@ -402,7 +402,7 @@ function inicializarPoliza() {
       } else {
         togglePoliza(false);
         limpiarValoresBasePoliza();
-        limpiarResultadosPoliza();
+        limpiarResultadosPoliza({ establecerCeros: true });
         ocultarAdvertenciaPoliza();
         actualizarEstadoPoliza({ calcular: 'no', valores: {}, reemplazarValores: true, adicionalesEditado: false });
       }
@@ -443,7 +443,7 @@ function restaurarEstadoPoliza() {
   if (calcularValor === 'si') {
     actualizarCalculosPoliza();
   } else {
-    limpiarResultadosPoliza();
+    limpiarResultadosPoliza({ establecerCeros: true });
     ocultarAdvertenciaPoliza();
   }
 }
@@ -553,7 +553,7 @@ function formatearPorcentajeSeguro(valor) {
 function actualizarCalculosPoliza() {
   if (!polizaContext) return;
   if (!polizaEstaActiva()) {
-    limpiarResultadosPoliza();
+    limpiarResultadosPoliza({ establecerCeros: true });
     return;
   }
 
@@ -622,8 +622,9 @@ function polizaEstaActiva() {
   return polizaContext.calcularRadios.some(radio => radio.checked && radio.value === 'si');
 }
 
-function limpiarResultadosPoliza() {
+function limpiarResultadosPoliza(opciones = {}) {
   if (!polizaContext) return;
+  const { establecerCeros = false } = opciones;
   const campos = [
     'saldoNeto',
     'ultimoFriValor',
@@ -639,6 +640,14 @@ function limpiarResultadosPoliza() {
   });
   if (polizaContext.montoClausulaLetras) {
     polizaContext.montoClausulaLetras.value = '';
+  }
+  if (establecerCeros) {
+    if (polizaContext.montoTotal) {
+      polizaContext.montoTotal.value = formatearMoneda(0);
+    }
+    if (polizaContext.montoClausulaLetras) {
+      polizaContext.montoClausulaLetras.value = 'Cero';
+    }
   }
 }
 
@@ -787,7 +796,7 @@ function restablecerPoliza() {
   establecerRadio(polizaContext.calcularRadios, 'no');
   togglePoliza(false);
   limpiarValoresBasePoliza();
-  limpiarResultadosPoliza();
+  limpiarResultadosPoliza({ establecerCeros: true });
   ocultarAdvertenciaPoliza();
   actualizarEstadoPoliza({ calcular: 'no', valores: {}, reemplazarValores: true, adicionalesEditado: false });
 }
