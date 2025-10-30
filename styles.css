@@ -1568,3 +1568,161 @@ body.dark-mode img {
   font-weight: 600;
   color: var(--color-primary);
 }
+
+@media (max-width: 768px) {
+  .hero-header {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .hero-info {
+    text-align: center;
+    align-items: center;
+  }
+
+  .hero-claim {
+    font-size: 1.6rem;
+  }
+
+  .hero-subclaim {
+    font-size: 0.95rem;
+  }
+
+  .calc-mascot {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+
+  .calc-mascot img {
+    max-width: 160px;
+  }
+
+  .acciones,
+  .button-row,
+  .confirmacion-envio__acciones {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .acciones,
+  .confirmacion-envio__acciones {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding-top: 70px;
+  }
+
+  body.home {
+    padding-top: 0;
+  }
+
+  .corner-logo {
+    position: static;
+    height: 48px;
+    align-self: flex-start;
+  }
+
+  .hero-header {
+    align-items: flex-start;
+  }
+
+  .hero-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero-claim {
+    font-size: 1.4rem;
+  }
+
+  .card-grid {
+    padding: 24px 12px;
+    gap: 20px;
+  }
+
+  .card-content {
+    padding: 12px;
+  }
+
+  .card-grid > li {
+    display: block;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.8rem;
+  }
+
+  #downloadAppBtn {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .container {
+    margin: 1rem;
+    padding: 1.25rem;
+  }
+
+  .monto-input {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones,
+  .button-row,
+  .confirmacion-envio__acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .half-width,
+  #startDate,
+  #initialDays,
+  #fechaSolicitud {
+    max-width: 100%;
+  }
+
+  .poliza-toggle,
+  .poliza-toggle-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-status {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .form-status-logo {
+    display: block;
+  }
+
+  .asistente-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .salto-row {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmacion-envio__globo {
+    padding: 1.25rem 1rem 1rem;
+    border-radius: 18px;
+  }
+}
