@@ -317,7 +317,7 @@ function inicializarPoliza() {
     montoConAdicionales: document.getElementById('polizaMontoConAdicionales'),
     montoAcumulado: document.getElementById('polizaMontoObraAcumulada'),
     saldoAnticipo: document.getElementById('polizaSaldoAnticipo'),
-    saldoNeto: document.getElementById('polizaSaldoNeto'),
+    saldoNeto: document.getElementById('polizaSaldoObraNetoAnticipo'),
     ultimoFriValor: document.getElementById('polizaUltimoFriValor'),
     ultimoFriAprobadoFecha: document.getElementById('polizaUltimoFriAprobadoFecha'),
     ultimoFriAprobadoValor: document.getElementById('polizaUltimoFriAprobadoValor'),
