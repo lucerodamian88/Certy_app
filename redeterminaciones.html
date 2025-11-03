@@ -216,6 +216,10 @@
                   <option value="Certificado de obra N°30">Certificado de obra N°30</option>
                 </select>
               </label>
+              <div class="certificados-redeterminacion__final">
+                <input type="checkbox" id="certHastaFinal">
+                <label for="certHastaFinal">Marcar como Certificado Final</label>
+              </div>
             </div>
           </div>
           <label>N° de Redeterminación
@@ -697,6 +701,10 @@
         payload.alcance = document.getElementById('alcance') ? (document.getElementById('alcance').value || '').trim() : '';
         payload.certDesde = document.getElementById('certDesde') ? (document.getElementById('certDesde').value || '').trim() : '';
         payload.certHasta = document.getElementById('certHasta') ? (document.getElementById('certHasta').value || '').trim() : '';
+        const certHastaFinal = document.getElementById('certHastaFinal');
+        if (certHastaFinal && certHastaFinal.checked && payload.certHasta) {
+          payload.certHasta = `${payload.certHasta} FINAL`;
+        }
         return payload;
       }
 
