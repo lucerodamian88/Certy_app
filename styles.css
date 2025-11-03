@@ -834,6 +834,22 @@ textarea.monto-letras {
   margin-top: 0;
 }
 
+.certificados-redeterminacion__final {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.certificados-redeterminacion__final input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.certificados-redeterminacion__final label {
+  width: auto;
+  margin: 0;
+}
+
 .buscar-digesto {
   align-self: end;
   padding: 0.6rem 1rem;
