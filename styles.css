@@ -122,6 +122,7 @@ body.dark .site-header {
 .certy-avatar {
   height: 60px;
   animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25));
 }
 
 @keyframes float {
@@ -293,6 +294,7 @@ body.dark .speech-bubble {
   width: 100%;
   height: auto;
   animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
 }
 
 .wave-divider {
