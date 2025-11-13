@@ -1360,14 +1360,13 @@ function actualizarAprobadaPor(valor) {
   const btn = document.getElementById('buscarResolucion');
   if (hint) hint.textContent = '';
   if (!btn) return;
+  btn.classList.add('oculto');
   if (valor === 'resolucion' || valor === 'decreto') {
     if (hint) hint.textContent = 'Buscar la fecha en la página de Digesto';
     btn.classList.remove('oculto');
   } else if (valor === 'disposicion') {
-    if (hint) hint.textContent = 'Consultarle a la subsecretaría';
-    btn.classList.add('oculto');
-  } else {
-    btn.classList.add('oculto');
+    if (hint) hint.textContent = 'Abrir planilla de disposiciones aprobadas';
+    btn.classList.remove('oculto');
   }
 }
 
@@ -1375,6 +1374,12 @@ async function abrirDigestoDocumento() {
   const tipo = document.getElementById('aprobadaPor');
   if (!tipo) return;
   const valorTipo = tipo.value;
+  if (valorTipo === 'disposicion') {
+    const url = 'https://docs.google.com/spreadsheets/d/1frYR1B-cXYyniK97wVetPzrQGQbnZFJt/edit?gid=1652431611#gid=1652431611';
+    const nuevaVentana = window.open(url, '_blank');
+    if (nuevaVentana) nuevaVentana.opener = null;
+    return;
+  }
   if (valorTipo !== 'resolucion' && valorTipo !== 'decreto') return;
   const numeroInput = document.getElementById('aprobadaNumero');
   if (!numeroInput) return;
