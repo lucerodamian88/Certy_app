@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i
+        class="fa-solid fa-arrow-left"></i> Menú</button>
     <div class="logo-group">
       <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
       <div class="dept-group">
@@ -35,9 +38,12 @@
       </div>
       <div class="intro">
         <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
-        <p class="description">Esta herramienta permite generar los archivos de Proyecto de Acta de Adhesión, Cálculo de Poliza, y Pase a Auditoria, que se adjuntan al expediente físico. Por el momento NO hace el cálculo de redeterminación.</p>
+        <p class="description">Esta herramienta permite generar los archivos de Proyecto de Acta de Adhesión, Cálculo de
+          Poliza, y Pase a Auditoria, que se adjuntan al expediente físico. Por el momento NO hace el cálculo de
+          redeterminación.</p>
       </div>
-      <form id="formAsistente" class="asistente-grid" data-endpoint="https://script.google.com/macros/s/AKfycbxBOwQDCK1qyJYLc6eB1b4cQVdfQx1Ai-uyXuS8Vse_WwJFKRjitp1dNPV192a8qoc40g/exec">
+      <form id="formAsistente" class="asistente-grid"
+        data-endpoint="https://script.google.com/macros/s/AKfycby8A7CBiVkTvwgVxn_HY82BFF1YRpA7-mPPD9hfKa4LWO0ZcVQI-rp1UB3m3juAvptHnw/exec">
         <fieldset>
           <legend>Datos de la empresa</legend>
           <label>Empresa
@@ -63,7 +69,8 @@
               <option>HORMIQUEN S.A</option>
               <option>HORMIX S.R.L.</option>
               <option>ICR S.A</option>
-              <option>I.A.T.A.S.A INGENIERÍA Y ASISTENCIA TÉCNICA ARGENTINA SOCIEDAD ANÓNIMA DE SERVICIOS PROFESIONALES</option>
+              <option>I.A.T.A.S.A INGENIERÍA Y ASISTENCIA TÉCNICA ARGENTINA SOCIEDAD ANÓNIMA DE SERVICIOS PROFESIONALES
+              </option>
               <option>ING. RAUL LUJAN CRISTALDI</option>
               <option>LIMAYSER S.R.L.</option>
               <option>MAPIVIAL EQUIPOS SRL</option>
@@ -111,7 +118,8 @@
           <small class="field-hint"><em>Sugerencia: copiar y pegar el nombre del sistema GESOP.</em></small>
           <div class="expediente-alcance-row">
             <label>N° de Expediente
-              <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d" inputmode="text">
+              <input type="text" id="obraExpediente" placeholder="nnnn o nnnnn-M-202X" pattern="\d{4,5}-M-202\d"
+                inputmode="text">
             </label>
             <label>Alcance
               <input type="text" id="alcance" placeholder="01-2025" pattern="\d{2}-\d{4}" inputmode="text">
@@ -131,7 +139,8 @@
               <small class="field-hint"><em id="aprobadaPorHint"></em></small>
             </div>
             <label>Número
-              <input type="text" id="aprobadaNumero" placeholder="nnnn/aa" pattern="\d{4}/\d{2}" maxlength="7" inputmode="numeric">
+              <input type="text" id="aprobadaNumero" placeholder="nnnn/aa" pattern="\d{4}/\d{2}" maxlength="7"
+                inputmode="numeric">
             </label>
             <label>Fecha
               <input type="text" id="aprobadaFecha" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
@@ -145,7 +154,8 @@
           <label>Cambios registrados desde
             <input type="text" id="cambiosDesde" placeholder="dd/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}">
           </label>
-          <small class="field-hint">Si es Licitación Pública, Licitación Privada o Concurso de Precios, la fecha es del Acta de Apertura del sobre A. Si es Contratación Directa, la fecha es de la Carta de Invitación.</small>
+          <small class="field-hint">Si es Licitación Pública, Licitación Privada o Concurso de Precios, la fecha es del
+            Acta de Apertura del sobre A. Si es Contratación Directa, la fecha es de la Carta de Invitación.</small>
           <label>Hasta
             <input type="text" id="cambiosHasta" placeholder="mm/aaaa" pattern="\d{2}/\d{4}">
           </label>
@@ -268,7 +278,8 @@
             <div id="saltosContainer" class="saltos-container"></div>
             <div class="resumen-saltos">
               <label for="resumenSaltos">Resumen de Saltos</label>
-              <textarea id="resumenSaltos" class="monto-letras" rows="6" readonly aria-readonly="true" placeholder="Se completará automáticamente"></textarea>
+              <textarea id="resumenSaltos" class="monto-letras" rows="6" readonly aria-readonly="true"
+                placeholder="Se completará automáticamente"></textarea>
             </div>
           </div>
           <label>Monto de la redeterminación
@@ -280,12 +291,14 @@
           </label>
           <div class="monto-letras-wrapper">
             <label>Monto en letras
-              <input type="text" id="montoRedeterminacionLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
+              <input type="text" id="montoRedeterminacionLetras" class="monto-letras" readonly aria-readonly="true"
+                placeholder="Se completará automáticamente">
             </label>
           </div>
           <div class="monto-letras-wrapper">
             <label>Cierre de Artículo
-              <input type="text" id="cierreArticulo" class="monto-letras" readonly aria-readonly="true" placeholder="Se completará automáticamente">
+              <input type="text" id="cierreArticulo" class="monto-letras" readonly aria-readonly="true"
+                placeholder="Se completará automáticamente">
             </label>
           </div>
         </fieldset>
@@ -326,32 +339,40 @@
                 </div>
               </div>
               <div class="form-field">
-                <label for="polizaMontoObraAcumulada">Monto Obra acumulada a <span class="poliza-hasta" data-poliza-hasta="acumulada">mm/aaaa</span></label>
+                <label for="polizaMontoObraAcumulada">Monto Obra acumulada a <span class="poliza-hasta"
+                    data-poliza-hasta="acumulada">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
                   <input type="text" id="polizaMontoObraAcumulada" inputmode="decimal" placeholder="0000000,00">
                 </div>
-                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "A)".</em></small>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por
+                    el concepto de "A)".</em></small>
               </div>
               <div class="form-field">
-                <label for="polizaSaldoAnticipo">Saldo de Anticipo Financiero a <span class="poliza-hasta" data-poliza-hasta="anticipo">mm/aaaa</span></label>
+                <label for="polizaSaldoAnticipo">Saldo de Anticipo Financiero a <span class="poliza-hasta"
+                    data-poliza-hasta="anticipo">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
                   <input type="text" id="polizaSaldoAnticipo" inputmode="decimal" placeholder="0000000,00">
                 </div>
-                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
+                <small class="field-hint"><em>El monto lo encontrás en el último certificado de obra a redeterminar por
+                    el concepto de "Saldo Anticipo Financiero (informativo) $".</em></small>
               </div>
               <div class="form-field">
-                <label for="polizaSaldoObraNetoAnticipo">SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span></label>
+                <label for="polizaSaldoObraNetoAnticipo">SALDO DE OBRA NETO DE ANTICIPO FINANCIERO AL <span
+                    class="poliza-hasta" data-poliza-hasta="saldo-neto">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaSaldoObraNetoAnticipo" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaSaldoObraNetoAnticipo" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="form-field">
-                <label for="polizaUltimoFriValor">ÚLTIMO FRI A <span class="poliza-hasta" data-poliza-hasta="ultimo-fri">mm/aaaa</span></label>
+                <label for="polizaUltimoFriValor">ÚLTIMO FRI A <span class="poliza-hasta"
+                    data-poliza-hasta="ultimo-fri">mm/aaaa</span></label>
                 <div class="salto-porcentaje">
-                  <input type="text" id="polizaUltimoFriValor" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaUltimoFriValor" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                   <span class="porcentaje-signo" aria-hidden="true">%</span>
                 </div>
                 <small class="field-hint"><em>Se toma el último valor de los saltos cargados.</em></small>
@@ -364,7 +385,8 @@
                   </label>
                   <label for="polizaUltimoFriAprobadoValor">Porcentaje
                     <div class="salto-porcentaje">
-                      <input type="text" id="polizaUltimoFriAprobadoValor" placeholder="NN,NN" inputmode="decimal" pattern="\d+(?:[.,]\d{1,2})?">
+                      <input type="text" id="polizaUltimoFriAprobadoValor" placeholder="NN,NN" inputmode="decimal"
+                        pattern="\d+(?:[.,]\d{1,2})?">
                       <span class="porcentaje-signo" aria-hidden="true">%</span>
                     </div>
                   </label>
@@ -373,7 +395,8 @@
               <div class="form-field">
                 <label for="polizaIncrementoFri">Incremento de FRI</label>
                 <div class="salto-porcentaje">
-                  <input type="text" id="polizaIncrementoFri" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaIncrementoFri" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                   <span class="porcentaje-signo" aria-hidden="true">%</span>
                 </div>
               </div>
@@ -381,41 +404,48 @@
                 <label for="polizaBaseContratacion">BASE PARA CONTRATACIÓN DE PÓLIZA</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaBaseContratacion" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaBaseContratacion" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="form-field">
                 <label for="polizaMontoGarantizarSaldoObra">MONTO A GARANTIZAR POR SALDO DE OBRA</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoGarantizarSaldoObra" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoGarantizarSaldoObra" class="monto-letras" readonly
+                    aria-readonly="true" placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="form-field">
-                <label for="polizaCertificadoRp">CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span></label>
+                <label for="polizaCertificadoRp">CERTIFICADO DE REDETERMINACIÓN DE PRECIOS MODELO AL <span
+                    class="poliza-hasta" data-poliza-hasta="certificado">mm/aaaa</span></label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
                   <input type="text" id="polizaCertificadoRp" inputmode="decimal" placeholder="0000000,00">
                 </div>
-                <small class="field-hint"><em>El monto lo encontrás en el certificado de Redeterminación, en el total de la columna "Diferencia A Pagar".</em></small>
+                <small class="field-hint"><em>El monto lo encontrás en el certificado de Redeterminación, en el total de
+                    la columna "Diferencia A Pagar".</em></small>
               </div>
               <div class="form-field">
                 <label for="polizaMontoGarantizarRp">MONTO A GARANTIZAR POR R.P</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoGarantizarRp" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoGarantizarRp" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="form-field">
                 <label for="polizaMontoTotalGarantizar">MONTO TOTAL A GARANTIZAR</label>
                 <div class="monto-input">
                   <span class="peso-signo" aria-hidden="true">$</span>
-                  <input type="text" id="polizaMontoTotalGarantizar" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                  <input type="text" id="polizaMontoTotalGarantizar" class="monto-letras" readonly aria-readonly="true"
+                    placeholder="Se completa automáticamente">
                 </div>
               </div>
               <div class="poliza-total">
                 <label for="polizaMontoClausulaLetras">Monto en letras de la póliza</label>
-                <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true" placeholder="Se completa automáticamente">
+                <input type="text" id="polizaMontoClausulaLetras" class="monto-letras" readonly aria-readonly="true"
+                  placeholder="Se completa automáticamente">
               </div>
             </div>
           </div>
@@ -434,14 +464,19 @@
     </div>
   </div>
 
-  <div id="confirmacionEnvio" class="confirmacion-envio oculto" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirmacionEnvioTitulo" aria-describedby="confirmacionEnvioDescripcion">
+  <div id="confirmacionEnvio" class="confirmacion-envio oculto" role="dialog" aria-modal="true" aria-hidden="true"
+    aria-labelledby="confirmacionEnvioTitulo" aria-describedby="confirmacionEnvioDescripcion">
     <div class="confirmacion-envio__globo">
-      <img src="Certy_advertencia.png" alt="Certy advertencia" class="confirmacion-envio__imagen" width="96" height="120">
+      <img src="Certy_advertencia.png" alt="Certy advertencia" class="confirmacion-envio__imagen" width="96"
+        height="120">
       <h2 id="confirmacionEnvioTitulo">¿Enviar la solicitud?</h2>
-      <p id="confirmacionEnvioDescripcion">Antes de continuar, confirmá que los datos estén completos. ¿Deseás generar los informes de redeterminación?</p>
+      <p id="confirmacionEnvioDescripcion">Antes de continuar, confirmá que los datos estén completos. ¿Deseás generar
+        los informes de redeterminación?</p>
       <div class="confirmacion-envio__acciones">
-        <button type="button" id="confirmacionEnvioCancelar" class="confirmacion-envio__btn confirmacion-envio__btn--secundario">No, revisar</button>
-        <button type="button" id="confirmacionEnvioAceptar" class="confirmacion-envio__btn confirmacion-envio__btn--principal">Sí, enviar</button>
+        <button type="button" id="confirmacionEnvioCancelar"
+          class="confirmacion-envio__btn confirmacion-envio__btn--secundario">No, revisar</button>
+        <button type="button" id="confirmacionEnvioAceptar"
+          class="confirmacion-envio__btn confirmacion-envio__btn--principal">Sí, enviar</button>
       </div>
     </div>
   </div>
@@ -871,5 +906,5 @@
     }());
   </script>
 </body>
-</html>
 
+</html>
