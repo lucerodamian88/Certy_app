@@ -1900,3 +1900,42 @@ body.dark-mode img {
  } 
  
  
+/* snowflake Fixed */
+.snowflake-container {
+  position: relative;
+  overflow: hidden; /* Contains the flakes */
+}
+
+.snowflake {
+  position: absolute;
+  top: -20px;
+  color: #fff;
+  font-size: 1em;
+  font-family: Arial, sans-serif;
+  text-shadow: 0 0 5px #000;
+  user-select: none;
+  z-index: 10;
+  pointer-events: none; /* Crucial: clicks pass through */
+  animation-name: fall, fade;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-play-state: running, running;
+}
+
+@keyframes fall {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(200px); }
+}
+
+@keyframes fade {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Fix Suggestion Text Colors to Gold */
+.suggestion, .field-hint, .subtitle, .card-subtitle, .hero-subclaim {
+  color: var(--color-primary) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8); /* Enhance readability */
+}
+

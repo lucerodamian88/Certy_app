@@ -60,19 +60,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function createSnowflakes() {
-  const certyImages = document.querySelectorAll('img[src*="Certy"], img[src*="logo.png"]');
+  /* Target only specific robot containers to prevent layout breaking */
+  const certyRobots = document.querySelectorAll('.hero-img, .certy-avatar, .calc-icon');
 
-  certyImages.forEach(img => {
+  certyRobots.forEach(img => {
     // Ensure parent is positioned to confine snowflakes if we want them LOCAL to the image,
     // BUT user said "sobre los logos", so wrapping them is safer to contain the effect.
     // However, changing DOM structure might break layout. 
     // Let's try appending to parent and ensuring parent has position: relative.
 
     const parent = img.parentElement;
-    if (getComputedStyle(parent).position === 'static') {
+
+    // Only add relative positioning if not already present or absolute
+    const style = window.getComputedStyle(parent);
+    if (style.position === 'static') {
       parent.style.position = 'relative';
     }
-    parent.classList.add('snowflake-container'); // Add overflow hidden helper
+
+    // Check if we already added the container class to avoid duplicates
+    if (!parent.classList.contains('snowflake-container')) {
+      parent.classList.add('snowflake-container');
+    }
 
     const numberOfSnowflakes = 10; // Number of flakes per image
 
