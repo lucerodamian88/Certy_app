@@ -3,6 +3,30 @@ window.addEventListener('DOMContentLoaded', () => {
   if (container) {
     container.classList.add('loaded');
   }
+
+  const backBtn = document.getElementById('backToMenuBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => window.location.href = 'index.html');
+  }
+
+  const calculateBtn = document.getElementById('calculateBtn');
+  if (calculateBtn) {
+    calculateBtn.addEventListener('click', () => {
+      calculateBtn.classList.add('shake');
+      setTimeout(() => calculateBtn.classList.remove('shake'), 300);
+      calculate();
+    });
+  }
+
+  const clearBtn = document.getElementById('clearBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearAll);
+  }
+
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', openPdfReport);
+  }
 });
 
 // Suma la cantidad exacta de días al calendario
@@ -247,7 +271,7 @@ function calculate() {
   resultHTML += generarTablaFojas(startDate, currentDate, pauses);
 
   document.getElementById("reporte").innerHTML = resultHTML;
-    document.getElementById('printSection').style.display = 'flex';
+  document.getElementById('printSection').style.display = 'flex';
 }
 
 function clearAll() {
@@ -258,7 +282,7 @@ function clearAll() {
   document.getElementById('pauseSection').innerHTML = '';
   document.getElementById('extensionSection').innerHTML = '';
   document.getElementById('reporte').innerHTML = '';
-    document.getElementById('printSection').style.display = 'none';
+  document.getElementById('printSection').style.display = 'none';
 }
 
 async function openPdfReport() {
@@ -336,7 +360,7 @@ async function openPdfReport() {
 
       const img = new Image();
       img.src = 'Certy_saludando.png';
-      img.onload = function() {
+      img.onload = function () {
         const imgSize = 16 * 1.2;
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
@@ -351,10 +375,7 @@ async function openPdfReport() {
   });
 }
 
-document.getElementById('calculateBtn').addEventListener('click', function() {
-  this.classList.add('shake');
-  setTimeout(() => this.classList.remove('shake'), 300);
-});
+
 
 document.getElementById("hasPauses").addEventListener("change", function () {
   const section = document.getElementById("pauseSection");

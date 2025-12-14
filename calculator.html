@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calculadora de Días y Fojas</title>
   <link rel="icon" type="image/png" href="Certy_cara.png" />
   <link rel="stylesheet" href="styles.css" />
@@ -14,11 +15,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
   <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
+    <button class="back-btn" id="backToMenuBtn" aria-label="Volver al menú principal"><i
+        class="fa-solid fa-arrow-left"></i> Menú</button>
     <div class="logo-group">
       <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
       <div class="dept-group">
@@ -34,55 +37,58 @@
     </div>
   </header>
 
-    <div class="form-wrapper">
-      <div class="container form-container">
+  <div class="form-wrapper">
+    <div class="container form-container">
       <h1>Calculadora de Días y Fojas</h1>
       <div class="intro">
         <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
-        <p class="description">Esta herramienta permite determinar la fecha de finalización de la obra y la cantidad de fojas correspondientes, considerando días efectivamente trabajados, paralizaciones y ampliaciones de plazo.</p>
+        <p class="description">Esta herramienta permite determinar la fecha de finalización de la obra y la cantidad de
+          fojas correspondientes, considerando días efectivamente trabajados, paralizaciones y ampliaciones de plazo.
+        </p>
       </div>
 
-    
-    <label>Fecha de inicio de obra:
-      <input type="date" id="startDate" placeholder="Ingrese fecha" />
-    </label>
 
-    <label>Plazo inicial (en días):
-      <input type="number" id="initialDays" placeholder="Cantidad" />
-    </label>
+      <label>Fecha de inicio de obra:
+        <input type="date" id="startDate" placeholder="Ingrese fecha" />
+      </label>
 
-    <label>¿Hubo paralizaciones?
-      <select id="hasPauses">
-        <option value="no">No</option>
-        <option value="yes">Sí</option>
-      </select>
-    </label>
+      <label>Plazo inicial (en días):
+        <input type="number" id="initialDays" placeholder="Cantidad" />
+      </label>
 
-    <div id="pauseSection"></div>
+      <label>¿Hubo paralizaciones?
+        <select id="hasPauses">
+          <option value="no">No</option>
+          <option value="yes">Sí</option>
+        </select>
+      </label>
 
-    <label>¿Hubo ampliación de plazo?
-      <select id="hasExtension">
-        <option value="no">No</option>
-        <option value="yes">Sí</option>
-      </select>
-    </label>
+      <div id="pauseSection"></div>
 
-    <div id="extensionSection"></div>
+      <label>¿Hubo ampliación de plazo?
+        <select id="hasExtension">
+          <option value="no">No</option>
+          <option value="yes">Sí</option>
+        </select>
+      </label>
 
-    <div class="button-row">
-      <button id="calculateBtn" onclick="calculate()">🖩 Calcular</button>
-      <button onclick="clearAll()">🗑 Borrar</button>
-    </div>
+      <div id="extensionSection"></div>
 
-    <div id="reporte"></div>
-    <div id="printSection" style="display:none;">
-      <button id="printBtn" onclick="openPdfReport()">🖨 Imprimir informe en PDF</button>
-      <img src="Certy_saludando.png" alt="Certy" />
-    </div>
+      <div class="button-row">
+        <button id="calculateBtn">🖩 Calcular</button>
+        <button id="clearBtn">🗑 Borrar</button>
+      </div>
+
+      <div id="reporte"></div>
+      <div id="printSection" style="display:none;">
+        <button id="printBtn">🖨 Imprimir informe en PDF</button>
+        <img src="Certy_saludando.png" alt="Certy" />
       </div>
     </div>
+  </div>
 
-    <script src="common.js"></script>
-    <script src="script.js"></script>
+  <script src="common.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>
