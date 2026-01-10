@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solicitar Paralización</title>
   <link rel="icon" type="image/png" href="Certy_cara.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles_antigravity.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
-  <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i> Menú</button>
-    <div class="logo-group">
-      <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
-      <div class="dept-group">
-        <span class="dept">Dirección Municipal de Certificaciones</span>
-        <span class="subdept">Subsecretaría de Gestión de Contrataciones de Obras Públicas</span>
-      </div>
+
+  <div class="bg-wave">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0C4FB7"
+        d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,79.6,-46.9C87.4,-34.7,90.1,-20.4,85.8,-7.4C81.5,5.6,70.2,17.2,59.6,27.1C49,37,39.1,45.2,28.7,51.4C18.3,57.6,7.4,61.8,-3.2,67.4C-13.8,72.9,-24.1,79.9,-34.3,77.5C-44.5,75.1,-54.6,63.3,-62.3,51.3C-70,39.3,-75.3,27.1,-76.8,14.5C-78.3,1.9,-76,-11.1,-69.8,-22.3C-63.6,-33.5,-53.5,-42.9,-42.6,-51.2C-31.7,-59.5,-20,-66.7,-7.4,-67.2C5.2,-67.7,29.3,-83.6,44.7,-76.4Z"
+        transform="translate(100 100)" />
+    </svg>
+  </div>
+
+  <header class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver"><i
+          class="fa-solid fa-arrow-left"></i> Volver</button>
     </div>
-    <div class="header-actions">
-      <div class="weather-container">
-        <div id="weather" class="weather"></div>
-        <div class="city-label">Neuquén Capital</div>
+    <div class="header-right">
+      <div class="weather-widget">
+        <i class="fa-solid fa-cloud-sun-rain"></i>
+        <span>Neuquén</span>
       </div>
     </div>
   </header>
 
   <div class="form-wrapper">
     <div class="container form-container">
-    <h1>Solicitar Paralización</h1>
-    <div class="intro">
-      <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
-      <p class="description">Completá los datos para solicitar la paralización.</p>
-    </div>
+      <h1>Solicitar Paralización</h1>
+      <div class="intro">
+        <img src="Certy_trabajando.png" alt="Certy trabajando" class="calc-icon">
+        <p class="description">Completá los datos para solicitar la paralización.</p>
+      </div>
       <label>N° de expediente:</label>
       <div class="expediente-input">
         <input type="text" id="expedienteNumero" class="exp-number" maxlength="6" size="6" />
@@ -42,127 +49,132 @@
         <input type="text" id="expedienteAnio" class="exp-year" maxlength="1" size="1" />
       </div>
       <small class="suggestion"><em>Ej: 00125-M-2025</em></small>
-    <div class="button-row">
-      <button onclick="buscarExpediente()">🔍 Buscar</button>
-    </div>
-    <div id="alert" class="alert-error" style="display:none;"></div>
-    <div id="successMessage" class="alert-success" style="display:none;"></div>
-    <form id="formularioParalizacion" style="display:none;">
-      <p><strong>Obra:</strong> <span id="obraNombre"></span></p>
-      <p><strong>Fecha de Inicio:</strong> <span id="fechaInicio"></span></p>
-      <p><strong>Contratista:</strong> <span id="contratista"></span></p>
-      <p><strong>Inspector/es:</strong> <span id="inspectoresEncontrados"></span></p>
-      <label for="adjudicadaPor">Adjudicada por:</label>
-      <select id="adjudicadaPor">
-        <option value="Disposición">Disposición</option>
-        <option value="Resolución">Resolución</option>
-        <option value="Decreto">Decreto</option>
-      </select>
-      <label for="numeroAdjudicacion">Número:</label>
-      <input type="text" id="numeroAdjudicacion" class="half-width" />
-      <small class="suggestion"><em>Formato solicitado "XX/202Y"</em></small>
-      <label for="fechaSolicitud">Fecha de solicitud de paralización:</label>
-      <input type="date" id="fechaSolicitud" />
-      <label for="motivo">Motivo de la paralización:</label>
-      <textarea id="motivo" rows="4"></textarea>
-      <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así como en dificultades vinculadas a la adquisición de materiales.</em></small>
       <div class="button-row">
-        <button id="sugerenciaBtn" type="button" class="sugerencia-btn">💡 Sugerencia de redacción</button>
-        <button id="colapsarSugerenciaBtn" type="button" class="collapse-btn" style="display:none;">⬆️</button>
+        <button onclick="buscarExpediente()">🔍 Buscar</button>
       </div>
-      <div id="sugerenciaSection" style="display:none;">
-        <p>Seleccione una opción:</p>
-        <div class="radio-option">
-          <input type="radio" name="opcionSugerencia" value="1" id="opcion1">
-          <label for="opcion1">Obra paralizada por poco avance de otra obra (Ej; Provisión a pavimentación).</label>
+      <div id="alert" class="alert-error" style="display:none;"></div>
+      <div id="successMessage" class="alert-success" style="display:none;"></div>
+      <form id="formularioParalizacion" style="display:none;">
+        <p><strong>Obra:</strong> <span id="obraNombre"></span></p>
+        <p><strong>Fecha de Inicio:</strong> <span id="fechaInicio"></span></p>
+        <p><strong>Contratista:</strong> <span id="contratista"></span></p>
+        <p><strong>Inspector/es:</strong> <span id="inspectoresEncontrados"></span></p>
+        <label for="adjudicadaPor">Adjudicada por:</label>
+        <select id="adjudicadaPor">
+          <option value="Disposición">Disposición</option>
+          <option value="Resolución">Resolución</option>
+          <option value="Decreto">Decreto</option>
+        </select>
+        <label for="numeroAdjudicacion">Número:</label>
+        <input type="text" id="numeroAdjudicacion" class="half-width" />
+        <small class="suggestion"><em>Formato solicitado "XX/202Y"</em></small>
+        <label for="fechaSolicitud">Fecha de solicitud de paralización:</label>
+        <input type="date" id="fechaSolicitud" />
+        <label for="motivo">Motivo de la paralización:</label>
+        <textarea id="motivo" rows="4"></textarea>
+        <small class="suggestion justify-text">En esta instancia no es necesario explayarse en el motivo, ya que es solo
+          para la apertura del expediente. <em>Ejemplo: El motivo que justifica dicha paralización radica en los plazos
+            pendientes de aprobación del proyecto ejecutivo presentado en CALF por parte de la empresa contratista, así
+            como en dificultades vinculadas a la adquisición de materiales.</em></small>
+        <div class="button-row">
+          <button id="sugerenciaBtn" type="button" class="sugerencia-btn">💡 Sugerencia de redacción</button>
+          <button id="colapsarSugerenciaBtn" type="button" class="collapse-btn" style="display:none;">⬆️</button>
         </div>
-        <div id="inputOpcion1" style="display:none; margin-left:1rem;">
-          <label>Tipo de obra relacionada:
-            <input type="text" id="tipoObra" placeholder="pavimentación/provisión/colocación" />
-          </label>
-        </div>
-        <div class="radio-option">
-          <input type="radio" name="opcionSugerencia" value="2" id="opcion2">
-          <label for="opcion2">Esperar a la aprobación de proyectos (Ej, esperar respuesta de CALF)</label>
-        </div>
-        <div id="inputOpcion2" style="display:none; margin-left:1rem;">
-          <label>Organismo interviniente:
-            <input type="text" id="organismo" placeholder="EPAS, CALF" />
-          </label>
+        <div id="sugerenciaSection" style="display:none;">
+          <p>Seleccione una opción:</p>
+          <div class="radio-option">
+            <input type="radio" name="opcionSugerencia" value="1" id="opcion1">
+            <label for="opcion1">Obra paralizada por poco avance de otra obra (Ej; Provisión a pavimentación).</label>
+          </div>
+          <div id="inputOpcion1" style="display:none; margin-left:1rem;">
+            <label>Tipo de obra relacionada:
+              <input type="text" id="tipoObra" placeholder="pavimentación/provisión/colocación" />
+            </label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="opcionSugerencia" value="2" id="opcion2">
+            <label for="opcion2">Esperar a la aprobación de proyectos (Ej, esperar respuesta de CALF)</label>
+          </div>
+          <div id="inputOpcion2" style="display:none; margin-left:1rem;">
+            <label>Organismo interviniente:
+              <input type="text" id="organismo" placeholder="EPAS, CALF" />
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="generarSugerencia" type="button" class="sugerencia-btn">⚙️ Generar</button>
+          </div>
+          <label for="textoSugerido">Texto sugerido por Certy! <img src="Certy_saludando.png" alt="Certy saludando"
+              class="robot-icon" /></label>
+          <p class="suggestion-note"><strong><em>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización"
+                mas arriba 👆</em></strong></p>
+          <textarea id="textoSugerido" rows="6"></textarea>
         </div>
         <div class="button-row">
-          <button id="generarSugerencia" type="button" class="sugerencia-btn">⚙️ Generar</button>
+          <button id="solicitarBtn" type="submit">✉️ Solicitar</button>
         </div>
-        <label for="textoSugerido">Texto sugerido por Certy! <img src="Certy_saludando.png" alt="Certy saludando" class="robot-icon" /></label>
-        <p class="suggestion-note"><strong><em>No olvides editarlo, copiarlo y pegarlo en "Motivo de la paralización" mas arriba 👆</em></strong></p>
-        <textarea id="textoSugerido" rows="6"></textarea>
-      </div>
-      <div class="button-row">
-        <button id="solicitarBtn" type="submit">✉️ Solicitar</button>
-      </div>
-    </form>
+      </form>
     </div>
   </div>
 
   <script src="common.js"></script>
   <script src="paralizacion.js"></script>
   <script>
-  const sugerenciaBtn = document.getElementById('sugerenciaBtn');
-  const sugerenciaSection = document.getElementById('sugerenciaSection');
-  const colapsarBtn = document.getElementById('colapsarSugerenciaBtn');
-  const opcionRadios = document.querySelectorAll('input[name="opcionSugerencia"]');
-  const inputOpcion1 = document.getElementById('inputOpcion1');
-  const inputOpcion2 = document.getElementById('inputOpcion2');
-  const generarBtn = document.getElementById('generarSugerencia');
-  const textoSugerido = document.getElementById('textoSugerido');
-  const motivo = document.getElementById('motivo');
+    const sugerenciaBtn = document.getElementById('sugerenciaBtn');
+    const sugerenciaSection = document.getElementById('sugerenciaSection');
+    const colapsarBtn = document.getElementById('colapsarSugerenciaBtn');
+    const opcionRadios = document.querySelectorAll('input[name="opcionSugerencia"]');
+    const inputOpcion1 = document.getElementById('inputOpcion1');
+    const inputOpcion2 = document.getElementById('inputOpcion2');
+    const generarBtn = document.getElementById('generarSugerencia');
+    const textoSugerido = document.getElementById('textoSugerido');
+    const motivo = document.getElementById('motivo');
 
-  function autoResize() {
-    this.style.height = 'auto';
-    this.style.height = this.scrollHeight + 'px';
-  }
-
-  motivo.addEventListener('input', autoResize);
-  autoResize.call(motivo);
-
-  sugerenciaBtn.addEventListener('click', () => {
-    sugerenciaSection.style.display = 'block';
-    colapsarBtn.style.display = 'inline-block';
-  });
-
-  colapsarBtn.addEventListener('click', () => {
-    sugerenciaSection.style.display = 'none';
-    colapsarBtn.style.display = 'none';
-  });
-
-  opcionRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      inputOpcion1.style.display = radio.value === '1' && radio.checked ? 'block' : 'none';
-      inputOpcion2.style.display = radio.value === '2' && radio.checked ? 'block' : 'none';
-    });
-  });
-
-  generarBtn.addEventListener('click', () => {
-    const seleccion = document.querySelector('input[name="opcionSugerencia"]:checked');
-    if (!seleccion) return;
-    let texto = '';
-    if (seleccion.value === '1') {
-      const tipo = document.getElementById('tipoObra').value.trim();
-      if (!tipo) return;
-      texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido al escaso avance de la obra de ${tipo}, indispensable para la continuidad de los trabajos. La paralización se solicita a partir del día de la fecha y hasta tanto la mencionada obra alcance el progreso necesario para permitir la reanudación.`;
-    } else if (seleccion.value === '2') {
-      const organismo = document.getElementById('organismo').value.trim();
-      if (!organismo) return;
-      texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido a la necesidad de confeccionar el proyecto correspondiente y su posterior presentación ante ${organismo}, considerando los plazos correspondientes para su aprobación por parte de dicho ente. La paralización se solicita a partir del día de la fecha y hasta tanto ${organismo} otorgue la autorización para el inicio de la obra.`;
+    function autoResize() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
     }
-    textoSugerido.value = texto;
-  });
 
-  document.getElementById('formularioParalizacion').addEventListener('submit', async function (event) {
-    event.preventDefault();
+    motivo.addEventListener('input', autoResize);
+    autoResize.call(motivo);
 
-    const successEl = document.getElementById('successMessage');
-    successEl.style.display = 'none';
+    sugerenciaBtn.addEventListener('click', () => {
+      sugerenciaSection.style.display = 'block';
+      colapsarBtn.style.display = 'inline-block';
+    });
+
+    colapsarBtn.addEventListener('click', () => {
+      sugerenciaSection.style.display = 'none';
+      colapsarBtn.style.display = 'none';
+    });
+
+    opcionRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        inputOpcion1.style.display = radio.value === '1' && radio.checked ? 'block' : 'none';
+        inputOpcion2.style.display = radio.value === '2' && radio.checked ? 'block' : 'none';
+      });
+    });
+
+    generarBtn.addEventListener('click', () => {
+      const seleccion = document.querySelector('input[name="opcionSugerencia"]:checked');
+      if (!seleccion) return;
+      let texto = '';
+      if (seleccion.value === '1') {
+        const tipo = document.getElementById('tipoObra').value.trim();
+        if (!tipo) return;
+        texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido al escaso avance de la obra de ${tipo}, indispensable para la continuidad de los trabajos. La paralización se solicita a partir del día de la fecha y hasta tanto la mencionada obra alcance el progreso necesario para permitir la reanudación.`;
+      } else if (seleccion.value === '2') {
+        const organismo = document.getElementById('organismo').value.trim();
+        if (!organismo) return;
+        texto = `Por medio de la presente se solicita la paralización de la obra de referencia debido a la necesidad de confeccionar el proyecto correspondiente y su posterior presentación ante ${organismo}, considerando los plazos correspondientes para su aprobación por parte de dicho ente. La paralización se solicita a partir del día de la fecha y hasta tanto ${organismo} otorgue la autorización para el inicio de la obra.`;
+      }
+      textoSugerido.value = texto;
+    });
+
+    document.getElementById('formularioParalizacion').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const successEl = document.getElementById('successMessage');
+      successEl.style.display = 'none';
 
       const adjudicadaPor = `${document.getElementById('adjudicadaPor').value.trim()} N° ${document.getElementById('numeroAdjudicacion').value.trim()}`;
       const numeroExpediente = `${document.getElementById('expedienteNumero').value.trim()}-M-202${document.getElementById('expedienteAnio').value.trim()}`;
@@ -184,45 +196,46 @@
         motivoResumido
       };
 
-    // Enviar como x-www-form-urlencoded (sin headers manuales para evitar preflight CORS)
-    const body = new URLSearchParams(datos);
+      // Enviar como x-www-form-urlencoded (sin headers manuales para evitar preflight CORS)
+      const body = new URLSearchParams(datos);
 
-    // URL de la Web App de Google Apps Script
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKLum59RcK3PRwD3pjGcYizU-n_jLoromsGLdclh8LFgvcGYEI38ZR4e9B0iqhQIUd/exec';
+      // URL de la Web App de Google Apps Script
+      const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKLum59RcK3PRwD3pjGcYizU-n_jLoromsGLdclh8LFgvcGYEI38ZR4e9B0iqhQIUd/exec';
 
-    const btn = document.getElementById('solicitarBtn');
-    const original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Enviando...';
+      const btn = document.getElementById('solicitarBtn');
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
 
-    try {
-      const response = await fetch(ENDPOINT, {
-        method: 'POST',
-        body // NO poner headers para que el navegador use x-www-form-urlencoded por defecto
-      });
+      try {
+        const response = await fetch(ENDPOINT, {
+          method: 'POST',
+          body // NO poner headers para que el navegador use x-www-form-urlencoded por defecto
+        });
 
-      const text = await response.text();
-      let result;
-      try { result = JSON.parse(text); } catch { result = { success: false, error: 'Respuesta no válida del servidor' }; }
+        const text = await response.text();
+        let result;
+        try { result = JSON.parse(text); } catch { result = { success: false, error: 'Respuesta no válida del servidor' }; }
 
-      if (result.success) {
-        successEl.innerHTML = '&#10004; Tu solicitud fue registrada';
-        successEl.style.display = 'block';
-        setTimeout(() => { successEl.style.display = 'none'; }, 3000);
+        if (result.success) {
+          successEl.innerHTML = '&#10004; Tu solicitud fue registrada';
+          successEl.style.display = 'block';
+          setTimeout(() => { successEl.style.display = 'none'; }, 3000);
           this.reset();
           document.getElementById('expedienteNumero').value = '';
           document.getElementById('expedienteAnio').value = '';
           this.style.display = 'none';
-      } else {
-        alert('Error: ' + (result.error || 'No se pudo enviar la solicitud.'));
+        } else {
+          alert('Error: ' + (result.error || 'No se pudo enviar la solicitud.'));
+        }
+      } catch (error) {
+        alert('Error al enviar la solicitud: ' + (error?.message || error));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = original;
       }
-    } catch (error) {
-      alert('Error al enviar la solicitud: ' + (error?.message || error));
-    } finally {
-      btn.disabled = false;
-      btn.textContent = original;
-    }
-  });
+    });
   </script>
 </body>
+
 </html>
