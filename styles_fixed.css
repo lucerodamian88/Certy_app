@@ -7,23 +7,22 @@
 /* Video Weather Effect */
 .video-weather {
   position: absolute;
-  width: 210px;
-  /* Achicado */
-  height: 210px;
+  width: 260px;
+  /* Agrandado un 25% */
+  height: 260px;
   object-fit: cover;
   z-index: 5;
-  left: -110px;
+  left: -100px;
   /* Ajustado para estar entre el texto y las figuras */
-  top: 40px;
+  top: 90px;
+  /* Bajado para centrar con el título y párrafo */
   pointer-events: none;
   transform: scale(1.3);
-  /* Aumento el zoom para asegurar que las franjas negras desaparezcan */
-  border-radius: 50%;
-  /* Ayuda a suavizar los bordes antes de la máscara */
+  /* Mantenemos el zoom para el interior del video */
 
-  /* Máscara de viñeta elíptica para suavizar más arriba y abajo */
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  /* Máscara lineal para desvanecer bordes superior e inferior y ocultar franjas */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
 
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
   animation: float-calm 4s ease-in-out infinite;
