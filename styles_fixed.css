@@ -16,14 +16,14 @@
   /* Ajustado para estar entre el texto y las figuras */
   top: 40px;
   pointer-events: none;
-  transform: scale(1.2);
-  /* Zoom para ocultar posibles franjas negras internas */
+  transform: scale(1.3);
+  /* Aumento el zoom para asegurar que las franjas negras desaparezcan */
   border-radius: 50%;
   /* Ayuda a suavizar los bordes antes de la máscara */
 
-  /* Máscara de viñeta para mezclar con el fondo */
-  -webkit-mask-image: radial-gradient(circle, black 35%, transparent 80%);
-  mask-image: radial-gradient(circle, black 35%, transparent 80%);
+  /* Máscara de viñeta elíptica para suavizar más arriba y abajo */
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
   animation: float-calm 4s ease-in-out infinite;
