@@ -4,16 +4,26 @@
 }
 
 /* Video Weather Effect */
+/* Video Weather Effect */
 .video-weather {
   position: absolute;
   width: 280px;
+  height: 280px;
+  object-fit: cover;
   z-index: 5;
   left: -150px;
   top: 0;
   pointer-events: none;
-  /* Blur edges effect */
-  mask-image: radial-gradient(circle, black 60%, transparent 95%);
-  -webkit-mask-image: radial-gradient(circle, black 60%, transparent 95%);
+  /* Complex mask: linear-gradient for top/bottom, radial for edges */
+  mask-image: 
+    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent),
+    radial-gradient(ellipse at center, black 50%, transparent 95%);
+  mask-composite: intersect;
+  -webkit-mask-image: 
+    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent),
+    radial-gradient(ellipse at center, black 50%, transparent 95%);
+  -webkit-mask-composite: source-in;
+  
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
   animation: float-calm 4s ease-in-out infinite;
 }
