@@ -60,7 +60,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   inicializarPoliza();
   inicializarMontoRedeterminacion();
+  inicializarModalConfirmacion();
 });
+
+function inicializarModalConfirmacion() {
+  const btnGenerar = document.getElementById('enviarSolicitud');
+  const modal = document.getElementById('confirmacionEnvio');
+  const btnCancelar = document.getElementById('confirmacionEnvioCancelar');
+  const btnConfirmar = document.getElementById('confirmacionEnvioAceptar');
+  const btnEnviarReal = document.getElementById('enviarSolicitudReal');
+
+  if (btnGenerar && modal) {
+    btnGenerar.addEventListener('click', () => {
+      // Logic to show modal
+      modal.classList.remove('oculto');
+      modal.setAttribute('aria-hidden', 'false');
+    });
+  }
+
+  if (btnCancelar && modal) {
+    btnCancelar.addEventListener('click', () => {
+      modal.classList.add('oculto');
+      modal.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  if (btnConfirmar && modal) {
+    btnConfirmar.addEventListener('click', () => {
+      modal.classList.add('oculto');
+      modal.setAttribute('aria-hidden', 'true');
+      if (btnEnviarReal) {
+        // Mark form as confirmed to allow submission if needed, 
+        // or just click the submit button.
+        // Assuming manejarEnvioSolicitud handles event.preventDefault() and logic.
+        btnEnviarReal.click();
+      }
+    });
+  }
+}
 
 function generarSaltos() {
   const cantidadEl = document.getElementById('cantidadSaltos');
