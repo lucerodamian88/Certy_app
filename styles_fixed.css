@@ -120,31 +120,47 @@ textarea {
   margin-left: 1rem;
 }
 
-/* Modal Confirmation */
+/* Modal Confirmation: Speech Bubble Style */
 .confirmacion-envio {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  /* Dimmed background */
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
 }
 
 .confirmacion-envio__globo {
   background: white;
   padding: 2.5rem;
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   max-width: 450px;
   width: 90%;
   text-align: center;
-  animation: slideUp 0.3s ease-out;
+  position: relative;
+  /* Required for the tail */
+  transform: translateY(0);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Speech Bubble Tail */
+.confirmacion-envio__globo::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 15px 15px 0;
+  border-style: solid;
+  border-color: white transparent transparent;
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.05));
 }
 
 .confirmacion-envio__imagen {
@@ -155,7 +171,7 @@ textarea {
 .confirmacion-envio__acciones {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-top: 2rem;
 }
 
@@ -165,11 +181,13 @@ textarea {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .confirmacion-envio__btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .confirmacion-envio__btn--principal {
@@ -178,18 +196,29 @@ textarea {
 }
 
 .confirmacion-envio__btn--secundario {
-  background: #e2e8f0;
-  color: var(--color-text-dark);
+  background: #cbd5e0;
+  /* Solid gray */
+  color: #2d3748;
 }
 
-@keyframes slideUp {
+@keyframes fadeIn {
   from {
-    transform: translateY(20px);
     opacity: 0;
   }
 
   to {
-    transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
