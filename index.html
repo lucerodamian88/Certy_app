@@ -51,8 +51,10 @@
         </p>
       </div>
 
-      <div class="hero-visual">
-        <img src="Certy_logo.png" alt="Certy Logo" class="hero-mascot-float">
+      <div class="hero-visual" id="heroVisual">
+        <img src="Certy_logo.png" alt="Certy Logo" class="hero-mascot-float" id="certyMascot">
+        <video src="Video Certy Calor.mp4" class="video-weather oculto" id="certyVideo" autoplay loop muted
+          playsinline></video>
         <div class="shape shape-platform"></div>
         <div class="shape shape-ring-gold"></div>
         <div class="shape shape-sphere"></div>
@@ -63,6 +65,36 @@
         <div class="shape shape-ring-gold-small"></div>
       </div>
     </section>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Simulación de clima - En un caso real, esto vendría de una API
+        const temperatura = 35; // Grados Celsius (Simulado > 30 para 'Caluroso')
+        const esCaluroso = temperatura > 30;
+
+        if (esCaluroso) {
+          const img = document.getElementById('certyMascot');
+          const video = document.getElementById('certyVideo');
+
+          if (img && video) {
+            img.style.display = 'none'; // Ocultar imagen original
+            video.classList.remove('oculto'); // Mostrar video
+            // El video ya tiene la clase 'video-weather' con los estilos de difuminado
+
+            // Actualizar widget de clima si existe
+            const weatherWidget = document.querySelector('.weather-widget span');
+            if (weatherWidget) {
+              weatherWidget.textContent = `Neuquén: ${temperatura}°C`;
+            }
+            const weatherIcon = document.querySelector('.weather-widget i');
+            if (weatherIcon) {
+              weatherIcon.className = 'fa-solid fa-sun'; // Cambiar icono a sol
+              weatherIcon.style.color = 'orange';
+            }
+          }
+        }
+      });
+    </script>
 
     <section class="cards-section">
       <div class="flow-line"></div>

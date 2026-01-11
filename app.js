@@ -119,7 +119,8 @@ function generarSaltos() {
         <input type="text" class="salto-acum" placeholder="NN,NN" inputmode="decimal" pattern="\\d+(?:[.,]\\d{1,2})?">
         <span class="porcentaje-signo" aria-hidden="true">%</span>
       </div>
-      <input type="text" class="salto-fecha" placeholder="MM/AA">
+      <!-- Globo MM/AA achicado a 1/3 -->
+      <input type="text" class="salto-fecha" placeholder="MM/AA" style="width: 30% !important; flex: 0 0 30%;">
     `;
     cont.appendChild(row);
   }
