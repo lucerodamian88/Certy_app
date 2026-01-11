@@ -7,24 +7,25 @@
 /* Video Weather Effect */
 .video-weather {
   position: absolute;
-  width: 280px;
-  height: 280px;
+  width: 210px;
+  /* Achicado */
+  height: 210px;
   object-fit: cover;
   z-index: 5;
-  left: -150px;
-  top: 0;
+  left: -110px;
+  /* Ajustado para estar entre el texto y las figuras */
+  top: 40px;
   pointer-events: none;
-  /* Complex mask: linear-gradient for top/bottom, radial for edges */
-  mask-image: 
-    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent),
-    radial-gradient(ellipse at center, black 50%, transparent 95%);
-  mask-composite: intersect;
-  -webkit-mask-image: 
-    linear-gradient(to bottom, transparent, black 10%, black 90%, transparent),
-    radial-gradient(ellipse at center, black 50%, transparent 95%);
-  -webkit-mask-composite: source-in;
-  
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+  transform: scale(1.2);
+  /* Zoom para ocultar posibles franjas negras internas */
+  border-radius: 50%;
+  /* Ayuda a suavizar los bordes antes de la máscara */
+
+  /* Máscara de viñeta para mezclar con el fondo */
+  -webkit-mask-image: radial-gradient(circle, black 35%, transparent 80%);
+  mask-image: radial-gradient(circle, black 35%, transparent 80%);
+
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
   animation: float-calm 4s ease-in-out infinite;
 }
 
