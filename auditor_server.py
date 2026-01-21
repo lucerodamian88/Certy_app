@@ -3,12 +3,35 @@ from flask_cors import CORS
 import os
 import tempfile
 from auditor_logic import AuditorCerty
+import json
 
 app = Flask(__name__)
-CORS(app)  # Permitir peticiones desde el frontend
+CORS(app)
 
 # Configurar API Key desde variable de entorno
 API_KEY = os.environ.get('GEMINI_API_KEY')
+
+# Modo de prueba (cambiar a False cuando la API funcione)
+TEST_MODE = True
+
+def extraer_datos_test_mode(filename):
+    """
+    Extrae datos simulados basados en el nombre del archivo para testing.
+    En producción, esto será reemplazado por Gemini.
+    """
+    # Simular datos extraídos de un PDF
+    return {
+        "items_hoja_1": [
+            {"descripcion": "Movimiento de Suelos", "porcentajes_mensuales": [20.0, 30.0, 50.0]},
+            {"descripcion": "Hormigón Armado", "porcentajes_mensuales": [25.0, 35.0, 40.0]}
+        ],
+        "datos_curva_hoja_2": {
+            "porcentajes_mensuales": [15.0, 35.0, 50.0],
+            "porcentajes_acumulados": [15.0, 50.0, 100.0],
+            "montos_mensuales": [150000.0, 350000.0, 500000.0],
+            "montos_acumulados": [150000.0, 500000.0, 1000000.0]
+        }
+    }
 
 @app.route('/audit', methods=['POST'])
 def audit_pdf():
@@ -37,8 +60,12 @@ def audit_pdf():
             # Crear instancia del auditor
             auditor = AuditorCerty(api_key=API_KEY)
             
-            # Paso 1: Extraer datos del PDF usando Gemini
-            data = auditor.extraer_datos_pdf(temp_path)
+            # Paso 1: Extraer datos del PDF
+            if TEST_MODE:
+                print(f"⚠️  MODO PRUEBA: Usando datos simulados para {file.filename}")
+                data = extraer_datos_test_mode(file.filename)
+            else:
+                data = auditor.extraer_datos_pdf(temp_path)
             
             # Paso 2: Realizar auditoría matemática
             errores = auditor.auditar_plan_trabajo(data)
@@ -50,13 +77,15 @@ def audit_pdf():
                     'message': 'APROBADO ✓',
                     'results': [
                         {'type': 'success', 'text': 'Todos los controles pasaron correctamente.'}
-                    ]
+                    ],
+                    'test_mode': TEST_MODE
                 })
             else:
                 return jsonify({
                     'status': 'error',
                     'message': 'ERRORES DETECTADOS',
-                    'results': [{'type': 'error', 'text': error} for error in errores]
+                    'results': [{'type': 'error', 'text': error} for error in errores],
+                    'test_mode': TEST_MODE
                 })
         
         finally:
@@ -74,15 +103,40 @@ def audit_pdf():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Endpoint para verificar que el servidor está funcionando."""
-    return jsonify({'status': 'ok', 'message': 'Auditor Certy Backend en funcionamiento'})
+    return jsonify({
+        'status': 'ok',
+        'message': 'Auditor Certy Backend en funcionamiento',
+        'test_mode': TEST_MODE
+    })
+
+@app.route('/toggle-test-mode', methods=['POST'])
+def toggle_test_mode():
+    """Endpoint para alternar entre modo prueba y modo producción."""
+    global TEST_MODE
+    TEST_MODE = not TEST_MODE
+    return jsonify({
+        'test_mode': TEST_MODE,
+        'message': f"Modo {'PRUEBA' if TEST_MODE else 'PRODUCCIÓN'} activado"
+    })
 
 if __name__ == '__main__':
-    if not API_KEY:
-        print("⚠️  ADVERTENCIA: No se encontró GEMINI_API_KEY en las variables de entorno.")
-        print("   Configura tu API key antes de usar el auditor:")
-        print("   set GEMINI_API_KEY=tu_api_key_aqui")
-    else:
-        print("✓ API Key configurada")
+    print("\n" + "="*60)
+    print("   AUDITOR CERTY - Servidor Backend")
+    print("="*60)
     
-    print("\n🚀 Servidor Auditor Certy iniciado en http://localhost:5000")
+    if TEST_MODE:
+        print("⚠️  MODO PRUEBA ACTIVADO")
+        print("   Se usarán datos simulados en lugar de Gemini API")
+        print("   Para usar Gemini real, cambia TEST_MODE = False")
+    else:
+        if not API_KEY:
+            print("⚠️  ADVERTENCIA: No se encontró GEMINI_API_KEY")
+            print("   Configura tu API key:")
+            print("   $env:GEMINI_API_KEY='tu_api_key_aqui'")
+        else:
+            print("✓ API Key configurada")
+    
+    print("\n🚀 Servidor iniciado en http://localhost:5000")
+    print("="*60 + "\n")
+    
     app.run(debug=True, port=5000)

@@ -197,16 +197,27 @@
                     loader.style.display = "none";
                     resultContainer.style.display = "block";
 
+                    // Mostrar modo de prueba si está activo
+                    let testModeWarning = '';
+                    if (data.test_mode) {
+                        testModeWarning = `
+                        <div class="audit-alert" style="background: #fffbeb; border: 1px solid #fbbf24; color: #92400e; margin-bottom: 1rem;">
+                            <i class="fa-solid fa-flask"></i>
+                            <span><strong>MODO PRUEBA:</strong> Usando datos simulados. Para usar Gemini real, cambia TEST_MODE = False en auditor_server.py</span>
+                        </div>
+                    `;
+                    }
+
                     // Mostrar resultados reales del backend
                     if (data.results && data.results.length > 0) {
-                        resultsList.innerHTML = data.results.map(res => `
+                        resultsList.innerHTML = testModeWarning + data.results.map(res => `
                         <div class="audit-alert ${res.type === 'success' ? 'alert-success' : 'alert-error'}">
                             <i class="fa-solid ${res.type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
                             <span>${res.text}</span>
                         </div>
                     `).join('');
                     } else {
-                        resultsList.innerHTML = `
+                        resultsList.innerHTML = testModeWarning + `
                         <div class="audit-alert alert-error">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                             <span>Error: No se recibieron resultados del servidor.</span>
