@@ -17,32 +17,27 @@ class AuditorCerty:
         Extrae datos del PDF usando Gemini 1.5 Flash.
         """
         prompt = """
-Analiza este documento PDF (Plan de Trabajo) e identifica la tabla de ítems y la curva de inversión.
-Extrae los datos en formato JSON estricto.
+Analiza el PDF (Plan de Trabajo).
+HOJA 1 (Tabla de Ítems):
+- Extrae cada ítem numérico (1.1, 2.1, etc.).
+- Para `porcentajes_mensuales`: Busca solo los valores en columnas "Mes X". IGNORA la columna "Inc." (Incidencia).
 
-INSTRUCCIONES CLAVE PARA LA EXTRACCIÓN:
-1. Para "items_hoja_1":
-   - Extrae CADA fila numérica (1, 1.1, 2, 2.1, etc.).
-   - En "porcentajes_mensuales": Extrae SOLAMENTE los valores que están debajo de las columnas encabezadas como "Mes 1", "Mes 2", "Mes 3", etc.
-   - ⛔ IMPORTANTE: IGNORA y EXCLUYE explícitamente la columna "Inc." o "Incidencia". Ese valor NO es un avance mensual.
-   - Si una celda de mes está vacía, asume 0.0.
+HOJA 2 (Curva de Inversiones):
+La tabla suele tener filas pegadas. Para separar los datos, usa esta lógica ESTRICTA basada en los valores:
 
-2. Para "datos_curva_hoja_2":
-   - Extrae los valores de la tabla inferior de curva de inversiones.
+1. `porcentajes_mensuales`: Busca una fila donde los números sean menores a 100 y NO sean siempre crecientes. (Ej: 39.5, 36.8, 16.2...).
+2. `porcentajes_acumulados`: Busca una fila donde los números sean menores a 100 y SIEMPRE crecientes (terminando en 100.00).
+3. `montos_mensuales`: Busca una fila con valores MONETARIOS ALTOS (millones) que suben y bajan según el mes.
+4. `montos_acumulados`: Busca una fila con valores MONETARIOS ALTOS que SIEMPRE crecen, terminando en el monto total del contrato.
 
-Estructura JSON requerida:
+Estructura JSON:
 {
-  "items_hoja_1": [
-    {
-      "descripcion": "Nombre del ítem (ej: ARBOLES...)",
-      "porcentajes_mensuales": [float, float, ...] 
-    }
-  ],
+  "items_hoja_1": [{"descripcion": "string", "porcentajes_mensuales": [float...]}],
   "datos_curva_hoja_2": {
-    "porcentajes_mensuales": [float, ...],
-    "porcentajes_acumulados": [float, ...],
-    "montos_mensuales": [float, ...],
-    "montos_acumulados": [float, ...]
+    "porcentajes_mensuales": [float...],
+    "porcentajes_acumulados": [float...],
+    "montos_mensuales": [float...],
+    "montos_acumulados": [float...]
   }
 }
 Responde ÚNICAMENTE con el JSON válido.

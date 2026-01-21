@@ -15,7 +15,7 @@ API_KEY = os.environ.get('GEMINI_API_KEY')
 # Modo de prueba (cambiar a False cuando la API funcione)
 # True = Usa parser local de PDF (sin Gemini)
 # False = Usa Gemini API
-TEST_MODE = True
+TEST_MODE = False
 
 @app.route('/audit', methods=['POST'])
 def audit_pdf():
