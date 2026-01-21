@@ -1,0 +1,73 @@
+==========================================================
+  AUDITOR CERTY - INSTRUCCIONES ACTUALIZADAS
+==========================================================
+
+✅ PROBLEMA SOLUCIONADO
+
+Ahora el sistema SÍ lee y analiza tu PDF REAL usando un parser local (pdfplumber).
+Ya NO usa datos falsos hardcodeados.
+
+==========================================================
+CÓMO USAR:
+==========================================================
+
+1. REINICIA EL SERVIDOR
+
+   - Detén el servidor actual (Ctrl + C)
+   - Vuelve a iniciar:
+   
+     python auditor_server.py
+
+   Deberías ver:
+   
+   ⚠️  MODO PRUEBA ACTIVADO
+      Se usará parser LOCAL de PDF (pdfplumber)
+      Lectura: SÍ analiza el PDF real
+
+2. SUBE TU PDF
+
+   - Abre auditor.html en tu navegador
+   - Sube tu PDF que NO suma 100%
+   - AHORA SÍ debería detectar el error
+
+==========================================================
+QUÉ CAMBIÓ:
+==========================================================
+
+ANTES:
+  ❌ Modo prueba = datos falsos (siempre 100%)
+  
+AHORA:
+  ✅ Modo prueba = lee el PDF REAL con pdfplumber
+  ✅ Detecta los valores VERDADEROS del documento
+  ✅ Funciona SIN necesidad de Gemini API
+
+==========================================================
+MODOS DISPONIBLES:
+==========================================================
+
+MODO PRUEBA (actual - TEST_MODE = True):
+  📄 Lee PDFs con pdfplumber (librería Python)
+  🔍 Extrae tablas y números automáticamente
+  ⚡ No necesita API key ni internet para Gemini
+  ⚠️  Menos preciso que Gemini (parsing básico)
+
+MODO PRODUCCIÓN (TEST_MODE = False):
+  🤖 Usa Gemini 1.5 Flash (IA)
+  🎯 Más preciso y robusto
+  🔑 Requiere API key y conexión a Google
+
+==========================================================
+PRÓXIMOS PASOS:
+==========================================================
+
+1. Reinicia el servidor
+2. Sube tu PDF con errores
+3. Verifica que AHORA SÍ detecte los problemas reales
+
+Si funciona correctamente, ya tienes el sistema operativo.
+
+Para usar Gemini en el futuro:
+  - Edita auditor_server.py
+  - Cambia línea 16: TEST_MODE = False
+  - Configura API key: $env:GEMINI_API_KEY="tu_key"

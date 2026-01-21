@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import tempfile
 from auditor_logic import AuditorCerty
+from pdf_parser_local import extraer_datos_pdf_local
 import json
 
 app = Flask(__name__)
@@ -12,26 +13,9 @@ CORS(app)
 API_KEY = os.environ.get('GEMINI_API_KEY')
 
 # Modo de prueba (cambiar a False cuando la API funcione)
+# True = Usa parser local de PDF (sin Gemini)
+# False = Usa Gemini API
 TEST_MODE = True
-
-def extraer_datos_test_mode(filename):
-    """
-    Extrae datos simulados basados en el nombre del archivo para testing.
-    En producción, esto será reemplazado por Gemini.
-    """
-    # Simular datos extraídos de un PDF
-    return {
-        "items_hoja_1": [
-            {"descripcion": "Movimiento de Suelos", "porcentajes_mensuales": [20.0, 30.0, 50.0]},
-            {"descripcion": "Hormigón Armado", "porcentajes_mensuales": [25.0, 35.0, 40.0]}
-        ],
-        "datos_curva_hoja_2": {
-            "porcentajes_mensuales": [15.0, 35.0, 50.0],
-            "porcentajes_acumulados": [15.0, 50.0, 100.0],
-            "montos_mensuales": [150000.0, 350000.0, 500000.0],
-            "montos_acumulados": [150000.0, 500000.0, 1000000.0]
-        }
-    }
 
 @app.route('/audit', methods=['POST'])
 def audit_pdf():
@@ -62,8 +46,8 @@ def audit_pdf():
             
             # Paso 1: Extraer datos del PDF
             if TEST_MODE:
-                print(f"⚠️  MODO PRUEBA: Usando datos simulados para {file.filename}")
-                data = extraer_datos_test_mode(file.filename)
+                print(f"⚠️  MODO PRUEBA: Usando parser local (pdfplumber) para {file.filename}")
+                data = extraer_datos_pdf_local(temp_path)
             else:
                 data = auditor.extraer_datos_pdf(temp_path)
             
@@ -126,8 +110,9 @@ if __name__ == '__main__':
     
     if TEST_MODE:
         print("⚠️  MODO PRUEBA ACTIVADO")
-        print("   Se usarán datos simulados en lugar de Gemini API")
-        print("   Para usar Gemini real, cambia TEST_MODE = False")
+        print("   Se usará parser LOCAL de PDF (pdfplumber)")
+        print("   Lectura: SÍ analiza el PDF real")
+        print("   Para usar Gemini API, cambia TEST_MODE = False")
     else:
         if not API_KEY:
             print("⚠️  ADVERTENCIA: No se encontró GEMINI_API_KEY")
