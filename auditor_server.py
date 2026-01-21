@@ -109,19 +109,19 @@ if __name__ == '__main__':
     print("="*60)
     
     if TEST_MODE:
-        print("⚠️  MODO PRUEBA ACTIVADO")
-        print("   Se usará parser LOCAL de PDF (pdfplumber)")
-        print("   Lectura: SÍ analiza el PDF real")
+        print("[!] MODO PRUEBA ACTIVADO")
+        print("   Se usara parser LOCAL de PDF (pdfplumber)")
+        print("   Lectura: SI analiza el PDF real")
         print("   Para usar Gemini API, cambia TEST_MODE = False")
     else:
         if not API_KEY:
-            print("⚠️  ADVERTENCIA: No se encontró GEMINI_API_KEY")
+            print("[!] ADVERTENCIA: No se encontro GEMINI_API_KEY")
             print("   Configura tu API key:")
             print("   $env:GEMINI_API_KEY='tu_api_key_aqui'")
         else:
-            print("✓ API Key configurada")
+            print("[OK] API Key configurada")
     
-    print("\n🚀 Servidor iniciado en http://localhost:5000")
+    print("\n[*] Servidor iniciado en http://localhost:5000")
     print("="*60 + "\n")
     
     app.run(debug=True, port=5000)

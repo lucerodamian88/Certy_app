@@ -50,6 +50,7 @@ def extraer_datos_pdf_local(pdf_path: str) -> Dict:
     """
     Extrae datos de un PDF de Plan de Trabajo usando pdfplumber.
     Intenta detectar automáticamente las tablas y porcentajes.
+    EXCLUYE explícitamente la columna "Inc." o "Incidencia".
     """
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -66,11 +67,46 @@ def extraer_datos_pdf_local(pdf_path: str) -> Dict:
                 page1 = pdf.pages[0]
                 tabla = extraer_tabla_como_matriz(page1)
                 
-                if tabla:
+                if tabla and len(tabla) > 1:
+                    # Analizar el header para detectar columnas
+                    header = tabla[0] if tabla[0] else []
+                    
+                    # Identificar índices de columnas "Mes" (excluir "Inc.")
+                    indices_meses = []
+                    for i, celda in enumerate(header):
+                        if celda:
+                            celda_lower = celda.lower().strip()
+                            # Incluir si es "Mes X" pero NO si es "Inc" o "Incidencia"
+                            if 'mes' in celda_lower and 'inc' not in celda_lower:
+                                indices_meses.append(i)
+                    
+                    # Si no encontramos headers explícitos, usar heurística
+                    if not indices_meses:
+                        # Asumir que las columnas 1, 2, 3... son meses (excluyendo la última si parece Inc.)
+                        # Típicamente: [Descripción, Mes1, Mes2, Mes3, Inc.]
+                        for i in range(1, len(header)):
+                            # Saltar la última columna si tiene números muy altos (>100 = probablemente Inc.)
+                            indices_meses.append(i)
+                    
+                    # Extraer datos de cada fila
                     for fila in tabla[1:]:  # Saltar header
                         if fila and len(fila) > 0:
                             descripcion = fila[0] if fila[0] else "Item"
-                            porcentajes = extraer_porcentajes_de_fila(fila[1:])
+                            
+                            # Extraer SOLO las columnas de meses (no Inc.)
+                            porcentajes = []
+                            for idx in indices_meses:
+                                if idx < len(fila) and fila[idx]:
+                                    nums = extraer_numeros_de_texto(fila[idx])
+                                    # Filtrar: solo porcentajes mensuales (0-100)
+                                    # Excluir valores muy altos que podrían ser Inc. (>100)
+                                    porcentajes.extend([n for n in nums if 0 <= n <= 100])
+                            
+                            # Limitar a los primeros N meses según los headers detectados
+                            if indices_meses and porcentajes:
+                                # Tomar solo tantos valores como columnas "Mes" detectadas
+                                num_meses = len(indices_meses)
+                                porcentajes = porcentajes[:num_meses]
                             
                             if porcentajes:
                                 items_hoja_1.append({

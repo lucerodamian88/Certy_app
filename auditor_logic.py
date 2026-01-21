@@ -17,24 +17,35 @@ class AuditorCerty:
         Extrae datos del PDF usando Gemini 1.5 Flash.
         """
         prompt = """
-        Analiza este documento PDF (Plan de Trabajo) y extrae los datos requeridos en formato JSON estricto.
-        Estructura requerida:
-        {
-          "items_hoja_1": [
-            {
-              "descripcion": "Nombre del ítem",
-              "porcentajes_mensuales": [float, float, ...]
-            }
-          ],
-          "datos_curva_hoja_2": {
-            "porcentajes_mensuales": [float, ...],
-            "porcentajes_acumulados": [float, ...],
-            "montos_mensuales": [float, ...],
-            "montos_acumulados": [float, ...]
-          }
-        }
-        Asegúrate de que los números sean floats. Si un valor no está presente, usa 0.0.
-        No incluyas texto fuera del JSON. Responde ÚNICAMENTE con el JSON válido.
+Analiza este documento PDF (Plan de Trabajo) e identifica la tabla de ítems y la curva de inversión.
+Extrae los datos en formato JSON estricto.
+
+INSTRUCCIONES CLAVE PARA LA EXTRACCIÓN:
+1. Para "items_hoja_1":
+   - Extrae CADA fila numérica (1, 1.1, 2, 2.1, etc.).
+   - En "porcentajes_mensuales": Extrae SOLAMENTE los valores que están debajo de las columnas encabezadas como "Mes 1", "Mes 2", "Mes 3", etc.
+   - ⛔ IMPORTANTE: IGNORA y EXCLUYE explícitamente la columna "Inc." o "Incidencia". Ese valor NO es un avance mensual.
+   - Si una celda de mes está vacía, asume 0.0.
+
+2. Para "datos_curva_hoja_2":
+   - Extrae los valores de la tabla inferior de curva de inversiones.
+
+Estructura JSON requerida:
+{
+  "items_hoja_1": [
+    {
+      "descripcion": "Nombre del ítem (ej: ARBOLES...)",
+      "porcentajes_mensuales": [float, float, ...] 
+    }
+  ],
+  "datos_curva_hoja_2": {
+    "porcentajes_mensuales": [float, ...],
+    "porcentajes_acumulados": [float, ...],
+    "montos_mensuales": [float, ...],
+    "montos_acumulados": [float, ...]
+  }
+}
+Responde ÚNICAMENTE con el JSON válido.
         """
         
         try:
