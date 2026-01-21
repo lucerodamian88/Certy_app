@@ -29,15 +29,24 @@
   <header class="app-header">
     <div class="header-left">
       <div class="logo-text">
-        <span>NEUQUÉN CAPITAL</span>
         <img src="NeuquénCapital_logo.png" alt="Neuquén Capital">
       </div>
     </div>
     <div class="header-right">
       <a href="#" class="nav-link">Home</a>
       <div class="weather-widget">
-        <i class="fa-solid fa-cloud-sun-rain"></i>
-        <span>Neuquén: 24°C</span>
+        <div class="weather-day">
+          <span>Hoy: 37°C</span>
+          <i class="fa-solid fa-sun" style="color: #FFD700;"></i>
+        </div>
+        <div class="weather-day">
+          <span>Mañana: 38°C</span>
+          <i class="fa-solid fa-sun" style="color: #FFD700;"></i>
+        </div>
+        <div class="weather-day">
+          <span>Pasado: 32°C</span>
+          <i class="fa-solid fa-sun" style="color: #FFD700;"></i>
+        </div>
       </div>
     </div>
   </header>
@@ -45,18 +54,15 @@
   <main class="main-container">
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">Tu asistente para una gestión precisa</h1>
+        <h1 class="hero-title">Criterios unificados, gestión acelerada.</h1>
         <p class="hero-text">
-          Optimiza tus certificaciones, calcula días y fojas con precisión y mantén el control de tus proyectos y obras.
-          La inteligencia artificial al servicio de tu trabajo diario.
+          Olvidate de los errores de tipeo y la interpretación manual. Esta plataforma ayuda a estructurar el proceso de
+          certificación para garantizar precisión absoluta y fluidez administrativa. Menos burocracia, más ejecución.
         </p>
       </div>
 
       <div class="hero-visual" id="heroVisual">
         <img src="Certy_logo.png" alt="Certy Logo" class="hero-mascot-float" id="certyMascot">
-        <video
-          src="https://beygczwjpykqubdwrgdv.supabase.co/storage/v1/object/sign/web/Crea_una_transicin_202601111302_3cwd8.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82OGMxYjJiMS01MGVhLTQ3ZDUtYmE3ZC01MTViY2I1M2UwNzEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3ZWIvQ3JlYV91bmFfdHJhbnNpY2luXzIwMjYwMTExMTMwMl8zY3dkOC5tcDQiLCJpYXQiOjE3NjgxNjI3NTAsImV4cCI6MTc5OTY5ODc1MH0.N4Zko4MmOCk7ITR-Evf4iphinuQMHOn4NWmsmIuPKwI"
-          class="video-weather oculto" id="certyVideo" autoplay loop muted playsinline></video>
         <div class="shape shape-platform"></div>
         <div class="shape shape-ring-gold"></div>
         <div class="shape shape-sphere"></div>
@@ -69,33 +75,7 @@
     </section>
 
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        // Simulación de clima - En un caso real, esto vendría de una API
-        const temperatura = 35; // Grados Celsius (Simulado > 30 para 'Caluroso')
-        const esCaluroso = temperatura > 30;
-
-        if (esCaluroso) {
-          const img = document.getElementById('certyMascot');
-          const video = document.getElementById('certyVideo');
-
-          if (img && video) {
-            img.style.display = 'none'; // Ocultar imagen original
-            video.classList.remove('oculto'); // Mostrar video
-            // El video ya tiene la clase 'video-weather' con los estilos de difuminado
-
-            // Actualizar widget de clima si existe
-            const weatherWidget = document.querySelector('.weather-widget span');
-            if (weatherWidget) {
-              weatherWidget.textContent = `Neuquén: ${temperatura}°C`;
-            }
-            const weatherIcon = document.querySelector('.weather-widget i');
-            if (weatherIcon) {
-              weatherIcon.className = 'fa-solid fa-sun'; // Cambiar icono a sol
-              weatherIcon.style.color = 'orange';
-            }
-          }
-        }
-      });
+      // El clima se ha fijado según el pronóstico actual para Neuquén
     </script>
 
     <section class="cards-section">
@@ -143,7 +123,8 @@
   </main>
 
   <footer class="app-footer">
-    <p>&copy; 2025 Dirección Municipal de Certificaciones. Neuquén Capital.</p>
+    <p>&copy; 2026 Dirección General de Certificaciones. Subsecretaria de Gestión de Contrataciones de Obras Públicas.
+      MUNICIPALIDAD DE NEUQUEN</p>
     <a href="https://wa.me/2995430011" target="_blank" class="contact-link">
       <i class="fa-brands fa-whatsapp"></i> Cr. Damián Lucero
     </a>
