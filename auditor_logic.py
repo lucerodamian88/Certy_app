@@ -34,27 +34,33 @@ class AuditorCerty:
           }
         }
         Asegúrate de que los números sean floats. Si un valor no está presente, usa 0.0.
-        No incluyas texto fuera del JSON.
+        No incluyas texto fuera del JSON. Responde ÚNICAMENTE con el JSON válido.
         """
         
-        # En un entorno real, subiríamos el archivo a la API de Gemini
-        # sample_file = genai.upload_file(path=pdf_path, display_name="Plan de Trabajo")
-        # response = self.model.generate_content([sample_file, prompt])
-        
-        # Simulación de respuesta para propósitos de demostración técnica
-        # En la implementación real, esto procesará el archivo mediante genai.upload_file
-        return {
-            "items_hoja_1": [
-                {"descripcion": "Movimiento de Suelos", "porcentajes_mensuales": [20.0, 30.0, 50.0]},
-                {"descripcion": "Hormigón Armado", "porcentajes_mensuales": [10.0, 40.0, 40.0]} # Error intencional: suma 90
-            ],
-            "datos_curva_hoja_2": {
-                "porcentajes_mensuales": [15.0, 35.0, 50.0],
-                "porcentajes_acumulados": [15.0, 50.0, 100.0],
-                "montos_mensuales": [1500.0, 3500.0, 5000.0],
-                "montos_acumulados": [1500.0, 5000.0, 10000.0]
-            }
-        }
+        try:
+            # Subir el archivo PDF a la API de Gemini
+            sample_file = genai.upload_file(path=pdf_path, display_name="Plan de Trabajo")
+            
+            # Generar el contenido usando el modelo
+            response = self.model.generate_content([sample_file, prompt])
+            
+            # Extraer el texto de la respuesta
+            response_text = response.text.strip()
+            
+            # Limpiar markdown code blocks si están presentes
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.startswith("```"):
+                response_text = response_text[3:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            
+            # Parsear JSON
+            data = json.loads(response_text.strip())
+            return data
+            
+        except Exception as e:
+            raise Exception(f"Error al procesar PDF con Gemini: {str(e)}")
 
     def auditar_plan_trabajo(self, data: Dict) -> List[str]:
         """

@@ -183,25 +183,48 @@
             loader.style.display = "block";
             resultContainer.style.display = "none";
 
-            // Simulación de envío al backend (Python)
-            setTimeout(() => {
-                loader.style.display = "none";
-                resultContainer.style.display = "block";
+            // Crear FormData para enviar el archivo
+            const formData = new FormData();
+            formData.append('file', file);
 
-                // Estos resultados vendrían de la ejecución de auditor_logic.py
-                const mockResults = [
-                    { type: 'success', text: 'Hoja 1: Todos los ítems suman 100%.' },
-                    { type: 'error', text: 'Hoja 2: La suma de montos mensuales ($1.200.500) no coincide con el monto total ($1.200.000).' },
-                    { type: 'success', text: 'Consistencia horizontal: Verificada correctamente mes a mes.' }
-                ];
+            // Enviar al backend Python (Flask)
+            fetch('http://localhost:5000/audit', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = "none";
+                    resultContainer.style.display = "block";
 
-                resultsList.innerHTML = mockResults.map(res => `
-                    <div class="audit-alert ${res.type === 'success' ? 'alert-success' : 'alert-error'}">
-                        <i class="fa-solid ${res.type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
-                        <span>${res.text}</span>
+                    // Mostrar resultados reales del backend
+                    if (data.results && data.results.length > 0) {
+                        resultsList.innerHTML = data.results.map(res => `
+                        <div class="audit-alert ${res.type === 'success' ? 'alert-success' : 'alert-error'}">
+                            <i class="fa-solid ${res.type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
+                            <span>${res.text}</span>
+                        </div>
+                    `).join('');
+                    } else {
+                        resultsList.innerHTML = `
+                        <div class="audit-alert alert-error">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Error: No se recibieron resultados del servidor.</span>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    loader.style.display = "none";
+                    resultContainer.style.display = "block";
+
+                    resultsList.innerHTML = `
+                    <div class="audit-alert alert-error">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Error de conexión: ${error.message}. Asegúrate de que el servidor esté ejecutándose en http://localhost:5000</span>
                     </div>
-                `).join('');
-            }, 3000);
+                `;
+                });
         }
     </script>
 </body>
