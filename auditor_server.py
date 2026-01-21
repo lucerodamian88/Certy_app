@@ -46,7 +46,7 @@ def audit_pdf():
             
             # Paso 1: Extraer datos del PDF
             if TEST_MODE:
-                print(f"⚠️  MODO PRUEBA: Usando parser local (pdfplumber) para {file.filename}")
+                print(f"[!] MODO PRUEBA: Usando parser local (pdfplumber) para {file.filename}")
                 data = extraer_datos_pdf_local(temp_path)
             else:
                 data = auditor.extraer_datos_pdf(temp_path)
