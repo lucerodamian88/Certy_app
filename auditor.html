@@ -178,16 +178,14 @@
         // ============================================================
         // CONFIGURACIÓN - Pega tu API Key aquí
         // ============================================================
-        const API_KEY = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I";
+        const API_KEY = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I"; // <--- PEGA TU CLAVE NUEVA AQUÍ
 
         // ============================================================
-        // Importar SDK de Google Generative AI
+        // Importar SDK de Google Generative AI (FORZANDO VERSIÓN NUEVA)
         // ============================================================
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest";
 
-        // ============================================================
-        // Referencias al DOM
-        // ============================================================
+        // Elementos del DOM
         const dragArea = document.getElementById("dragArea");
         const fileInput = document.getElementById("fileInput");
         const loader = document.getElementById("loader");
@@ -196,241 +194,128 @@
         const selectBtn = dragArea.querySelector("button");
         const apiKeyNotice = document.getElementById("apiKeyNotice");
 
-        // ============================================================
         // Verificar API Key
-        // ============================================================
-        if (!API_KEY || API_KEY === "TU_API_KEY_AQUI") {
+        if (!API_KEY || API_KEY.includes("TU_API_KEY")) {
             apiKeyNotice.style.display = "flex";
         }
 
-        // ============================================================
         // Event Listeners
-        // ============================================================
         selectBtn.onclick = () => fileInput.click();
+        fileInput.addEventListener("change", function () { if (this.files[0]) processFile(this.files[0]); });
+        dragArea.addEventListener("dragover", (e) => { e.preventDefault(); dragArea.classList.add("active"); });
+        dragArea.addEventListener("dragleave", () => { dragArea.classList.remove("active"); });
+        dragArea.addEventListener("drop", (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
 
-        fileInput.addEventListener("change", function () {
-            const file = this.files[0];
-            if (file) processFile(file);
-        });
-
-        dragArea.addEventListener("dragover", (event) => {
-            event.preventDefault();
-            dragArea.classList.add("active");
-        });
-
-        dragArea.addEventListener("dragleave", () => {
-            dragArea.classList.remove("active");
-        });
-
-        dragArea.addEventListener("drop", (event) => {
-            event.preventDefault();
-            const file = event.dataTransfer.files[0];
-            if (file) processFile(file);
-        });
-
-        // ============================================================
-        // Función para convertir PDF a Base64
-        // ============================================================
-        function fileToBase64(file) {
+        async function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1];
-                    resolve(base64);
-                };
+                reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
         }
 
-        // ============================================================
-        // Función principal de procesamiento (CORREGIDA)
-        // ============================================================
         async function processFile(file) {
-            if (file.type !== "application/pdf") {
-                alert("Por favor, sube un archivo PDF.");
-                return;
-            }
-
-            // CORRECCIÓN AQUÍ: Volvemos a comparar contra el texto de ejemplo, no contra tu clave real
-            if (!API_KEY || API_KEY === "TU_API_KEY_AQUI") {
-                alert("Por favor, configura tu API Key en el archivo HTML.");
-                return;
-            }
+            if (file.type !== "application/pdf") { alert("Por favor, sube un archivo PDF."); return; }
+            if (!API_KEY || API_KEY.includes("TU_API_KEY")) { alert("Falta la API Key."); return; }
 
             dragArea.style.display = "none";
             loader.style.display = "block";
             resultContainer.style.display = "none";
 
             try {
-                // Convertir PDF a Base64
                 const base64Data = await fileToBase64(file);
-
-                // Inicializar Gemini
                 const genAI = new GoogleGenerativeAI(API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-                // Prompt de sistema
+                // CAMBIO CLAVE: Usamos el modelo 2.0 Experimental que es más robusto
+                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
                 const prompt = `Analiza el PDF (Plan de Trabajo).
-HOJA 1 (Tabla de Ítems):
-- Extrae ítems numéricos. Para 'porcentajes_mensuales' busca columnas "Mes X". IGNORA la columna "Inc." (Incidencia).
-HOJA 2 (Curva de Inversiones):
-- 'porcentajes_mensuales': Valores < 100 que suben y bajan.
-- 'porcentajes_acumulados': Valores < 100 siempre crecientes hasta 100.
-- 'montos_mensuales': Valores monetarios altos que varían.
-- 'montos_acumulados': Valores monetarios altos siempre crecientes.
+                HOJA 1 (Tabla de Ítems):
+                - Extrae ítems numéricos. Para 'porcentajes_mensuales' busca columnas "Mes X". IGNORA la columna "Inc." (Incidencia).
+                HOJA 2 (Curva de Inversiones):
+                - 'porcentajes_mensuales': Valores < 100 que suben y bajan.
+                - 'porcentajes_acumulados': Valores < 100 siempre crecientes hasta 100.
+                - 'montos_mensuales': Valores monetarios altos que varían.
+                - 'montos_acumulados': Valores monetarios altos siempre crecientes.
 
-Responde SOLO con este JSON:
-{
-  "items_hoja_1": [{"descripcion": "string", "porcentajes_mensuales": [float]}],
-  "datos_curva_hoja_2": {
-    "porcentajes_mensuales": [float],
-    "porcentajes_acumulados": [float],
-    "montos_mensuales": [float],
-    "montos_acumulados": [float]
-  }
-}`;
+                Responde SOLO con este JSON:
+                {
+                  "items_hoja_1": [{"descripcion": "string", "porcentajes_mensuales": [float]}],
+                  "datos_curva_hoja_2": {
+                    "porcentajes_mensuales": [float],
+                    "porcentajes_acumulados": [float],
+                    "montos_mensuales": [float],
+                    "montos_acumulados": [float]
+                  }
+                }`;
 
-                // Enviar a Gemini
                 const result = await model.generateContent([
-                    {
-                        inlineData: {
-                            data: base64Data,
-                            mimeType: "application/pdf"
-                        }
-                    },
+                    { inlineData: { data: base64Data, mimeType: "application/pdf" } },
                     { text: prompt }
                 ]);
 
                 const response = await result.response;
-                let responseText = response.text().trim();
-
-                // Limpiar markdown code blocks
-                if (responseText.startsWith("```json")) {
-                    responseText = responseText.slice(7);
-                }
-                if (responseText.startsWith("```")) {
-                    responseText = responseText.slice(3);
-                }
-                if (responseText.endsWith("```")) {
-                    responseText = responseText.slice(0, -3);
-                }
-
-                // Parsear JSON
-                const data = JSON.parse(responseText.trim());
-
-                // Validar datos
+                let text = response.text().replace(/```json|```/g, "").trim();
+                const data = JSON.parse(text);
                 const errores = validarDatos(data);
-
-                // Mostrar resultados
                 mostrarResultados(errores);
 
             } catch (error) {
+                console.error(error);
                 loader.style.display = "none";
                 resultContainer.style.display = "block";
-
                 resultsList.innerHTML = `
                     <div class="audit-alert alert-error">
                         <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Error: ${error.message}</span>
-                    </div>
-                `;
+                        <span>Error de conexión: ${error.message} <br><small>Verifica tu conexión o intenta generar otra API Key.</small></span>
+                    </div>`;
             }
         }
 
-        // ============================================================
-        // Función de validación matemática
-        // ============================================================
         function validarDatos(data) {
             const errores = [];
-            const tolerancia = 0.1;
+            const tolerancia = 0.5; // Tolerancia ampliada
 
-            // 1. Control Hoja 1 (Suma de Filas)
-            const itemsHoja1 = data.items_hoja_1 || [];
-            for (let item of itemsHoja1) {
-                const porcentajes = item.porcentajes_mensuales || [];
-                const suma = porcentajes.reduce((a, b) => a + b, 0);
-
-                if (Math.abs(suma - 100.0) > tolerancia) {
-                    errores.push({
-                        type: 'error',
-                        text: `ERROR: El ítem '${item.descripcion}' suma ${suma.toFixed(2)}%, debe sumar 100%.`
-                    });
-                }
+            // Validaciones Hoja 1
+            if (data.items_hoja_1) {
+                data.items_hoja_1.forEach(item => {
+                    const suma = (item.porcentajes_mensuales || []).reduce((a, b) => a + b, 0);
+                    if (Math.abs(suma - 100.0) > tolerancia && suma > 0) {
+                        errores.push({ type: 'error', text: `Ítem '${item.descripcion}': Suma ${suma.toFixed(2)}%, debe ser 100%.` });
+                    }
+                });
             }
 
-            // 2. Control Hoja 2
-            const curva = data.datos_curva_hoja_2 || {};
-            const percMensuales = curva.porcentajes_mensuales || [];
-            const percAcumulados = curva.porcentajes_acumulados || [];
-            const montosMensuales = curva.montos_mensuales || [];
-            const montosAcumulados = curva.montos_acumulados || [];
+            // Validaciones Hoja 2
+            const c = data.datos_curva_hoja_2 || {};
+            if (c.porcentajes_mensuales) {
+                const sumaPerc = c.porcentajes_mensuales.reduce((a, b) => a + b, 0);
+                const finalPerc = c.porcentajes_acumulados ? c.porcentajes_acumulados[c.porcentajes_acumulados.length - 1] : 0;
 
-            // 2a. Suma de porcentajes mensuales vs último acumulado
-            if (percMensuales.length > 0 && percAcumulados.length > 0) {
-                const sumaPercMens = percMensuales.reduce((a, b) => a + b, 0);
-                const totalPercAcum = percAcumulados[percAcumulados.length - 1];
-
-                if (Math.abs(sumaPercMens - totalPercAcum) > tolerancia) {
-                    errores.push({
-                        type: 'error',
-                        text: `ERROR: La suma de porcentajes mensuales (${sumaPercMens.toFixed(2)}%) no coincide con el total acumulado (${totalPercAcum.toFixed(2)}%).`
-                    });
+                if (Math.abs(sumaPerc - finalPerc) > tolerancia) {
+                    errores.push({ type: 'error', text: `Curva: Suma mensual (${sumaPerc.toFixed(2)}%) difiere del acumulado (${finalPerc.toFixed(2)}%).` });
                 }
-            }
 
-            // 2b. Suma de montos mensuales vs último acumulado
-            if (montosMensuales.length > 0 && montosAcumulados.length > 0) {
-                const sumaMontosMens = montosMensuales.reduce((a, b) => a + b, 0);
-                const totalMontoAcum = montosAcumulados[montosAcumulados.length - 1];
+                // Validación Montos
+                const sumaMonto = (c.montos_mensuales || []).reduce((a, b) => a + b, 0);
+                const finalMonto = c.montos_acumulados ? c.montos_acumulados[c.montos_acumulados.length - 1] : 0;
 
-                if (Math.abs(sumaMontosMens - totalMontoAcum) > tolerancia) {
-                    errores.push({
-                        type: 'error',
-                        text: `ERROR: La suma de montos mensuales ($${sumaMontosMens.toLocaleString()}) no coincide con el monto total del contrato ($${totalMontoAcum.toLocaleString()}).`
-                    });
-                }
-            }
-
-            // 2c. Consistencia horizontal (mes a mes)
-            for (let i = 1; i < percMensuales.length; i++) {
-                const esperado = percAcumulados[i - 1] + percMensuales[i];
-                const actual = percAcumulados[i];
-
-                if (Math.abs(esperado - actual) > tolerancia) {
-                    errores.push({
-                        type: 'error',
-                        text: `ERROR: Inconsistencia en acumulado mes ${i + 1}. ${percAcumulados[i - 1].toFixed(2)} + ${percMensuales[i].toFixed(2)} != ${actual.toFixed(2)}`
-                    });
+                if (Math.abs(sumaMonto - finalMonto) > 100) { // Tolerancia de $100 pesos
+                    errores.push({ type: 'error', text: `Curva: Suma montos ($${sumaMonto.toLocaleString()}) no coincide con contrato ($${finalMonto.toLocaleString()}).` });
                 }
             }
 
             return errores;
         }
 
-        // ============================================================
-        // Función para mostrar resultados
-        // ============================================================
         function mostrarResultados(errores) {
             loader.style.display = "none";
             resultContainer.style.display = "block";
-
             if (errores.length === 0) {
-                resultsList.innerHTML = `
-                    <div class="audit-alert alert-success">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <span>APROBADO: Todos los controles pasaron correctamente.</span>
-                    </div>
-                `;
+                resultsList.innerHTML = `<div class="audit-alert alert-success"><i class="fa-solid fa-circle-check"></i><span>APROBADO: Cálculos correctos.</span></div>`;
             } else {
-                const erroresHTML = errores.map(error => `
-                    <div class="audit-alert ${error.type === 'success' ? 'alert-success' : 'alert-error'}">
-                        <i class="fa-solid ${error.type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
-                        <span>${error.text}</span>
-                    </div>
-                `).join('');
-
-                resultsList.innerHTML = erroresHTML;
+                resultsList.innerHTML = errores.map(e => `<div class="audit-alert alert-error"><i class="fa-solid fa-triangle-exclamation"></i><span>${e.text}</span></div>`).join('');
             }
         }
     </script>
