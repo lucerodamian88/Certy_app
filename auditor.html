@@ -244,7 +244,7 @@
         }
 
         // ============================================================
-        // Función principal de procesamiento
+        // Función principal de procesamiento (CORREGIDA)
         // ============================================================
         async function processFile(file) {
             if (file.type !== "application/pdf") {
@@ -252,6 +252,7 @@
                 return;
             }
 
+            // CORRECCIÓN AQUÍ: Volvemos a comparar contra el texto de ejemplo, no contra tu clave real
             if (!API_KEY || API_KEY === "TU_API_KEY_AQUI") {
                 alert("Por favor, configura tu API Key en el archivo HTML.");
                 return;
