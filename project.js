@@ -126,13 +126,27 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = [], foj
   const measurementDays = fojas.map(f => f.hasta.getTime());
   const isMeasurement = date => measurementDays.includes(date.getTime());
 
+  // Calcular contador acumulativo de días de ejecución
+  let dayCounter = 0;
+  const dayCounters = new Map(); // Map de fecha -> contador
+
+  let tempDate = new Date(startDate);
+  while (tempDate <= endDate) {
+    const isWorkDay = !isSuspension(tempDate) && !isPause(tempDate);
+    if (isWorkDay) {
+      dayCounter++;
+      dayCounters.set(tempDate.getTime(), dayCounter);
+    }
+    tempDate = addDays(tempDate, 1);
+  }
+
   let html = '<div class="calendar">';
   months.forEach(mDate => {
     const year = mDate.getFullYear();
     const month = mDate.getMonth();
     const monthName = mDate.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
     html += `<div class="month"><h4>${monthName}</h4><table><thead><tr>`;
-    ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d => html += `<th>${d}</th>`);
+    ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].forEach(d => html += `<th>${d}</th>`);
     html += '</tr></thead><tbody><tr>';
     const firstDay = new Date(year, month, 1).getDay();
     for (let i = 0; i < firstDay; i++) html += '<td></td>';
@@ -140,13 +154,31 @@ function generateCalendar(startDate, endDate, suspensions = [], pauses = [], foj
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDay = new Date(year, month, day);
       let className = '';
+      let counterHtml = '';
+
       if (currentDay >= startDate && currentDay <= endDate) {
-        if (isSuspension(currentDay)) className = 'suspension-day';
-        else if (isPause(currentDay)) className = 'pause-day';
-        else if (isMeasurement(currentDay)) className = 'measurement-day';
-        else className = 'work-day';
+        if (isSuspension(currentDay)) {
+          className = 'suspension-day';
+        } else if (isPause(currentDay)) {
+          className = 'pause-day';
+        } else if (isMeasurement(currentDay)) {
+          className = 'measurement-day';
+          // En días de medición (naranja) mostrar el contador final
+          const counter = dayCounters.get(currentDay.getTime());
+          if (counter) {
+            counterHtml = `<span class="day-counter">${counter}</span>`;
+          }
+        } else {
+          className = 'work-day';
+          // En días de ejecución (verde) mostrar contador
+          const counter = dayCounters.get(currentDay.getTime());
+          if (counter) {
+            counterHtml = `<span class="day-counter">${counter}</span>`;
+          }
+        }
       }
-      html += `<td class="${className}">${day}</td>`;
+
+      html += `<td class="${className}">${day}${counterHtml}</td>`;
       if ((firstDay + day) % 7 === 0 && day !== daysInMonth) html += '</tr><tr>';
     }
     const trailing = (firstDay + daysInMonth) % 7;
@@ -338,7 +370,7 @@ async function openPdfReport() {
 
       const img = new Image();
       img.src = 'Certy_saludando.png';
-      img.onload = function() {
+      img.onload = function () {
         const imgSize = 32 * 1.2;
         const xImg = pageW - 40 - imgSize;
         const yImg = pageH - imgSize - 20;
@@ -353,7 +385,7 @@ async function openPdfReport() {
   });
 }
 
-document.getElementById('calculateBtn').addEventListener('click', function() {
+document.getElementById('calculateBtn').addEventListener('click', function () {
   this.classList.add('shake');
   setTimeout(() => this.classList.remove('shake'), 300);
 });
