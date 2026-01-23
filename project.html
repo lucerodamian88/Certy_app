@@ -157,14 +157,16 @@
       <div id="pauseSection"></div>
 
       <div class="button-row">
-        <button id="calculateBtn" onclick="calculate()"><i class="fa-solid fa-calculator"></i> Calcular</button>
-        <button onclick="clearAll()"><i class="fa-solid fa-trash-can"></i> Borrar</button>
+        <button id="calculateBtn" onclick="calculate()" class="btn-certy btn-calculate"><i
+            class="fa-solid fa-calculator"></i> Calcular</button>
+        <button onclick="clearAll()" class="btn-certy btn-delete"><i class="fa-solid fa-trash-can"></i> BORRAR</button>
       </div>
 
       <div id="reporte"></div>
       <div id="printSection" style="display:none;">
-        <button id="printBtn" onclick="openPdfReport()">🖨 Imprimir informe en PDF</button>
-        <img src="Certy_saludando.png" alt="Certy" />
+        <button id="printBtn" onclick="openPdfReport()" class="btn-certy btn-print"><i class="fa-solid fa-file-pdf"></i>
+          Imprimir informe en PDF</button>
+        <img src="Certy_saludando.png" alt="Certy" class="certy-img-small" />
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,9 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
   <header class="site-header">
-    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver al menú principal"><i
+        class="fa-solid fa-arrow-left"></i></button>
     <div class="logo-group">
       <img src="NeuquénCapital_logo.png" alt="Logo Neuquén Capital">
     </div>
@@ -27,42 +30,42 @@
       <div class="speech">Completá la solicitud</div>
     </div>
     <div class="container form-container">
-    <h1>Solicitud de Paralización</h1>
-    <form id="paralizacionForm">
-      <label for="fechaSolicitud">Fecha de solicitud</label>
-      <input type="date" id="fechaSolicitud" required />
+      <h1>Solicitud de Paralización</h1>
+      <form id="paralizacionForm">
+        <label for="fechaSolicitud">Fecha de solicitud</label>
+        <input type="date" id="fechaSolicitud" required />
 
-      <label for="numeroExpediente">N° de Expediente</label>
-      <input type="text" id="numeroExpediente" required />
+        <label for="numeroExpediente">N° de Expediente</label>
+        <input type="text" id="numeroExpediente" required />
 
-      <label for="inspectores">Inspectores a cargo</label>
-      <input type="text" id="inspectores" required />
+        <label for="inspectores">Inspectores a cargo</label>
+        <input type="text" id="inspectores" required />
 
-      <label for="tipoAlteracion">Tipo de alteración que se solicita</label>
-      <select id="tipoAlteracion">
-        <option value="Paralización" selected>Paralización</option>
-      </select>
+        <label for="tipoAlteracion">Tipo de alteración que se solicita</label>
+        <select id="tipoAlteracion">
+          <option value="Paralización" selected>Paralización</option>
+        </select>
 
-      <label for="nombreObra">Nombre de la Obra</label>
-      <input type="text" id="nombreObra" required />
+        <label for="nombreObra">Nombre de la Obra</label>
+        <input type="text" id="nombreObra" required />
 
-      <label for="empresaContratista">Empresa contratista</label>
-      <input type="text" id="empresaContratista" required />
+        <label for="empresaContratista">Empresa contratista</label>
+        <input type="text" id="empresaContratista" required />
 
-      <label for="adjudicadaPor">Adjudicada por</label>
-      <input type="text" id="adjudicadaPor" required />
+        <label for="adjudicadaPor">Adjudicada por</label>
+        <input type="text" id="adjudicadaPor" required />
 
-      <label for="motivo">Motivo de la solicitud</label>
-      <textarea id="motivo" rows="4" required></textarea>
+        <label for="motivo">Motivo de la solicitud</label>
+        <textarea id="motivo" rows="4" required></textarea>
 
-      <button type="submit">Solicitar</button>
-    </form>
+        <button type="submit" class="btn-certy btn-calculate"><i class="fa-solid fa-paper-plane"></i> SOLICITAR</button>
+      </form>
     </div>
   </div>
 
   <script src="common.js"></script>
   <script>
-    document.getElementById('paralizacionForm').addEventListener('submit', async function(event) {
+    document.getElementById('paralizacionForm').addEventListener('submit', async function (event) {
       event.preventDefault();
       const datos = {
         fechaSolicitud: document.getElementById('fechaSolicitud').value,
@@ -94,4 +97,5 @@
     });
   </script>
 </body>
+
 </html>

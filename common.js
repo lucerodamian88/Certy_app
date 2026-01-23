@@ -54,4 +54,33 @@ function weatherIcon(code) {
   return 'ℹ️';
 }
 
+// Custom Alert Implementation
+window.alert = function (message) {
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'certy-modal-overlay';
 
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'certy-modal';
+
+  // Create content
+  modal.innerHTML = `
+        <img src="Certy_advertencia.png" alt="Certy Advertencia">
+        <p>${message}</p>
+        <button class="certy-modal-btn">Entendido</button>
+    `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Close function
+  const closeScale = () => {
+    overlay.style.opacity = '0';
+    modal.style.transform = 'scale(0.8)';
+    setTimeout(() => overlay.remove(), 300);
+  };
+
+  modal.querySelector('.certy-modal-btn').onclick = closeScale;
+  overlay.onclick = (e) => { if (e.target === overlay) closeScale(); };
+};
