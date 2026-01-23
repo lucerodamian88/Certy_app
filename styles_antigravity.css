@@ -1030,3 +1030,60 @@ tr:hover td {
      }  
  }  
  
+/* Calendar color classes */
+.calendar {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.month {
+  background: #fff;
+  color: #000;
+  padding: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.month h4 {
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.month table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.month th,
+.month td {
+  width: 14.2%;
+  text-align: center;
+  padding: 4px;
+}
+
+.work-day {
+  background: #28a745;
+  color: #fff;
+  font-weight: bold;
+}
+
+.suspension-day {
+  background: #2a7ff5;
+  color: #fff;
+  font-weight: bold;
+}
+
+.pause-day {
+  background: #dc3545;
+  color: #fff;
+  font-weight: bold;
+}
+
+.measurement-day {
+  background: #f58b2a;
+  color: #fff;
+  font-weight: bold;
+}
