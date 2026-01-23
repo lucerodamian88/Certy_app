@@ -16,6 +16,86 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Estilos definitivos para el calendario */
+    .calendar {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .month {
+      background: #ffffff;
+      color: #333333;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 280px;
+    }
+
+    .month h4 {
+      margin: 0 0 1rem 0;
+      text-align: center;
+      color: var(--color-primary);
+      text-transform: capitalize;
+      font-size: 1.1rem;
+    }
+
+    .month table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 2px;
+    }
+
+    .month th {
+      font-size: 0.8rem;
+      color: #666;
+      font-weight: 600;
+      padding-bottom: 8px;
+    }
+
+    .month td {
+      width: 14.2%;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    /* Colores de los días */
+    .work-day {
+      background-color: #28a745 !important;
+      color: white !important;
+      font-weight: bold !important;
+    }
+
+    .suspension-day {
+      background-color: #2a7ff5 !important;
+      color: white !important;
+      font-weight: bold !important;
+    }
+
+    .pause-day {
+      background-color: #dc3545 !important;
+      color: white !important;
+      font-weight: bold !important;
+    }
+
+    .measurement-day {
+      background-color: #f58b2a !important;
+      color: white !important;
+      font-weight: bold !important;
+      border: 1px solid #d35400 !important;
+    }
+
+    .month td:not(.work-day):not(.suspension-day):not(.pause-day):not(.measurement-day) {
+      color: #999;
+    }
+  </style>
 </head>
 
 <body>
