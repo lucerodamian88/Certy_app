@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -221,4 +221,33 @@ textarea {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* Weather Widget Glassmorphism */
+.weather-widget {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.weather-widget .weather-day {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #1a202c;
+}
+
+.weather-widget > i, .weather-widget > span {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1a202c;
 }
