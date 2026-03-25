@@ -128,15 +128,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const teoricoInputs = Array.from(document.querySelectorAll('.teo-in'));
-    const isComplete = teoricoInputs.every(el => el.value !== "");
+    const isComplete = teoricoInputs.length > 0 && teoricoInputs.every(el => el.value.trim() !== "");
     let lastT = teoricoInputs.length > 0 ? arrT[arrT.length - 1] : 0;
     
-    // Solo alerta si es completo Y difiere de 100
-    if(isComplete && Math.abs(lastT - 100) > 0.0001) {
-      cgWarning.textContent = `⚠️ El acumulado final teórico cargado es ${lastT.toFixed(4)}%. Debe ingresar 100.0000% en el último mes válido.`;
-      cgWarning.style.display = 'block';
+    if(!isComplete) {
+      cgWarning.style.display = 'none';
       togglePdfBtn(false);
       return false;
+    } else if(Math.abs(lastT - 100) > 0.0001) {
+      cgWarning.textContent = `⚠️ Advertencia: El acumulado final teórico es ${lastT.toFixed(4)}% (diferente de 100.0000%).`;
+      cgWarning.style.display = 'block';
+      togglePdfBtn(true);
+      return true;
     } else {
       cgWarning.style.display = 'none';
       togglePdfBtn(true);
