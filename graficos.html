@@ -123,8 +123,8 @@
   <!-- Landscape A4 is 297mm x 210mm. At ~96dpi, width ~1122px, so 1100px width is perfect for horizontal -->
   <div id="pdfTemplate" style="width: 1500px; min-height: 1050px; padding: 40px; background: white; position: absolute; left: -9999px; top: -9999px; font-family: Arial, sans-serif; color: #000; box-sizing: border-box;">
     
-    <div style="font-size: 13px;">
-      <h3 style="margin: 0; font-size: 18px; font-weight: bold;">Municipalidad de Neuquén</h3>
+    <div style="font-size: 16px;">
+      <h3 style="margin: 0; font-size: 20px; font-weight: bold;">Municipalidad de Neuquén</h3>
       <div style="margin-top: 10px; text-transform: uppercase;">
         <span>OBRA: <span id="pdfObra"></span></span>
       </div>
@@ -151,7 +151,7 @@
         <div style="text-transform: uppercase;">Inspectores: <span id="pdfInspectores"></span></div>
       </div>
       
-      <h2 style="text-align: center; margin-top: 40px; margin-bottom: 30px; font-size: 26px; font-weight: bold;">
+      <h2 style="text-align: center; margin-top: 40px; margin-bottom: 30px; font-size: 28px; font-weight: bold;">
         Curva de Ejecucion - Foja de Medicion N <span id="pdfFojaTitle"></span> - <span id="pdfFechaMedicionTitle"></span>
       </h2>
     </div>
@@ -166,9 +166,9 @@
          Wait, user said "el detalle del grafico, la linea punteda pisa a la palabra Real". 
          I will just use ChartJs standard legend or render exactly this safely spaced.
     -->
-    <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 15px; font-family: Arial; font-size: 16px;">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 25px; font-family: Arial; font-size: 18px;">
       <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 50px; height: 12px; background: #000;"></div> Teorico</div>
-      <div style="display: flex; align-items: center; gap: 10px; position: relative;"><div style="width: 50px; height: 0px; border-top: 3px dashed #000;"></div><div style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000; position: absolute; left: 20px; background: white;"></div> Real</div>
+      <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 50px; height: 0px; border-top: 3px dashed #000; position: relative;"><div style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000; position: absolute; left: 20px; top: -6px; background: white;"></div></div> Real</div>
     </div>
 
     <div id="pdfTableContainer" style="display: flex; justify-content: center; width: 100%;">

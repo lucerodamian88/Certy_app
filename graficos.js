@@ -117,20 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const acumsT = document.querySelectorAll('.teo-acum');
     arrT.forEach((v, idx) => {
       sumT += v;
-      if(acumsT[idx]) acumsT[idx].textContent = sumT.toFixed(2) + '%';
+      if(acumsT[idx]) acumsT[idx].textContent = sumT.toFixed(4) + '%';
     });
 
     let sumR = 0;
     const acumsR = document.querySelectorAll('.rea-acum');
     arrR.forEach((v, idx) => {
       sumR += v;
-      if(acumsR[idx]) acumsR[idx].textContent = sumR.toFixed(2) + '%';
+      if(acumsR[idx]) acumsR[idx].textContent = sumR.toFixed(4) + '%';
     });
 
     const isComplete = arrT.every(v => document.querySelectorAll('.teo-in')[arrT.indexOf(v)].value !== "");
     
-    if(isComplete && Math.abs(sumT - 100) > 0.01) {
-      cgWarning.textContent = `⚠️ La suma teórica actual es ${sumT.toFixed(2)}%. El total debe ser 100% para generar la curva oficial.`;
+    if(isComplete && Math.abs(sumT - 100) > 0.0001) {
+      cgWarning.textContent = `⚠️ La suma teórica actual es ${sumT.toFixed(4)}%. El total debe ser 100.0000% para generar la curva oficial.`;
       cgWarning.style.display = 'block';
       togglePdfBtn(false);
       return false;
@@ -215,8 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
         datalabels: {
           align: 'top',
           offset: 6,
-          formatter: v => v !== null ? v.toFixed(2) : '',
-          font: { size: 10 }
+          formatter: (v, ctx) => {
+            if (v === null) return '';
+            if (ctx.dataIndex === 1 && v === 0) return '';
+            return v.toFixed(2);
+          },
+          font: { size: 11, weight: 'bold' }
         }
       }
     ];
@@ -237,8 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
         datalabels: {
           align: 'bottom',
           offset: 6,
-          formatter: v => v !== null ? v.toFixed(2) : '',
-          font: { size: 10 }
+          formatter: (v, ctx) => {
+            if (v === null) return '';
+            if (ctx.dataIndex === 1 && v === 0) return '';
+            return v.toFixed(2);
+          },
+          font: { size: 11, weight: 'bold' }
         }
       });
     }
@@ -292,7 +300,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       document.getElementById('pdfObra').textContent = document.getElementById('cgObra').value;
       document.getElementById('pdfIdObra').textContent = document.getElementById('cgIdObra').value;
-      document.getElementById('pdfExpediente').textContent = document.getElementById('cgExpediente').value;
+      
+      let expText = document.getElementById('cgExpediente').value.trim();
+      if(expText && !expText.toUpperCase().startsWith('OE-')) {
+        expText = 'OE-' + expText;
+      }
+      document.getElementById('pdfExpediente').textContent = expText;
+      
       document.getElementById('pdfContratista').textContent = document.getElementById('cgContratista').value;
       document.getElementById('pdfInspectores').textContent = document.getElementById('cgInspectores').value;
       
@@ -326,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return cumR;
       });
 
-      let tableHtml = `<table class="pdf-table" style="width: auto; margin:auto; border-collapse: collapse; font-size: 11px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
+      let tableHtml = `<table class="pdf-table" style="width: auto; margin:auto; border-collapse: collapse; font-size: 14px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
         <tbody>
           <tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Teórico</td>`;
       acumsT.forEach(val => {
@@ -350,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
       template.style.zIndex = '-9999';
 
       const canvas = await html2canvas(template, {
-        scale: 2, 
+        scale: 4, 
         useCORS: true,
         backgroundColor: '#ffffff'
       });
