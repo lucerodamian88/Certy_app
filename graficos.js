@@ -16,13 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Table Rows (Teorico)
   const tHeadTr = document.getElementById('tHeadTr');
-  const tInputTr = document.getElementById('tInputTr');
   const tAcumTr = document.getElementById('tAcumTr');
+  const tMensualTr = document.getElementById('tMensualTr');
   
   // Table Rows (Real)
   const rHeadTr = document.getElementById('rHeadTr');
-  const rInputTr = document.getElementById('rInputTr');
   const rAcumTr = document.getElementById('rAcumTr');
+  const rMensualTr = document.getElementById('rMensualTr');
 
   let previewChart = null;
 
@@ -44,37 +44,37 @@ document.addEventListener('DOMContentLoaded', () => {
         thT.className = 'dinamico'; thT.textContent = `Mes ${i}`;
         tHeadTr.appendChild(thT);
 
-        // Teorico Input
-        let tdTi = document.createElement('td');
-        tdTi.className = 'dinamico';
+        // Teorico Acum (Input)
+        let tdTa = document.createElement('td');
+        tdTa.className = 'dinamico';
         let inTi = document.createElement('input');
         inTi.type = 'text'; inTi.className = 'teo-in'; inTi.dataset.index = i;
-        tdTi.appendChild(inTi);
-        tInputTr.appendChild(tdTi);
-
-        // Teorico Acum
-        let tdTa = document.createElement('td');
-        tdTa.className = 'dinamico readonly-cell teo-acum';
+        tdTa.appendChild(inTi);
         tAcumTr.appendChild(tdTa);
+
+        // Teorico Mensual (Read-only calc)
+        let tdTm = document.createElement('td');
+        tdTm.className = 'dinamico readonly-cell teo-men';
+        tMensualTr.appendChild(tdTm);
 
         // Real Th
         let thR = document.createElement('th');
         thR.className = 'dinamico'; thR.textContent = `Mes ${i}`;
         rHeadTr.appendChild(thR);
 
-        // Real Input
-        let tdRi = document.createElement('td');
-        tdRi.className = 'dinamico';
+        // Real Acum (Input)
+        let tdRa = document.createElement('td');
+        tdRa.className = 'dinamico';
         let inRi = document.createElement('input');
         inRi.type = 'text'; inRi.className = 'rea-in'; inRi.dataset.index = i;
         inRi.dataset.manuallyModified = 'false';
-        tdRi.appendChild(inRi);
-        rInputTr.appendChild(tdRi);
-
-        // Real Acum
-        let tdRa = document.createElement('td');
-        tdRa.className = 'dinamico readonly-cell rea-acum';
+        tdRa.appendChild(inRi);
         rAcumTr.appendChild(tdRa);
+
+        // Real Mensual (Read-only calc)
+        let tdRm = document.createElement('td');
+        tdRm.className = 'dinamico readonly-cell rea-men';
+        rMensualTr.appendChild(tdRm);
 
         // Listeners
         inTi.addEventListener('input', () => {
@@ -113,24 +113,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const arrT = getArr('.teo-in');
     const arrR = getArr('.rea-in');
     
-    let sumT = 0;
-    const acumsT = document.querySelectorAll('.teo-acum');
+    const mensT = document.querySelectorAll('.teo-men');
     arrT.forEach((v, idx) => {
-      sumT += v;
-      if(acumsT[idx]) acumsT[idx].textContent = sumT.toFixed(4) + '%';
+      let prev = idx === 0 ? 0 : arrT[idx-1];
+      let valMensual = v - prev;
+      if(mensT[idx]) mensT[idx].textContent = valMensual.toFixed(4) + '%';
     });
 
-    let sumR = 0;
-    const acumsR = document.querySelectorAll('.rea-acum');
+    const mensR = document.querySelectorAll('.rea-men');
     arrR.forEach((v, idx) => {
-      sumR += v;
-      if(acumsR[idx]) acumsR[idx].textContent = sumR.toFixed(4) + '%';
+      let prev = idx === 0 ? 0 : arrR[idx-1];
+      let valMensual = v - prev;
+      if(mensR[idx]) mensR[idx].textContent = valMensual.toFixed(4) + '%';
     });
 
-    const isComplete = arrT.every(v => document.querySelectorAll('.teo-in')[arrT.indexOf(v)].value !== "");
+    const teoricoInputs = Array.from(document.querySelectorAll('.teo-in'));
+    const isComplete = teoricoInputs.every(el => el.value !== "");
+    let lastT = teoricoInputs.length > 0 ? arrT[arrT.length - 1] : 0;
     
-    if(isComplete && Math.abs(sumT - 100) > 0.0001) {
-      cgWarning.textContent = `⚠️ La suma teórica actual es ${sumT.toFixed(4)}%. El total debe ser 100.0000% para generar la curva oficial.`;
+    // Solo alerta si es completo Y difiere de 100
+    if(isComplete && Math.abs(lastT - 100) > 0.0001) {
+      cgWarning.textContent = `⚠️ El acumulado final teórico cargado es ${lastT.toFixed(4)}%. Debe ingresar 100.0000% en el último mes válido.`;
       cgWarning.style.display = 'block';
       togglePdfBtn(false);
       return false;
@@ -168,24 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
       previewChart.destroy();
     }
     
-    const arrT = getArr('.teo-in');
-    const arrR = getArr('.rea-in');
+    const arrT = getArr('.teo-in'); // Son ya acumulados
+    const arrR = getArr('.rea-in'); // Son ya acumulados
     
-    let cumT = 0, cumR = 0;
-    const acumsT = arrT.map(v => { cumT += v; return cumT; });
-    
-    // Real stops matching if the user hasn't filled all inputs yet, but since we clone, it's ok.
-    // However, if an input is empty literally, we shouldn't draw the line to zero abruptly if it's in the future.
-    // We filter out entirely empty future inputs for Real.
+    const acumsT = arrT;
+
     const realInputs = document.querySelectorAll('.rea-in');
     let realData = [];
     arrR.forEach((v, idx) => {
-      if(realInputs[idx].value.trim() === '') {
-        // empty => no point yet
-        return;
-      }
-      cumR += v;
-      realData.push(cumR);
+      if(realInputs[idx].value.trim() === '') return;
+      realData.push(v);
     });
 
     const fechaIniForm = formatFecha(cgFechaInicio.value);
@@ -244,6 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
           formatter: (v, ctx) => {
             if (v === null) return '';
             if (ctx.dataIndex === 1 && v === 0) return '';
+            
+            // Si el valor Real coincide con el Teórico en ese punto, ocultar el sello (retornar blanco)
+            if (v === dataT[ctx.dataIndex]) return '';
+
             return v.toFixed(2);
           },
           font: { size: 11, weight: 'bold' }
@@ -332,18 +331,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const arrR = getArr('.rea-in');
       const realInputs = document.querySelectorAll('.rea-in');
 
-      let cumT = 0, cumR = 0;
-      let acumsT = arrT.map(v => { cumT += v; return cumT; });
       let realVals = arrR.map((v, i) => {
         if(realInputs[i].value.trim() === '') return undefined;
-        cumR += v;
-        return cumR;
+        return v;
       });
 
       let tableHtml = `<table class="pdf-table" style="width: auto; margin:auto; border-collapse: collapse; font-size: 14px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
         <tbody>
           <tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Teórico</td>`;
-      acumsT.forEach(val => {
+      arrT.forEach(val => {
         tableHtml += `<td style="border: 1px solid #000; padding: 6px; width: 55px; border-radius:0;">${formatNumber(val)}</td>`;
       });
       tableHtml += `</tr><tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Real</td>`;
