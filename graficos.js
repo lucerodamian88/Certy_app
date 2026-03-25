@@ -216,9 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
           formatter: (v, ctx) => {
             if (v === null) return '';
             if (ctx.dataIndex === 1 && v === 0) return '';
-            return v.toFixed(2);
+            // Truncate to 2 decimals (no rounding up)
+            return (Math.floor(v * 100) / 100).toFixed(2);
           },
-          font: { size: 11, weight: 'bold' }
+          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 16, weight: 'bold' }
         }
       }
     ];
@@ -246,9 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Si el valor Real coincide con el Teórico en ese punto, ocultar el sello (retornar blanco)
             if (v === dataT[ctx.dataIndex]) return '';
 
-            return v.toFixed(2);
+            // Truncate to 2 decimals (no rounding up)
+            return (Math.floor(v * 100) / 100).toFixed(2);
           },
-          font: { size: 11, weight: 'bold' }
+          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 16, weight: 'bold' }
         }
       });
     }
@@ -339,13 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return v;
       });
 
-      let tableHtml = `<table class="pdf-table" style="width: auto; margin:auto; border-collapse: collapse; font-size: 14px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
+      let tableHtml = `<table class="pdf-table" style="width: auto; margin-left: 0; margin-right: auto; border-collapse: collapse; font-size: 14px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
         <tbody>
-          <tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Teórico</td>`;
+          <tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 190px; border-radius:0;">Porc. Acumulado Teórico</td>`;
       arrT.forEach(val => {
         tableHtml += `<td style="border: 1px solid #000; padding: 6px; width: 55px; border-radius:0;">${formatNumber(val)}</td>`;
       });
-      tableHtml += `</tr><tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Real</td>`;
+      tableHtml += `</tr><tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 190px; border-radius:0;">Porc. Acumulado Real</td>`;
       
       realVals.forEach(val => {
         tableHtml += `<td style="border: 1px solid #000; padding: 6px; width: 55px; border-radius:0;">${val !== undefined ? formatNumber(val) : '0,0000'}</td>`;
