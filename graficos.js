@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const dynamicTablesContainer = document.getElementById('dynamicTablesContainer');
   const cgWarning = document.getElementById('cgWarning');
   const cgDownloadPdfBtn = document.getElementById('cgDownloadPdfBtn');
+  const cgHasPauses = document.getElementById('cgHasPauses');
+  const cgPauseSection = document.getElementById('cgPauseSection');
   const cgPreviewBtn = document.getElementById('cgPreviewBtn');
   const chartRenderArea = document.getElementById('chartRenderArea');
   const cgFechaInicio = document.getElementById('cgFechaInicio');
@@ -100,6 +102,111 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if(cgHasPauses) {
+    cgHasPauses.addEventListener("change", function () {
+      cgPauseSection.innerHTML = "";
+      if (this.value === "yes") {
+        cgPauseSection.innerHTML = `
+          <label style="margin-top: 1rem; display: block;">Cantidad de paralizaciones:
+            <select id="cgPauseCount" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 0.5rem; margin-top: 0.2rem;">
+              ${[1,2,3,4,5,6,7,8].map(n => '<option value="' + n + '">' + n + '</option>').join('')}
+            </select>
+          </label>
+          <div id="cgPausesContainer"></div>
+        `;
+
+        const cgPauseCount = document.getElementById("cgPauseCount");
+        const container = document.getElementById("cgPausesContainer");
+
+        const renderPauseInputs = () => {
+          const count = parseInt(cgPauseCount.value) || 0;
+          container.innerHTML = "";
+          for (let i = 1; i <= count; i++) {
+            container.innerHTML += `
+              <div style="margin-bottom: 0.5rem;">
+                <label>Paralización ${i}:
+                  <input type="text" class="cg-pause-range" placeholder="Seleccionar fechas Desde - Hasta" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.2rem;" required />
+                </label>
+              </div>`;
+          }
+          container.querySelectorAll('.cg-pause-range').forEach(el => {
+            flatpickr(el, {
+              mode: 'range',
+              dateFormat: 'Y-m-d',
+              altInput: true,
+              altFormat: 'd/m/Y',
+              locale: 'es',
+              rangeSeparator: ' a ',
+              onChange: () => {
+                if(chartRenderArea.style.display !== 'none') {
+                  renderCurvaS('sCurveChartPreview', false);
+                }
+              }
+            });
+          });
+        };
+
+        cgPauseCount.addEventListener("change", renderPauseInputs);
+        renderPauseInputs();
+      } else {
+        if(chartRenderArea.style.display !== 'none') {
+           renderCurvaS('sCurveChartPreview', false);
+        }
+      }
+    });
+  }
+
+  function parseDateLocal(str) {
+    let [y, m, d] = str.split('-');
+    return new Date(Number(y), Number(m)-1, Number(d));
+  }
+
+  function getPauses() {
+    let pauses = [];
+    if(cgHasPauses && cgHasPauses.value === 'yes') {
+      const inputs = document.querySelectorAll('.cg-pause-range');
+      for(let group of inputs) {
+        let val = group.value; 
+        if(val && val.includes(' a ')) {
+          let [s, e] = val.split(' a ');
+          pauses.push([parseDateLocal(s), parseDateLocal(e)]);
+        }
+      }
+    }
+    return pauses;
+  }
+
+  function getCutoffDates(startDate, qty, pauses) {
+    const current = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const fojas = [];
+    let currentFojaDays = [];
+    
+    let maxIters = 5000; 
+    while(fojas.length < qty && maxIters > 0) {
+      maxIters--;
+      let inPause = pauses.some(p => current >= p[0] && current <= p[1]);
+      
+      if(!inPause) {
+         if(currentFojaDays.length > 0) {
+            let prev = currentFojaDays[currentFojaDays.length - 1];
+            let diff = (current - prev) / (1000*60*60*24);
+            if(diff > 1 || current.getMonth() !== prev.getMonth()) {
+               fojas.push(new Date(prev));
+               currentFojaDays = [];
+            }
+         }
+         currentFojaDays.push(new Date(current));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+    
+    if(currentFojaDays.length > 0 && fojas.length < qty) {
+      fojas.push(new Date(currentFojaDays[currentFojaDays.length - 1]));
+    }
+    
+    return fojas;
+  }
+
   function getArr(selector) {
     const inputs = Array.from(document.querySelectorAll(selector));
     return inputs.map(input => {
@@ -174,27 +281,76 @@ document.addEventListener('DOMContentLoaded', () => {
       previewChart.destroy();
     }
     
-    const arrT = getArr('.teo-in'); // Son ya acumulados
-    const arrR = getArr('.rea-in'); // Son ya acumulados
+    const arrT = getArr('.teo-in'); 
+    const arrR = getArr('.rea-in'); 
     
-    const acumsT = arrT;
-
     const realInputs = document.querySelectorAll('.rea-in');
     let realData = [];
     arrR.forEach((v, idx) => {
-      if(realInputs[idx].value.trim() === '') return;
-      realData.push(v);
+      if(realInputs[idx].value.trim() !== '') {
+        realData.push(v);
+      }
     });
 
-    const fechaIniForm = formatFecha(cgFechaInicio.value);
+    const rawIni = cgFechaInicio.value;
+    const startDate = rawIni ? parseDateLocal(rawIni) : new Date();
+    const fIniForm = formatFecha(rawIni);
+    const pauses = getPauses();
+
+    const fojasDates = getCutoffDates(startDate, arrT.length, pauses);
+
+    let events = [];
+    events.push({ type: 'start', date: startDate, label: fIniForm, valueIndex: null });
     
-    let chartLabels = [fechaIniForm];
     for(let i=0; i<arrT.length; i++) {
-      chartLabels.push(`Mes ${i+1}`);
+       events.push({ type: 'mes', date: fojasDates[i] || new Date(startDate.getTime() + (i+1)*30*24*60*60*1000), label: `Mes ${i+1}`, valueIndex: i });
     }
 
-    const dataT = [0, ...acumsT];
-    const dataR = realData.length > 0 ? [0, ...realData] : [];
+    for(let p of pauses) {
+      const pstr = `Susp: ${('0'+p[0].getDate()).slice(-2)}/${('0'+(p[0].getMonth()+1)).slice(-2)}/${p[0].getFullYear().toString().slice(-2)} - ${('0'+p[1].getDate()).slice(-2)}/${('0'+(p[1].getMonth()+1)).slice(-2)}/${p[1].getFullYear().toString().slice(-2)}`;
+      events.push({ type: 'susp', date: p[0], label: pstr, valueIndex: null });
+    }
+
+    events.sort((a, b) => {
+       if (a.date.getTime() === b.date.getTime()) {
+          const w = { 'start': 0, 'mes': 1, 'susp': 2 };
+          return w[a.type] - w[b.type];
+       }
+       return a.date - b.date;
+    });
+
+    let chartLabels = [];
+    let dataT = [];
+    let dataR = [];
+    
+    let lastT = 0;
+    let lastR = 0;
+    let lastRValid = true; 
+
+    for(let ev of events) {
+      chartLabels.push(ev.label);
+      
+      if(ev.type === 'start') {
+        dataT.push(0);
+        dataR.push(realData.length > 0 ? 0 : null);
+      } else if(ev.type === 'mes') {
+        let valT = arrT[ev.valueIndex];
+        let valR = realData[ev.valueIndex];
+        dataT.push(valT);
+        if(valR !== undefined) {
+           dataR.push(valR);
+           lastR = valR;
+           lastRValid = true;
+        } else {
+           dataR.push(null);
+           lastRValid = false;
+        }
+        lastT = valT;
+      } else if(ev.type === 'susp') {
+        dataT.push(lastT);
+        dataR.push(lastRValid && realData.length > 0 ? lastR : null);
+      }
+    }
 
     const datasets = [
       {
@@ -254,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    let maxVal = Math.max(...acumsT, ...(realData.length ? realData : []), 100);
+    let maxVal = Math.max(...arrT, ...(realData.length ? realData : []), 100);
     let yMax = 110;
     if (maxVal > 110) {
       yMax = Math.ceil(maxVal / 10) * 10;
@@ -278,7 +434,11 @@ document.addEventListener('DOMContentLoaded', () => {
           x: {
             offset: true,
             grid: { color: '#ccc' },
-            ticks: { font: { size: 11, weight: 'bold' } }
+            ticks: { 
+              font: { size: canvasId === 'sCurveChartPreview' ? 10 : 11, weight: 'bold' },
+              maxRotation: 45,
+              minRotation: 45
+            }
           }
         },
         plugins: {

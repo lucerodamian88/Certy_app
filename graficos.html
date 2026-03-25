@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     .months-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
     .months-table th, .months-table td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
@@ -64,6 +65,13 @@
             <label>Fecha de Terminación<input type="date" id="cgFechaFin" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
             <label>N° de Foja<input type="text" id="cgFoja" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;" placeholder="Ej: 10 FINAL"></label>
             <label>Cantidad de meses<input type="number" id="cgMesesQty" min="1" max="100" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>¿La obra tiene paralizaciones?
+              <select id="cgHasPauses" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;">
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+              </select>
+            </label>
+            <div id="cgPauseSection"></div>
           </div>
         </div>
 
@@ -180,6 +188,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
   <script src="common.js"></script>
   <script src="graficos.js"></script>
 </body>
