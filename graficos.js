@@ -188,14 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fechaIniForm = formatFecha(cgFechaInicio.value);
     
-    // Agregar un espaciador al inicio (X vacio, Y null) para que la curva NO pegue exactamente contra el eje Y
-    let chartLabels = ["", fechaIniForm];
+    let chartLabels = [fechaIniForm];
     for(let i=0; i<arrT.length; i++) {
       chartLabels.push(`Mes ${i+1}`);
     }
 
-    const dataT = [null, 0, ...acumsT];
-    const dataR = realData.length > 0 ? [null, 0, ...realData] : [];
+    const dataT = [0, ...acumsT];
+    const dataR = realData.length > 0 ? [0, ...realData] : [];
 
     const datasets = [
       {
@@ -215,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
           offset: 6,
           formatter: (v, ctx) => {
             if (v === null) return '';
-            if (ctx.dataIndex === 1 && v === 0) return '';
+            if (ctx.dataIndex === 0 && v === 0) return '';
             // Truncate to 2 decimals (no rounding up)
             return (Math.floor(v * 100) / 100).toFixed(2);
           },
@@ -242,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
           offset: 6,
           formatter: (v, ctx) => {
             if (v === null) return '';
-            if (ctx.dataIndex === 1 && v === 0) return '';
+            if (ctx.dataIndex === 0 && v === 0) return '';
             
             // Si el valor Real coincide con el Teórico en ese punto, ocultar el sello (retornar blanco)
             if (v === dataT[ctx.dataIndex]) return '';
@@ -253,6 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
           font: { size: canvasId === 'sCurveChartPreview' ? 13 : 16, weight: 'bold' }
         }
       });
+    }
+
+    let maxVal = Math.max(...acumsT, ...(realData.length ? realData : []), 100);
+    let yMax = 110;
+    if (maxVal > 110) {
+      yMax = Math.ceil(maxVal / 10) * 10;
     }
 
     const chartInstance = new Chart(ctx, {
@@ -266,11 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
         scales: {
           y: {
             beginAtZero: true,
-            max: 110,
-            ticks: { stepSize: 20, font: { size: 12 } },
+            max: yMax,
+            ticks: { stepSize: yMax > 130 ? 30 : 20, font: { size: 12 } },
             grid: { color: '#ccc' }
           },
           x: {
+            offset: true,
             grid: { color: '#ccc' },
             ticks: { font: { size: 11, weight: 'bold' } }
           }
