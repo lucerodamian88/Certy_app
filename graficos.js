@@ -123,26 +123,24 @@ document.addEventListener('DOMContentLoaded', () => {
           container.innerHTML = "";
           for (let i = 1; i <= count; i++) {
             container.innerHTML += `
-              <div style="margin-bottom: 0.5rem;">
-                <label>Paralización ${i}:
-                  <input type="text" class="cg-pause-range" placeholder="Seleccionar fechas Desde - Hasta" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.2rem;" required />
+              <div style="display: flex; gap: 1rem; margin-bottom: 0.8rem; align-items: flex-end;">
+                <label style="flex: 1; margin: 0;">Paralización ${i} (Desde):
+                  <input type="date" class="cg-pause-start" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.2rem;" required />
+                </label>
+                <label style="flex: 1; margin: 0;">Paralización ${i} (Hasta):
+                  <input type="date" class="cg-pause-end" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; margin-top: 0.2rem;" required />
                 </label>
               </div>`;
           }
-          container.querySelectorAll('.cg-pause-range').forEach(el => {
-            flatpickr(el, {
-              mode: 'range',
-              dateFormat: 'Y-m-d',
-              altInput: true,
-              altFormat: 'd/m/Y',
-              locale: 'es',
-              rangeSeparator: ' a ',
-              onChange: () => {
-                if(chartRenderArea.style.display !== 'none') {
-                  renderCurvaS('sCurveChartPreview', false);
-                }
-              }
-            });
+          
+          const updatePreview = () => {
+            if(chartRenderArea.style.display !== 'none') {
+              renderCurvaS('sCurveChartPreview', false);
+            }
+          };
+
+          container.querySelectorAll('.cg-pause-start, .cg-pause-end').forEach(el => {
+            el.addEventListener('change', updatePreview);
           });
         };
 
@@ -164,11 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function getPauses() {
     let pauses = [];
     if(cgHasPauses && cgHasPauses.value === 'yes') {
-      const inputs = document.querySelectorAll('.cg-pause-range');
-      for(let group of inputs) {
-        let val = group.value; 
-        if(val && val.includes(' a ')) {
-          let [s, e] = val.split(' a ');
+      const starts = document.querySelectorAll('.cg-pause-start');
+      const ends = document.querySelectorAll('.cg-pause-end');
+      for(let i = 0; i < starts.length; i++) {
+        let s = starts[i].value; 
+        let e = ends[i].value; 
+        if(s && e) {
           pauses.push([parseDateLocal(s), parseDateLocal(e)]);
         }
       }
