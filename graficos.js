@@ -1,69 +1,136 @@
 // graficos.js
 document.addEventListener('DOMContentLoaded', () => {
 
+  if (!document.getElementById('cgMesesQty')) return; // solo en graficos.html
+
   Chart.register(ChartDataLabels);
 
-  const openBtn = document.getElementById('openChartModalBtn');
-  const overlay = document.getElementById('chartModalOverlay');
-  const closeBtn = document.getElementById('closeChartModalBtn');
   const form = document.getElementById('chartForm');
-  
-  const cgPorcentajesTeorico = document.getElementById('cgPorcentajesTeorico');
-  const cgPorcentajesReal = document.getElementById('cgPorcentajesReal');
+  const cgMesesQty = document.getElementById('cgMesesQty');
+  const dynamicTablesContainer = document.getElementById('dynamicTablesContainer');
   const cgWarning = document.getElementById('cgWarning');
   const cgDownloadPdfBtn = document.getElementById('cgDownloadPdfBtn');
   const cgPreviewBtn = document.getElementById('cgPreviewBtn');
   const chartRenderArea = document.getElementById('chartRenderArea');
   const cgFechaInicio = document.getElementById('cgFechaInicio');
   
+  // Table Rows (Teorico)
+  const tHeadTr = document.getElementById('tHeadTr');
+  const tInputTr = document.getElementById('tInputTr');
+  const tAcumTr = document.getElementById('tAcumTr');
+  
+  // Table Rows (Real)
+  const rHeadTr = document.getElementById('rHeadTr');
+  const rInputTr = document.getElementById('rInputTr');
+  const rAcumTr = document.getElementById('rAcumTr');
+
   let previewChart = null;
 
-  // Abrir / Cerrar Modal
-  if(openBtn) {
-    openBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      overlay.style.display = 'flex';
-    });
-  }
-  if(closeBtn) {
-    closeBtn.addEventListener('click', () => { overlay.style.display = 'none'; });
-  }
-  overlay.addEventListener('click', (e) => {
-    if(e.target === overlay) overlay.style.display = 'none';
+  // Render Dynamic Tables
+  cgMesesQty.addEventListener('input', () => {
+    const qty = parseInt(cgMesesQty.value) || 0;
+    
+    // Clear dynamic cells
+    document.querySelectorAll('.dinamico').forEach(el => el.remove());
+    
+    if(qty > 0 && qty <= 100) {
+      dynamicTablesContainer.style.display = 'block';
+      cgPreviewBtn.style.display = 'inline-flex';
+      cgDownloadPdfBtn.style.display = 'inline-flex';
+      
+      for(let i=1; i<=qty; i++) {
+        // Teorico Th
+        let thT = document.createElement('th');
+        thT.className = 'dinamico'; thT.textContent = `Mes ${i}`;
+        tHeadTr.appendChild(thT);
+
+        // Teorico Input
+        let tdTi = document.createElement('td');
+        tdTi.className = 'dinamico';
+        let inTi = document.createElement('input');
+        inTi.type = 'text'; inTi.className = 'teo-in'; inTi.dataset.index = i;
+        tdTi.appendChild(inTi);
+        tInputTr.appendChild(tdTi);
+
+        // Teorico Acum
+        let tdTa = document.createElement('td');
+        tdTa.className = 'dinamico readonly-cell teo-acum';
+        tAcumTr.appendChild(tdTa);
+
+        // Real Th
+        let thR = document.createElement('th');
+        thR.className = 'dinamico'; thR.textContent = `Mes ${i}`;
+        rHeadTr.appendChild(thR);
+
+        // Real Input
+        let tdRi = document.createElement('td');
+        tdRi.className = 'dinamico';
+        let inRi = document.createElement('input');
+        inRi.type = 'text'; inRi.className = 'rea-in'; inRi.dataset.index = i;
+        inRi.dataset.manuallyModified = 'false';
+        tdRi.appendChild(inRi);
+        rInputTr.appendChild(tdRi);
+
+        // Real Acum
+        let tdRa = document.createElement('td');
+        tdRa.className = 'dinamico readonly-cell rea-acum';
+        rAcumTr.appendChild(tdRa);
+
+        // Listeners
+        inTi.addEventListener('input', () => {
+          let valT = inTi.value;
+          // Clonar a Real si no fue modificado manualmente
+          if(inRi.dataset.manuallyModified === 'false') {
+            inRi.value = valT;
+          }
+          validateAndCalc();
+        });
+
+        inRi.addEventListener('input', () => {
+          inRi.dataset.manuallyModified = 'true'; // Se rompe el clonado automatico
+          validateAndCalc();
+        });
+      }
+      validateAndCalc(); // initial
+    } else {
+      dynamicTablesContainer.style.display = 'none';
+      cgPreviewBtn.style.display = 'none';
+      cgDownloadPdfBtn.style.display = 'none';
+      chartRenderArea.style.display = 'none';
+    }
   });
 
-  // Utiles
-  function parseVals(val) {
-    if(!val) return [];
-    return val.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
-  }
-  function getCumulative(arr) {
-    let sum = 0;
-    return arr.map(v => { sum += v; return sum; });
-  }
-  function formatFecha(d) {
-    if(!d) return '';
-    const parts = d.split('-'); // YYYY-MM-DD
-    if(parts.length !== 3) return d;
-    return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
-  }
-  function formatFechaFull(d) {
-    if(!d) return '';
-    const parts = d.split('-');
-    if(parts.length !== 3) return d;
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  function getArr(selector) {
+    const inputs = Array.from(document.querySelectorAll(selector));
+    return inputs.map(input => {
+      let val = input.value.replace(',','.'); // soporte de coma
+      let num = parseFloat(val);
+      return isNaN(num) ? 0 : num;
+    });
   }
 
-  function validateInput() {
-    const arrT = parseVals(cgPorcentajesTeorico.value);
-    if(arrT.length === 0) {
-      cgWarning.style.display = 'none';
-      togglePdfBtn(false);
-      return false;
-    }
-    const sum = arrT.reduce((a,b) => a+b, 0);
-    if(Math.abs(sum - 100) > 0.01) {
-      cgWarning.textContent = `⚠️ La suma teórica actual es ${sum.toFixed(2)}%. El total debe ser 100% para generar la curva oficial.`;
+  function validateAndCalc() {
+    const arrT = getArr('.teo-in');
+    const arrR = getArr('.rea-in');
+    
+    let sumT = 0;
+    const acumsT = document.querySelectorAll('.teo-acum');
+    arrT.forEach((v, idx) => {
+      sumT += v;
+      if(acumsT[idx]) acumsT[idx].textContent = sumT.toFixed(2) + '%';
+    });
+
+    let sumR = 0;
+    const acumsR = document.querySelectorAll('.rea-acum');
+    arrR.forEach((v, idx) => {
+      sumR += v;
+      if(acumsR[idx]) acumsR[idx].textContent = sumR.toFixed(2) + '%';
+    });
+
+    const isComplete = arrT.every(v => document.querySelectorAll('.teo-in')[arrT.indexOf(v)].value !== "");
+    
+    if(isComplete && Math.abs(sumT - 100) > 0.01) {
+      cgWarning.textContent = `⚠️ La suma teórica actual es ${sumT.toFixed(2)}%. El total debe ser 100% para generar la curva oficial.`;
       cgWarning.style.display = 'block';
       togglePdfBtn(false);
       return false;
@@ -73,9 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return true;
     }
   }
-
-  cgPorcentajesTeorico.addEventListener('input', validateInput);
-  cgPorcentajesReal.addEventListener('input', validateInput);
 
   function togglePdfBtn(enable) {
     if(enable) {
@@ -89,12 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Visualizar Curva
-  cgPreviewBtn.addEventListener('click', () => {
-    if(!validateInput()) return;
-    chartRenderArea.style.display = 'block';
-    renderCurvaS('sCurveChartPreview', true);
-  });
+  function formatFecha(d) {
+    if(!d) return 'Inicio';
+    const parts = d.split('-'); 
+    if(parts.length !== 3) return d;
+    return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`; // DD/MM/YY
+  }
 
   function renderCurvaS(canvasId, animate = true) {
     const ctx = document.getElementById(canvasId);
@@ -104,17 +168,36 @@ document.addEventListener('DOMContentLoaded', () => {
       previewChart.destroy();
     }
     
-    const arrT = parseVals(cgPorcentajesTeorico.value);
-    const arrR = parseVals(cgPorcentajesReal.value);
-    const cumT = getCumulative(arrT);
-    const cumR = getCumulative(arrR);
+    const arrT = getArr('.teo-in');
+    const arrR = getArr('.rea-in');
     
-    // Labels del eje X
-    const fechaIniFormateada = formatFecha(cgFechaInicio.value) || 'Inicio';
-    const chartLabels = [fechaIniFormateada, ...arrT.map((_, i) => `Mes ${i+1}`)];
+    let cumT = 0, cumR = 0;
+    const acumsT = arrT.map(v => { cumT += v; return cumT; });
     
-    const dataT = [0, ...cumT];
-    const dataR = cumR.length > 0 ? [0, ...cumR] : [];
+    // Real stops matching if the user hasn't filled all inputs yet, but since we clone, it's ok.
+    // However, if an input is empty literally, we shouldn't draw the line to zero abruptly if it's in the future.
+    // We filter out entirely empty future inputs for Real.
+    const realInputs = document.querySelectorAll('.rea-in');
+    let realData = [];
+    arrR.forEach((v, idx) => {
+      if(realInputs[idx].value.trim() === '') {
+        // empty => no point yet
+        return;
+      }
+      cumR += v;
+      realData.push(cumR);
+    });
+
+    const fechaIniForm = formatFecha(cgFechaInicio.value);
+    
+    // Agregar un espaciador al inicio (X vacio, Y null) para que la curva NO pegue exactamente contra el eje Y
+    let chartLabels = ["", fechaIniForm];
+    for(let i=0; i<arrT.length; i++) {
+      chartLabels.push(`Mes ${i+1}`);
+    }
+
+    const dataT = [null, 0, ...acumsT];
+    const dataR = realData.length > 0 ? [null, 0, ...realData] : [];
 
     const datasets = [
       {
@@ -124,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         backgroundColor: '#000000',
         borderWidth: 2.5,
         fill: false,
-        tension: 0, // lineas rectas como en el pdf
+        tension: 0, 
         pointBackgroundColor: '#fff',
         pointBorderColor: '#000',
         pointRadius: 4,
@@ -132,8 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
         datalabels: {
           align: 'top',
           offset: 6,
-          formatter: v => v.toFixed(2),
-          font: { size: 11 }
+          formatter: v => v !== null ? v.toFixed(2) : '',
+          font: { size: 10 }
         }
       }
     ];
@@ -154,8 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
         datalabels: {
           align: 'bottom',
           offset: 6,
-          formatter: v => v.toFixed(2),
-          font: { size: 11 }
+          formatter: v => v !== null ? v.toFixed(2) : '',
+          font: { size: 10 }
         }
       });
     }
@@ -172,10 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
           y: {
             beginAtZero: true,
             max: 110,
-            ticks: {
-              stepSize: 20,
-              font: { size: 12 }
-            },
+            ticks: { stepSize: 20, font: { size: 12 } },
             grid: { color: '#ccc' }
           },
           x: {
@@ -185,10 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         plugins: {
           legend: { display: false },
-          datalabels: {
-            display: true,
-            color: '#000'
-          }
+          datalabels: { display: true, color: '#000' }
         }
       }
     });
@@ -197,17 +274,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return chartInstance;
   }
 
+  cgPreviewBtn.addEventListener('click', () => {
+    if(!validateAndCalc()) return;
+    chartRenderArea.style.display = 'block';
+    renderCurvaS('sCurveChartPreview', true);
+  });
+
   // Generar PDF
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if(!validateInput()) return;
+    if(!validateAndCalc()) return;
     
     const originalText = cgDownloadPdfBtn.innerHTML;
     cgDownloadPdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
     cgDownloadPdfBtn.disabled = true;
 
     try {
-      // Poblar cabecera de la tabla
       document.getElementById('pdfObra').textContent = document.getElementById('cgObra').value;
       document.getElementById('pdfIdObra').textContent = document.getElementById('cgIdObra').value;
       document.getElementById('pdfExpediente').textContent = document.getElementById('cgExpediente').value;
@@ -219,48 +301,49 @@ document.addEventListener('DOMContentLoaded', () => {
       const fFin = document.getElementById('cgFechaFin').value;
       const foja = document.getElementById('cgFoja').value;
 
-      document.getElementById('pdfFechaInicio').textContent = formatFull(fIni);
-      document.getElementById('pdfFechaMedicion').textContent = formatFull(fMed);
-      document.getElementById('pdfFechaFin').textContent = formatFull(fFin);
+      document.getElementById('pdfFechaInicio').textContent = fIni ? fIni.split('-').reverse().join('/') : '';
+      document.getElementById('pdfFechaMedicion').textContent = fMed ? fMed.split('-').reverse().join('/') : '';
+      document.getElementById('pdfFechaFin').textContent = fFin ? fFin.split('-').reverse().join('/') : '';
       document.getElementById('pdfFojaHead').textContent = foja;
       document.getElementById('pdfFojaTitle').textContent = foja;
       document.getElementById('pdfFechaMedicionTitle').textContent = formatFecha(fMed);
 
-      function formatFull(d) {
-        if(!d) return '';
-        const parts = d.split('-');
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
+      // Poblar tabla dinamica
+      // Usar comas en vez de puntos y 4 decimales
+      const formatNumber = (num) => {
+        return num.toFixed(4).replace('.', ',');
+      };
 
-      // Poblar Tabla generada dinamicamente (el footer)
-      const arrT = parseVals(cgPorcentajesTeorico.value);
-      const arrR = parseVals(cgPorcentajesReal.value);
-      const cumT = getCumulative(arrT);
-      const cumR = getCumulative(arrR);
-      
-      // La imagen muestra la tabla con Porc Teorico y Porc Real con 4 decimales.
-      let tableHtml = `<table style="width: auto; border-collapse: collapse; font-size: 10px; font-family: Arial; text-align: right; border: 1px solid #000;">
+      const arrT = getArr('.teo-in');
+      const arrR = getArr('.rea-in');
+      const realInputs = document.querySelectorAll('.rea-in');
+
+      let cumT = 0, cumR = 0;
+      let acumsT = arrT.map(v => { cumT += v; return cumT; });
+      let realVals = arrR.map((v, i) => {
+        if(realInputs[i].value.trim() === '') return undefined;
+        cumR += v;
+        return cumR;
+      });
+
+      let tableHtml = `<table class="pdf-table" style="width: auto; margin:auto; border-collapse: collapse; font-size: 11px; font-family: Arial; text-align: center; border: 1px solid #000; border-radius:0;">
         <tbody>
-          <tr><td style="border: 1px solid #000; text-align: left; padding: 4px; font-weight: normal; width: 140px;">Porc. Acumulado Teórico</td>`;
-      for(let i=0; i<cumT.length; i++) {
-        tableHtml += `<td style="border: 1px solid #000; padding: 4px; width: 55px;">${cumT[i].toFixed(4).replace('.',',')}</td>`;
-      }
-      tableHtml += `</tr><tr><td style="border: 1px solid #000; text-align: left; padding: 4px; font-weight: normal; width: 140px;">Porc. Acumulado Real</td>`;
+          <tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Teórico</td>`;
+      acumsT.forEach(val => {
+        tableHtml += `<td style="border: 1px solid #000; padding: 6px; width: 55px; border-radius:0;">${formatNumber(val)}</td>`;
+      });
+      tableHtml += `</tr><tr><td style="border: 1px solid #000; text-align: left; padding: 6px; width: 140px; border-radius:0;">Porc. Acumulado Real</td>`;
       
-      // Si la real es menor en longitud, rellenamos con vacios o ceros. La imagen muestra ceros cuando todavia no hay avance real. Muestra 0,0000.
-      for(let i=0; i<cumT.length; i++) {
-        let val = cumR[i] !== undefined ? cumR[i] : 0;
-        tableHtml += `<td style="border: 1px solid #000; padding: 4px; width: 55px;">${val.toFixed(4).replace('.',',')}</td>`;
-      }
+      realVals.forEach(val => {
+        tableHtml += `<td style="border: 1px solid #000; padding: 6px; width: 55px; border-radius:0;">${val !== undefined ? formatNumber(val) : '0,0000'}</td>`;
+      });
       tableHtml += `</tr></tbody></table>`;
 
       document.getElementById('pdfTableContainer').innerHTML = tableHtml;
 
-      // Render chart for PDF instantly
       const printChart = renderCurvaS('sCurveChartPrint', false);
       await new Promise(r => setTimeout(r, 600));
 
-      // Capturar
       const template = document.getElementById('pdfTemplate');
       template.style.left = '0';
       template.style.top = '0';
@@ -279,12 +362,13 @@ document.addEventListener('DOMContentLoaded', () => {
       printChart.destroy();
 
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
+      // Orientation 'l' (landscape)
+      const pdf = new jsPDF('l', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // ~297mm
+      // Calculate height to maintain ratio. A4 landscape is 297x210
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
       pdf.addImage(imgData, 'JPEG', 0, 10, pdfWidth, pdfHeight); 
-      // 10mm top margin so it looks nice on paper
       pdf.save(`Curva_Inversion_${document.getElementById('cgExpediente').value}.pdf`);
 
     } catch (err) {
@@ -295,4 +379,5 @@ document.addEventListener('DOMContentLoaded', () => {
       togglePdfBtn(true);
     }
   });
+
 });

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generación de Gráficos de Inversión</title>
+  <link rel="icon" type="image/png" href="Certy_cara.png">
+  <link rel="stylesheet" href="styles_antigravity.css">
+  <link rel="stylesheet" href="styles_fixed.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .months-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .months-table th, .months-table td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    .months-table th { background: #f0f0f0; }
+    .months-table td input { width: 70px; padding: 0.4rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+    .readonly-cell { background: #e6f7ff !important; font-weight: bold; color: #0C4FB7; }
+    
+    /* PDF styling specifically */
+    .pdf-table td { border-radius: 0 !important; }
+  </style>
+</head>
+<body>
+  <div class="bg-wave">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0C4FB7"
+        d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,79.6,-46.9C87.4,-34.7,90.1,-20.4,85.8,-7.4C81.5,5.6,70.2,17.2,59.6,27.1C49,37,39.1,45.2,28.7,51.4C18.3,57.6,7.4,61.8,-3.2,67.4C-13.8,72.9,-24.1,79.9,-34.3,77.5C-44.5,75.1,-54.6,63.3,-62.3,51.3C-70,39.3,-75.3,27.1,-76.8,14.5C-78.3,1.9,-76,-11.1,-69.8,-22.3C-63.6,-33.5,-53.5,-42.9,-42.6,-51.2C-31.7,-59.5,-20,-66.7,-7.4,-67.2C5.2,-67.7,29.3,-83.6,44.7,-76.4Z"
+        transform="translate(100 100)" />
+    </svg>
+  </div>
+
+  <header class="app-header">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Volver"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+    </div>
+    <div class="header-right">
+      <div class="weather-widget">
+        <i class="fa-solid fa-cloud-sun-rain"></i>
+        <span>Neuquén</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-wrapper" style="margin-bottom: 4rem;">
+    <div class="container form-container" style="max-width: 1000px; padding: 2.5rem;">
+      <h1>Generación de Gráficos de Inversión</h1>
+      <div class="intro">
+        <p class="description">Completá los datos para generar la curva de inversión.</p>
+      </div>
+
+      <form id="chartForm">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <label>Nombre de la Obra<input type="text" id="cgObra" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>ID de la Obra<input type="text" id="cgIdObra" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>N° de Expediente<input type="text" id="cgExpediente" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>Empresa Contratista<input type="text" id="cgContratista" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>Inspectores<input type="text" id="cgInspectores" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <label>Fecha de Inicio<input type="date" id="cgFechaInicio" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>Fecha de Medición<input type="date" id="cgFechaMedicion" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>Fecha de Terminación<input type="date" id="cgFechaFin" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+            <label>N° de Foja<input type="text" id="cgFoja" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;" placeholder="Ej: 10 FINAL"></label>
+            <label>Cantidad de meses<input type="number" id="cgMesesQty" min="1" max="100" required style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc;"></label>
+          </div>
+        </div>
+
+        <div id="dynamicTablesContainer" style="display: none; width: 100%; overflow-x: auto;">
+          <h3 style="color: #0C4FB7;">Porcentajes de Avance Mensual</h3>
+          
+          <table class="months-table" id="teoricoTable">
+            <thead>
+              <tr id="tHeadTr">
+                <th style="width: 180px; text-align: left;">Teórico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="tInputTr">
+                <td style="text-align: left; font-weight: bold;">% Mensual</td>
+              </tr>
+              <tr id="tAcumTr">
+                <td style="text-align: left; font-weight: bold;" class="readonly-cell">Acumulado (%)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="months-table" id="realTable" style="margin-top: 2rem;">
+            <thead>
+              <tr id="rHeadTr">
+                <th style="width: 180px; text-align: left;">Real</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="rInputTr">
+                <td style="text-align: left; font-weight: bold;">% Mensual</td>
+              </tr>
+              <tr id="rAcumTr">
+                <td style="text-align: left; font-weight: bold;" class="readonly-cell">Acumulado (%)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div id="cgWarning" style="color: #c53030; font-size: 0.95rem; font-weight: 600; display: none; padding: 0.8rem; background: #fff5f5; border-radius: 6px; border: 1px solid #feb2b2; margin-top: 1.5rem; text-align: center;"></div>
+        </div>
+
+        <div class="button-row" style="margin-top: 2.5rem;">
+          <button type="button" id="cgPreviewBtn" class="btn-certy" style="display: none;"><i class="fa-solid fa-eye"></i> Visualizar Curva</button>
+          <button type="submit" class="btn-certy" id="cgDownloadPdfBtn" disabled style="display: none; opacity: 0.5; cursor: not-allowed; background: #28a745 !important;"><i class="fa-solid fa-file-pdf"></i> Generar PDF</button>
+        </div>
+      </form>
+
+      <!-- Render area for Chart -->
+      <div id="chartRenderArea" style="margin-top: 3rem; display: none;">
+        <h3 style="text-align: center; color: #1a202c; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; margin-bottom: 20px;">Vista Previa</h3>
+        <canvas id="sCurveChartPreview" style="max-height: 450px; width: 100%;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Layout Template (Hidden, used by html2canvas) -->
+  <!-- Landscape A4 is 297mm x 210mm. At ~96dpi, width ~1122px, so 1100px width is perfect for horizontal -->
+  <div id="pdfTemplate" style="width: 1500px; min-height: 1050px; padding: 40px; background: white; position: absolute; left: -9999px; top: -9999px; font-family: Arial, sans-serif; color: #000; box-sizing: border-box;">
+    
+    <div style="font-size: 13px;">
+      <h3 style="margin: 0; font-size: 18px; font-weight: bold;">Municipalidad de Neuquén</h3>
+      <div style="margin-top: 10px; text-transform: uppercase;">
+        <span>OBRA: <span id="pdfObra"></span></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 6px; text-transform: uppercase;">
+        <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp; <span id="pdfIdObra"></span></span>
+        <span>N° Exp: &nbsp;&nbsp;&nbsp;&nbsp; <span id="pdfExpediente"></span></span>
+        <span>FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
+      </div>
+
+      <table class="pdf-table" style="width: 100%; border-collapse: collapse; margin-top: 8px; text-align: center; border: 1px solid #000; border-radius: 0;">
+        <tr>
+          <td colspan="3" style="border: 1px solid #000; font-weight: bold; background: #fff; padding: 6px; border-radius: 0;">FECHAS</td>
+          <td rowspan="2" style="border: 1px solid #000; vertical-align: middle; padding: 6px; border-radius: 0;">Foja de Medicion N <span id="pdfFojaHead"></span></td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px; border-radius: 0;">De Inicio: &nbsp;&nbsp;&nbsp; <span id="pdfFechaInicio"></span></td>
+          <td style="border: 1px solid #000; padding: 6px; border-radius: 0;">De Medición: &nbsp;&nbsp;&nbsp; <span id="pdfFechaMedicion"></span></td>
+          <td style="border: 1px solid #000; padding: 6px; border-radius: 0;">Fecha de Terminación: &nbsp;&nbsp;&nbsp; <span id="pdfFechaFin"></span></td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 12px;">
+        <div style="text-transform: uppercase;">CONTRATISTA: <span id="pdfContratista"></span></div>
+        <div style="text-transform: uppercase;">Inspectores: <span id="pdfInspectores"></span></div>
+      </div>
+      
+      <h2 style="text-align: center; margin-top: 40px; margin-bottom: 30px; font-size: 26px; font-weight: bold;">
+        Curva de Ejecucion - Foja de Medicion N <span id="pdfFojaTitle"></span> - <span id="pdfFechaMedicionTitle"></span>
+      </h2>
+    </div>
+
+    <!-- Chart container with fixed height for printing -->
+    <div style="height: 550px; width: 100%; margin-bottom: 25px; display: flex; justify-content: center; align-items: center;">
+      <canvas id="sCurveChartPrint" style="width: 100%; height: 100%;"></canvas>
+    </div>
+
+    <!-- Leyenda manual para igualar la imagen y el grid inferior -->
+    <!-- En la imagen real: Theorico is solid line + empty rectangle legend? 
+         Wait, user said "el detalle del grafico, la linea punteda pisa a la palabra Real". 
+         I will just use ChartJs standard legend or render exactly this safely spaced.
+    -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin-bottom: 15px; font-family: Arial; font-size: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 50px; height: 12px; background: #000;"></div> Teorico</div>
+      <div style="display: flex; align-items: center; gap: 10px; position: relative;"><div style="width: 50px; height: 0px; border-top: 3px dashed #000;"></div><div style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000; position: absolute; left: 20px; background: white;"></div> Real</div>
+    </div>
+
+    <div id="pdfTableContainer" style="display: flex; justify-content: center; width: 100%;">
+       <!-- Dynamic Table inserted here -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="common.js"></script>
+  <script src="graficos.js"></script>
+</body>
+</html>
