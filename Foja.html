@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generación de Fojas</title>
+    <link rel="icon" type="image/png" href="Certy_cara.png">
+    <link rel="stylesheet" href="styles_antigravity_utf8.css">
+    <link rel="stylesheet" href="styles_fixed.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* UI Base Elements */
+        .drag-area {
+            border: 2px dashed var(--color-primary);
+            height: 250px;
+            width: 100%;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: rgba(12, 79, 183, 0.03);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .drag-area.active {
+            border: 2px solid var(--color-primary);
+            background: rgba(12, 79, 183, 0.08);
+        }
+
+        .drag-area .icon { font-size: 4rem; color: var(--color-primary); margin-bottom: 1rem; }
+        .drag-area header { font-size: 1.5rem; font-weight: 600; color: var(--color-text-dark); }
+        .drag-area span { font-size: 1rem; color: var(--color-text-light); margin: 0.5rem 0 1rem 0; }
+        
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--color-primary);
+            border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+            display: none; margin: 2rem auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .app-layout { display: flex; gap: 2rem; padding: 2rem; margin-top: 1rem; }
+        
+        .sidebar {
+            width: 350px; flex-shrink: 0; background: #fff; border-radius: 16px; padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: none; height: fit-content;
+        }
+        .main-preview {
+            flex-grow: 1; background: #fff; outline: 1px solid #ccc;
+            overflow: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 2rem;
+            display: none; justify-content: center;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 0.5rem; color: #2d3748; }
+        .form-group input { width: 100%; padding: 0.6rem; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .form-row { display: flex; gap: 1rem; }
+        
+        .toggle-container {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;
+        }
+        .toggle-container input[type="checkbox"] { width: 20px; height: 20px; }
+
+        .btn-green { background: #28a745 !important; margin-top: 1rem; width: 100%; }
+        .btn-green:hover { background: #218838 !important; }
+
+        .edit-title { border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #1a202c; }
+
+        /* Document Institutional Look (Preview inside screen) */
+        .printable-area {
+            width: 100%; max-width: 1100px; /* ~A4 Landscape equivalent preview */
+            background: #fff; font-family: Arial, Helvetica, sans-serif;
+            font-size: 10pt; color: #000;
+        }
+        .p-header h1 { font-size: 18pt; font-weight: bold; margin: 0 0 10pt 0; }
+        .p-info-row { display: flex; justify-content: space-between; margin-bottom: 6pt; }
+        .p-info-row span { font-weight: normal; }
+        .p-info-bold { font-weight: bold !important; }
+        
+        .p-table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; border: 1px solid #000; }
+        .p-table th, .p-table td { border: 1px solid #000; padding: 4pt; text-align: center; }
+        .p-table th { background: #fff; font-weight: bold; }
+        
+        .t-left { text-align: left !important; }
+        .t-right { text-align: right !important; }
+        .t-center { text-align: center !important; }
+        
+        .border-none { border: none !important; }
+        .border-top-only { border: none !important; border-top: 1px solid #000 !important; }
+
+        /* Print Override */
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body * { visibility: hidden; }
+            .printable-area, .printable-area * { visibility: visible; }
+            .printable-area {
+                position: absolute; left: 0; top: 0; width: 100%;
+                font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000; background: #fff;
+                box-shadow: none; outline: none; margin: 0; padding: 0;
+            }
+            .p-table th, .p-table td { padding: 3pt 4pt; font-size: 9pt; }
+            .p-header h1 { font-size: 16pt; margin-bottom: 5pt; }
+            
+            /* Hide unused areas */
+            .sidebar, .app-header, .drag-area, .bg-wave { display: none !important; }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="bg-wave">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#0C4FB7" d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,79.6,-46.9C87.4,-34.7,90.1,-20.4,85.8,-7.4C81.5,5.6,70.2,17.2,59.6,27.1C49,37,39.1,45.2,28.7,51.4C18.3,57.6,7.4,61.8,-3.2,67.4C-13.8,72.9,-24.1,79.9,-34.3,77.5C-44.5,75.1,-54.6,63.3,-62.3,51.3C-70,39.3,-75.3,27.1,-76.8,14.5C-78.3,1.9,-76,-11.1,-69.8,-22.3C-63.6,-33.5,-53.5,-42.9,-42.6,-51.2C-31.7,-59.5,-20,-66.7,-7.4,-67.2C5.2,-67.7,29.3,-83.6,44.7,-76.4Z" transform="translate(100 100)" />
+        </svg>
+    </div>
+
+    <header class="app-header">
+        <div class="header-left">
+            <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+        </div>
+        <div class="header-right">
+            <div class="weather-widget"><span>Generación de Fojas</span></div>
+        </div>
+    </header>
+
+    <div style="max-width: 1600px; margin: 0 auto; padding: 1rem 2rem;">
+        
+        <div id="uploadSection" style="max-width: 800px; margin: 2rem auto; text-align: center;">
+            <h1 style="color: #0C4FB7; margin-bottom: 1rem;">Carga tu imagen o PDF de Foja</h1>
+            <p style="color: #4a5568; margin-bottom: 2rem;">Sube la foja capturada. Nuestro motor visual mapeará el contenido y producirá una nueva plantilla lista para descargar.</p>
+            
+            <div class="drag-area" id="dragArea">
+                <div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <header>Arrastra y suelta tu archivo aquí</header>
+                <span>o</span>
+                <button class="btn-certy"><i class="fa-solid fa-file-image"></i> Seleccionar Archivo</button>
+                <input type="file" hidden id="fileInput" accept="image/*,application/pdf">
+            </div>
+            <div class="loader" id="loader"></div>
+            <div id="errorMsg" style="color: red; margin-top: 1rem; font-weight: bold;"></div>
+            
+            <div id="apiKeyNotice" style="margin-top: 1rem; padding: 10px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; display: none;">
+                <strong>API Key no configurada</strong> - Inserta tu clave Gemini en el código fuente (API_KEY).
+            </div>
+        </div>
+
+        <div class="app-layout">
+            <!-- Sidebar Editor -->
+            <div class="sidebar" id="sidebar">
+                <h3 class="edit-title"><i class="fa-solid fa-pen-to-square"></i> Edición de Foja</h3>
+                
+                <div class="toggle-container">
+                    <input type="checkbox" id="showVariacionDec" checked>
+                    <label for="showVariacionDec" style="font-weight: bold; cursor: pointer;">Mostrar Variación de decimales</label>
+                </div>
+                
+                <div class="form-group" id="variacionGroup">
+                    <label>Valor de Variación de decimales</label>
+                    <div class="form-row">
+                        <input type="text" id="varDecItem" placeholder="% Avance Item (ej: 0.0001)">
+                        <input type="text" id="varDecObra" placeholder="% Avance Obra (ej: 0.0001)">
+                    </div>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+                
+                <h4 style="margin-bottom: 1rem; color: #2b6cb0;">Cuadro de Avances</h4>
+                <div class="form-group">
+                    <label>Avance de Obra Mensual</label>
+                    <input type="text" id="avanceMensual" placeholder="ej: 8,8808%">
+                </div>
+                <div class="form-group">
+                    <label>Avance Acum. Anterior</label>
+                    <input type="text" id="avanceAnterior" placeholder="ej: 91,1192%">
+                </div>
+                <div class="form-group">
+                    <label>Avance Acumulado</label>
+                    <input type="text" id="avanceAcumulado" placeholder="ej: 100,0000%">
+                </div>
+
+                <button class="btn-certy btn-green" onclick="window.print()"><i class="fa-solid fa-print"></i> Generar / Imprimir</button>
+            </div>
+
+            <!-- Previsualizacion Documento -->
+            <div class="main-preview" id="mainPreview">
+                <div class="printable-area" id="printableFoja">
+                    <div class="p-header">
+                        <h1>Municipalidad de Neuquén</h1>
+                        <p class="p-info-row" style="text-transform: uppercase;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></p>
+                        
+                        <div class="p-info-row" style="margin-top: 10pt;">
+                            <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp; <span id="r_id_obra"></span></span>
+                            <span>N° Exp: &nbsp;&nbsp;&nbsp;&nbsp; <span id="r_exp"></span></span>
+                            <span>FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
+                        </div>
+                    </div>
+
+                    <!-- Tabla Fechas y Numero de Foja -->
+                    <table class="p-table" style="margin-bottom: 0; border-bottom: none;">
+                        <tr>
+                            <td colspan="3" class="t-center" style="font-weight: bold; padding: 2pt;">FECHAS</td>
+                            <td rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
+                        </tr>
+                        <tr>
+                            <td class="t-left">De Inicio: <span id="r_f_inicio" style="margin-left:10pt"></span></td>
+                            <td class="t-left">De Medición: <span id="r_f_medicion" style="margin-left:10pt"></span></td>
+                            <td class="t-left">Fecha de Terminación: <span id="r_f_fin" style="margin-left:10pt"></span></td>
+                        </tr>
+                    </table>
+
+                    <!-- Datos Generales -->
+                    <table class="p-table" style="margin-top: 0; border-top: none;">
+                        <tr>
+                            <td colspan="3" class="t-left border-none" style="text-transform: uppercase;">
+                                CONTRATISTA: <span id="r_contratista"></span>
+                            </td>
+                            <td class="t-right border-none" style="width: 250pt;">Monto Contrato: $ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="r_monto"></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="t-left border-none"> Inspectores: <span id="r_inspectores"></span></td>
+                            <td class="t-right border-none"><span id="r_inspectores_monto"></span></td>
+                        </tr>
+                    </table>
+
+                    <!-- Tabla de Items -->
+                    <table class="p-table" id="r_items_table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width: 30pt;">Ítem</th>
+                                <th rowspan="2" style="width: 350pt;">Descripción</th>
+                                <th rowspan="2" style="width: 30pt;">Un.</th>
+                                <th rowspan="2" style="width: 70pt;">Cantidad<br>Contrato</th>
+                                <th rowspan="2" style="width: 90pt;">Precio</th>
+                                <th colspan="3">CANTIDAD</th>
+                                <th rowspan="2" style="width: 60pt;">% Avance<br>Item</th>
+                                <th rowspan="2" style="width: 60pt;">% Avance<br>Obra</th>
+                            </tr>
+                            <tr>
+                                <th style="width: 60pt;">Ant.</th>
+                                <th style="width: 60pt;">Actual</th>
+                                <th style="width: 60pt;">Acum.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="r_items_body">
+                            <!-- Inyectado via JS -->
+                        </tbody>
+                        <tfoot id="r_items_foot">
+                            <!-- Variacion inyectada via JS si está activo -->
+                        </tfoot>
+                    </table>
+
+                    <!-- Cuadro Final (Avances) -->
+                    <table class="p-table" style="width: 350pt; float: right; margin-top: -1pt;">
+                        <tr>
+                            <td class="t-left" style="font-weight: bold; width: 230pt;">Avance de Obra Mensual</td>
+                            <td class="t-right" id="r_av_men"></td>
+                        </tr>
+                        <tr>
+                            <td class="t-left" style="font-weight: bold;">Avance Acum. Anterior</td>
+                            <td class="t-right" id="r_av_ant"></td>
+                        </tr>
+                        <tr>
+                            <td class="t-left" style="font-weight: bold;">Avance Acumulado</td>
+                            <td class="t-right" id="r_av_acu"></td>
+                        </tr>
+                    </table>
+                    
+                    <!-- Clear Fix -->
+                    <div style="clear: both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SDK Gemini -->
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest";
+
+        const API_KEY = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I"; 
+        
+        let currentState = null;
+
+        const dragArea = document.getElementById("dragArea");
+        const fileInput = document.getElementById("fileInput");
+        const selectBtn = dragArea.querySelector("button");
+        const loader = document.getElementById("loader");
+        const errorMsg = document.getElementById("errorMsg");
+        const uploadSection = document.getElementById("uploadSection");
+        const sidebar = document.getElementById("sidebar");
+        const mainPreview = document.getElementById("mainPreview");
+
+        // Reactivity Controls
+        const showVariacionDec = document.getElementById("showVariacionDec");
+        const variacionGroup = document.getElementById("variacionGroup");
+        const varDecItem = document.getElementById("varDecItem");
+        const varDecObra = document.getElementById("varDecObra");
+        const avanceMensual = document.getElementById("avanceMensual");
+        const avanceAnterior = document.getElementById("avanceAnterior");
+        const avanceAcumulado = document.getElementById("avanceAcumulado");
+
+        if (!API_KEY || API_KEY.includes("TU_API_KEY")) {
+            document.getElementById("apiKeyNotice").style.display = "block";
+        }
+
+        selectBtn.onclick = () => fileInput.click();
+        fileInput.addEventListener("change", function () { if (this.files[0]) processFile(this.files[0]); });
+        dragArea.addEventListener("dragover", (e) => { e.preventDefault(); dragArea.classList.add("active"); });
+        dragArea.addEventListener("dragleave", () => { dragArea.classList.remove("active"); });
+        dragArea.addEventListener("drop", (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function processFile(file) {
+            if (!API_KEY || API_KEY.includes("TU_API_KEY")) { errorMsg.innerText = "Falta configurar la API Key."; return; }
+            errorMsg.innerText = "";
+            dragArea.style.opacity = "0.5";
+            dragArea.style.pointerEvents = "none";
+            loader.style.display = "block";
+
+            try {
+                const base64Data = await fileToBase64(file);
+                const mimeType = file.type;
+                const genAI = new GoogleGenerativeAI(API_KEY);
+                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+                const prompt = `Analiza detalladamente este documento de Foja de Medición. Extrae todos los datos replicando la estructura de la tabla y los encabezados. Responde ÚNICAMENTE con el siguiente JSON estructurado, respeta la capitalización del texto extraído:
+                {
+                  "encabezado": {
+                    "obra": "string",
+                    "identif_obra": "string",
+                    "n_exp": "string",
+                    "fecha_inicio": "string",
+                    "fecha_medicion": "string",
+                    "fecha_terminacion": "string",
+                    "foja_medicion": "ejemplo: Foja de Medicion N 2 FINAL",
+                    "contratista": "string",
+                    "monto_contrato": "string con simbolos",
+                    "inspectores": "string",
+                    "inspectores_monto": "string con simbolos"
+                  },
+                  "items": [
+                    {
+                      "item": "numero o string ej: 1.1 o vacio. Si la fila indica nombre de sección mayor ponlo vacio y usa la descripción.",
+                      "descripcion": "string, respeta formato original",
+                      "un": "string",
+                      "cantidad_contrato": "string",
+                      "precio": "string",
+                      "cantidad_ant": "string",
+                      "cantidad_actual": "string",
+                      "cantidad_acum": "string",
+                      "avance_item": "string",
+                      "avance_obra": "string"
+                    }
+                  ],
+                  "variacion_decimales": {
+                    "existe": true_o_false,
+                    "avance_item": "numero/string ej: 0,0001",
+                    "avance_obra": "numero/string ej: 0,0001"
+                  },
+                  "avances": {
+                    "mensual": "string ej: 8,8808%",
+                    "acum_anterior": "string ej: 91,1192%",
+                    "acumulado": "string ej: 100,0000%"
+                  }
+                }`;
+
+                const result = await model.generateContent([
+                    { inlineData: { data: base64Data, mimeType: mimeType } },
+                    { text: prompt }
+                ]);
+
+                const response = await result.response;
+                let text = response.text().replace(/```json|```/g, "").trim();
+                const data = JSON.parse(text);
+                
+                currentState = data;
+                populateFormAndRender();
+                
+                // Hide Upload Section, Show Workspace
+                uploadSection.style.display = "none";
+                sidebar.style.display = "block";
+                mainPreview.style.display = "flex";
+
+            } catch (error) {
+                console.error(error);
+                errorMsg.innerText = "Error procesando el archivo: " + error.message;
+            } finally {
+                loader.style.display = "none";
+                dragArea.style.opacity = "1";
+                dragArea.style.pointerEvents = "auto";
+            }
+        }
+
+        function str(val) { return val || ''; }
+
+        function populateFormAndRender() {
+            if(!currentState) return;
+            
+            // Populating Editor Form
+            if(currentState.variacion_decimales) {
+                showVariacionDec.checked = currentState.variacion_decimales.existe;
+                varDecItem.value = str(currentState.variacion_decimales.avance_item);
+                varDecObra.value = str(currentState.variacion_decimales.avance_obra);
+            }
+            if(currentState.avances) {
+                avanceMensual.value = str(currentState.avances.mensual);
+                avanceAnterior.value = str(currentState.avances.acum_anterior);
+                avanceAcumulado.value = str(currentState.avances.acumulado);
+            }
+
+            renderDocument();
+        }
+
+        function renderDocument() {
+            // Update Headers
+            const head = currentState.encabezado || {};
+            document.getElementById('r_obra').textContent = str(head.obra);
+            document.getElementById('r_id_obra').textContent = str(head.identif_obra);
+            document.getElementById('r_exp').textContent = str(head.n_exp);
+            document.getElementById('r_f_inicio').textContent = str(head.fecha_inicio);
+            document.getElementById('r_f_medicion').textContent = str(head.fecha_medicion);
+            document.getElementById('r_f_fin').textContent = str(head.fecha_terminacion);
+            document.getElementById('r_foja').textContent = str(head.foja_medicion);
+            document.getElementById('r_contratista').textContent = str(head.contratista);
+            document.getElementById('r_monto').textContent = str(head.monto_contrato);
+            document.getElementById('r_inspectores').textContent = str(head.inspectores);
+            document.getElementById('r_inspectores_monto').textContent = str(head.inspectores_monto);
+
+            // Refresh Table Items
+            const tbody = document.getElementById('r_items_body');
+            tbody.innerHTML = '';
+            
+            if(currentState.items) {
+                currentState.items.forEach(itm => {
+                    const tr = document.createElement('tr');
+                    
+                    // If it has NO item number, NO units and NO prices, it's likely a Section Title.
+                    let isSection = !itm.item && !itm.un && !itm.precio && itm.descripcion;
+                    
+                    tr.innerHTML = `
+                        <td class="t-left border-top-only">${str(itm.item)}</td>
+                        <td class="t-left border-top-only" style="${isSection ? 'text-transform:uppercase; font-weight:bold;' : ''}">${str(itm.descripcion)}</td>
+                        <td class="t-center border-top-only">${str(itm.un)}</td>
+                        <td class="t-right border-top-only">${str(itm.cantidad_contrato)}</td>
+                        <td class="t-right border-top-only">${str(itm.precio)}</td>
+                        <td class="t-right border-top-only">${str(itm.cantidad_ant)}</td>
+                        <td class="t-right border-top-only">${str(itm.cantidad_actual)}</td>
+                        <td class="t-right border-top-only">${str(itm.cantidad_acum)}</td>
+                        <td class="t-right border-top-only">${str(itm.avance_item)}</td>
+                        <td class="t-right border-top-only">${str(itm.avance_obra)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Footer / Variacion Dec
+            const tfoot = document.getElementById('r_items_foot');
+            tfoot.innerHTML = '';
+            
+            if(showVariacionDec.checked) {
+                variacionGroup.style.display = 'block';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="t-left border-top-only"></td>
+                    <td class="t-left border-top-only" style="font-weight: normal;">Variación de decimales</td>
+                    <td class="t-center border-top-only"></td>
+                    <td class="t-right border-top-only"></td>
+                    <td class="t-right border-top-only"></td>
+                    <td class="t-right border-top-only"></td>
+                    <td class="t-right border-top-only"></td>
+                    <td class="t-right border-top-only"></td>
+                    <td class="t-right border-top-only">${varDecItem.value}</td>
+                    <td class="t-right border-top-only">${varDecObra.value}</td>
+                `;
+                tfoot.appendChild(tr);
+            } else {
+                variacionGroup.style.display = 'none';
+            }
+
+            // Bottom Boxes
+            document.getElementById('r_av_men').textContent = avanceMensual.value;
+            document.getElementById('r_av_ant').textContent = avanceAnterior.value;
+            document.getElementById('r_av_acu').textContent = avanceAcumulado.value;
+        }
+
+        // Live Binding
+        showVariacionDec.addEventListener('change', renderDocument);
+        varDecItem.addEventListener('input', renderDocument);
+        varDecObra.addEventListener('input', renderDocument);
+        avanceMensual.addEventListener('input', renderDocument);
+        avanceAnterior.addEventListener('input', renderDocument);
+        avanceAcumulado.addEventListener('input', renderDocument);
+
+    </script>
+</body>
+</html>
