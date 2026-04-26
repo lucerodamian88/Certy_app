@@ -101,7 +101,7 @@
             .printable-area, .printable-area * { visibility: visible; }
             .printable-area {
                 position: absolute; left: 0; top: 0; width: 100%;
-                font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; background: #fff;
+                font-family: Arial, Helvetica, sans-serif; font-size: 9pt; background: #fff;
                 box-shadow: none; outline: none; margin: 0; padding: 1.5cm;
                 box-sizing: border-box;
             }
@@ -189,7 +189,7 @@
                 <div class="printable-area" id="printableFoja" contenteditable="true">
                     <div class="p-header">
                         <h1 style="font-weight: bold; margin-bottom: 15pt;">Municipalidad de Neuquén</h1>
-                        <p class="p-info-row" style="text-transform: uppercase;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></p>
+                        <div style="text-transform: uppercase; margin-bottom: 6pt; text-align: left;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></div>
                         
                         <div class="p-info-row" style="margin-top: 10pt; justify-content: flex-start; gap: 40pt;">
                             <span>Identif. Obra <span id="r_id_obra" style="margin-left:10pt"></span></span>
@@ -320,9 +320,11 @@
             state.encabezado.obra = extract(/OBRA:\s*([^\n\r]+)/i);
             state.encabezado.identif_obra = extract(/Identif\.?\s*Obra\s*([^\n\r]+)/i);
             state.encabezado.n_exp = extract(/N°\s*Exp:?\s*([^\n\r]+)/i);
-            state.encabezado.fecha_inicio = extract(/De Inicio:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
-            state.encabezado.fecha_medicion = extract(/De Medición:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
-            state.encabezado.fecha_terminacion = extract(/Fecha de Terminación:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
+            
+            const dateMatches = text.match(/\d{2}\/\d{2}\/\d{2,4}/g);
+            if(dateMatches && dateMatches.length >= 1) state.encabezado.fecha_inicio = dateMatches[0];
+            if(dateMatches && dateMatches.length >= 2) state.encabezado.fecha_medicion = dateMatches[1];
+            if(dateMatches && dateMatches.length >= 3) state.encabezado.fecha_terminacion = dateMatches[2];
             
             const fojaVal = extract(/Foja de Medicion N[°\s]*([^\n\r]+)/i);
             if(fojaVal) state.encabezado.foja_medicion = "Foja de Medicion N " + fojaVal;
@@ -371,6 +373,15 @@
                                 descripcion: sectionMatch[2],
                                 un: '', cantidad_contrato: '', precio: '', cantidad_ant: '', cantidad_actual: '', cantidad_acum: '', avance_item: '', avance_obra: ''
                             });
+                            continue;
+                        }
+                    }
+                    
+                    // Podría ser la continuación de la descripción del ítem anterior
+                    if(state.items.length > 0) {
+                        const excludeRegex = /avance|variaci[oó]n|municipalidad|obra:|identif\.|fecha|foja|contratista|inspector|monto|^[\d\.,%\s]+$|canti|precio|item|descripc/i;
+                        if(!excludeRegex.test(line)) {
+                            state.items[state.items.length - 1].descripcion += " " + line;
                         }
                     }
                 }
