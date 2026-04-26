@@ -90,17 +90,20 @@
         .t-center { text-align: center !important; }
         
         .border-none { border: none !important; }
-        .border-top-only { border: none !important; border-top: 1px solid #000 !important; }
+
+        /* Color Negro absoluto para la impresion y edicion */
+        .printable-area, .printable-area * { color: #000 !important; }
 
         /* Print Override */
         @media print {
-            @page { size: A4 landscape; margin: 10mm; }
+            @page { size: A4 portrait; margin: 0; }
             body * { visibility: hidden; }
             .printable-area, .printable-area * { visibility: visible; }
             .printable-area {
                 position: absolute; left: 0; top: 0; width: 100%;
-                font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000; background: #fff;
-                box-shadow: none; outline: none; margin: 0; padding: 0;
+                font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; background: #fff;
+                box-shadow: none; outline: none; margin: 0; padding: 1.5cm;
+                box-sizing: border-box;
             }
             .p-table th, .p-table td { padding: 3pt 4pt; font-size: 9pt; }
             .p-header h1 { font-size: 16pt; margin-bottom: 5pt; }
@@ -183,22 +186,22 @@
 
             <!-- Previsualizacion Documento -->
             <div class="main-preview" id="mainPreview">
-                <div class="printable-area" id="printableFoja">
+                <div class="printable-area" id="printableFoja" contenteditable="true">
                     <div class="p-header">
-                        <h1>Municipalidad de Neuquén</h1>
+                        <h1 style="font-weight: bold; margin-bottom: 15pt;">Municipalidad de Neuquén</h1>
                         <p class="p-info-row" style="text-transform: uppercase;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></p>
                         
-                        <div class="p-info-row" style="margin-top: 10pt;">
-                            <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp; <span id="r_id_obra"></span></span>
-                            <span>N° Exp: &nbsp;&nbsp;&nbsp;&nbsp; <span id="r_exp"></span></span>
-                            <span>FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
+                        <div class="p-info-row" style="margin-top: 10pt; justify-content: flex-start; gap: 40pt;">
+                            <span>Identif. Obra <span id="r_id_obra" style="margin-left:10pt"></span></span>
+                            <span>N° Exp: <span id="r_exp" style="margin-left:10pt"></span></span>
+                            <span>FOJA DE MEDICION POR UNIDAD DE MEDIDA</span>
                         </div>
                     </div>
 
                     <!-- Tabla Fechas y Numero de Foja -->
-                    <table class="p-table" style="margin-bottom: 0; border-bottom: none;">
+                    <table class="p-table" style="margin-bottom: 5pt; margin-top: 5pt;">
                         <tr>
-                            <td colspan="3" class="t-center" style="font-weight: bold; padding: 2pt;">FECHAS</td>
+                            <td colspan="3" class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
                             <td rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
                         </tr>
                         <tr>
@@ -209,18 +212,14 @@
                     </table>
 
                     <!-- Datos Generales -->
-                    <table class="p-table" style="margin-top: 0; border-top: none;">
-                        <tr>
-                            <td colspan="3" class="t-left border-none" style="text-transform: uppercase;">
-                                CONTRATISTA: <span id="r_contratista"></span>
-                            </td>
-                            <td class="t-right border-none" style="width: 250pt;">Monto Contrato: $ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="r_monto"></span></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" class="t-left border-none"> Inspectores: <span id="r_inspectores"></span></td>
-                            <td class="t-right border-none"><span id="r_inspectores_monto"></span></td>
-                        </tr>
-                    </table>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt; font-size: 9.5pt;">
+                        <div style="text-transform: uppercase;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
+                        <div>Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt; font-size: 9.5pt;">
+                        <div>Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
+                        <div><span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                    </div>
 
                     <!-- Tabla de Items -->
                     <table class="p-table" id="r_items_table">
@@ -250,17 +249,17 @@
                     </table>
 
                     <!-- Cuadro Final (Avances) -->
-                    <table class="p-table" style="width: 350pt; float: right; margin-top: -1pt;">
+                    <table class="p-table" style="width: 300pt; float: right; margin-top: 5pt;">
                         <tr>
-                            <td class="t-left" style="font-weight: bold; width: 230pt;">Avance de Obra Mensual</td>
+                            <td class="t-left" style="font-weight: normal; width: 180pt;">Avance de Obra Mensual</td>
                             <td class="t-right" id="r_av_men"></td>
                         </tr>
                         <tr>
-                            <td class="t-left" style="font-weight: bold;">Avance Acum. Anterior</td>
+                            <td class="t-left" style="font-weight: normal;">Avance Acum. Anterior</td>
                             <td class="t-right" id="r_av_ant"></td>
                         </tr>
                         <tr>
-                            <td class="t-left" style="font-weight: bold;">Avance Acumulado</td>
+                            <td class="t-left" style="font-weight: normal;">Avance Acumulado</td>
                             <td class="t-right" id="r_av_acu"></td>
                         </tr>
                     </table>
@@ -452,16 +451,16 @@
                     let isSection = !itm.item && !itm.un && !itm.precio && itm.descripcion;
                     
                     tr.innerHTML = `
-                        <td class="t-left border-top-only">${str(itm.item)}</td>
-                        <td class="t-left border-top-only" style="${isSection ? 'text-transform:uppercase; font-weight:bold;' : ''}">${str(itm.descripcion)}</td>
-                        <td class="t-center border-top-only">${str(itm.un)}</td>
-                        <td class="t-right border-top-only">${str(itm.cantidad_contrato)}</td>
-                        <td class="t-right border-top-only">${str(itm.precio)}</td>
-                        <td class="t-right border-top-only">${str(itm.cantidad_ant)}</td>
-                        <td class="t-right border-top-only">${str(itm.cantidad_actual)}</td>
-                        <td class="t-right border-top-only">${str(itm.cantidad_acum)}</td>
-                        <td class="t-right border-top-only">${str(itm.avance_item)}</td>
-                        <td class="t-right border-top-only">${str(itm.avance_obra)}</td>
+                        <td class="t-left">${str(itm.item)}</td>
+                        <td class="t-left" style="${isSection ? 'text-transform:uppercase; font-weight:bold;' : ''}">${str(itm.descripcion)}</td>
+                        <td class="t-center">${str(itm.un)}</td>
+                        <td class="t-right">${str(itm.cantidad_contrato)}</td>
+                        <td class="t-right">${str(itm.precio)}</td>
+                        <td class="t-right">${str(itm.cantidad_ant)}</td>
+                        <td class="t-right">${str(itm.cantidad_actual)}</td>
+                        <td class="t-right">${str(itm.cantidad_acum)}</td>
+                        <td class="t-right">${str(itm.avance_item)}</td>
+                        <td class="t-right">${str(itm.avance_obra)}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -475,16 +474,16 @@
                 variacionGroup.style.display = 'block';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="t-left border-top-only"></td>
-                    <td class="t-left border-top-only" style="font-weight: normal;">Variación de decimales</td>
-                    <td class="t-center border-top-only"></td>
-                    <td class="t-right border-top-only"></td>
-                    <td class="t-right border-top-only"></td>
-                    <td class="t-right border-top-only"></td>
-                    <td class="t-right border-top-only"></td>
-                    <td class="t-right border-top-only"></td>
-                    <td class="t-right border-top-only">${varDecItem.value}</td>
-                    <td class="t-right border-top-only">${varDecObra.value}</td>
+                    <td class="t-left"></td>
+                    <td class="t-left" style="font-weight: normal;">Variación de decimales</td>
+                    <td class="t-center"></td>
+                    <td class="t-right"></td>
+                    <td class="t-right"></td>
+                    <td class="t-right"></td>
+                    <td class="t-right"></td>
+                    <td class="t-right"></td>
+                    <td class="t-right">${varDecItem.value}</td>
+                    <td class="t-right">${varDecObra.value}</td>
                 `;
                 tfoot.appendChild(tr);
             } else {
@@ -492,9 +491,10 @@
             }
 
             // Bottom Boxes
-            document.getElementById('r_av_men').textContent = avanceMensual.value;
-            document.getElementById('r_av_ant').textContent = avanceAnterior.value;
-            document.getElementById('r_av_acu').textContent = avanceAcumulado.value;
+            const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
+            document.getElementById('r_av_men').textContent = formatPct(avanceMensual.value);
+            document.getElementById('r_av_ant').textContent = formatPct(avanceAnterior.value);
+            document.getElementById('r_av_acu').textContent = formatPct(avanceAcumulado.value);
         }
 
         // Live Binding
