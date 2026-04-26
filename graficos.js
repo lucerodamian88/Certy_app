@@ -504,8 +504,12 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('pdfFechaInicio').textContent = fIni ? fIni.split('-').reverse().join('/') : '';
       document.getElementById('pdfFechaMedicion').textContent = fMed ? fMed.split('-').reverse().join('/') : '';
       document.getElementById('pdfFechaFin').textContent = fFin ? fFin.split('-').reverse().join('/') : '';
-      document.getElementById('pdfFojaHead').textContent = foja;
-      document.getElementById('pdfFojaTitle').textContent = foja;
+      
+      const isAdicional = document.getElementById('cgFojaAdicionalOption') && document.getElementById('cgFojaAdicionalOption').checked;
+      const fojaText = isAdicional ? "Foja de Medición Adicional N 1 FINAL" : "Foja de Medicion N " + foja;
+      
+      document.getElementById('pdfFojaHead').textContent = fojaText;
+      document.getElementById('pdfFojaTitle').textContent = fojaText;
       document.getElementById('pdfFechaMedicionTitle').textContent = formatFecha(fMed);
 
       // Poblar tabla dinamica
