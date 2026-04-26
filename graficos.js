@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartRenderArea = document.getElementById('chartRenderArea');
   const cgFechaInicio = document.getElementById('cgFechaInicio');
   
+  const cgFoja = document.getElementById('cgFoja');
+  const cgFojaAdicionalOption = document.getElementById('cgFojaAdicionalOption');
+  if (cgFojaAdicionalOption && cgFoja) {
+    cgFojaAdicionalOption.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        cgFoja.disabled = true;
+        cgFoja.value = "1 FINAL";
+        cgFoja.style.opacity = "0.5";
+      } else {
+        cgFoja.disabled = false;
+        cgFoja.value = "";
+        cgFoja.style.opacity = "1";
+      }
+    });
+  }
+  
   // Table Rows (Teorico)
   const tHeadTr = document.getElementById('tHeadTr');
   const tAcumTr = document.getElementById('tAcumTr');
@@ -373,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Truncate to 2 decimals (no rounding up)
             return (Math.floor(v * 100) / 100).toFixed(2);
           },
-          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 16, weight: 'bold' }
+          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 18, weight: 'bold' }
         }
       }
     ];
@@ -404,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Truncate to 2 decimals (no rounding up)
             return (Math.floor(v * 100) / 100).toFixed(2);
           },
-          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 16, weight: 'bold' }
+          font: { size: canvasId === 'sCurveChartPreview' ? 13 : 18, weight: 'bold' }
         }
       });
     }
@@ -419,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'line',
       data: { labels: chartLabels, datasets },
       options: {
+        devicePixelRatio: canvasId === 'sCurveChartPreview' ? window.devicePixelRatio : 4,
         responsive: true,
         maintainAspectRatio: false,
         animation: animate ? { duration: 800 } : false,
@@ -427,14 +444,14 @@ document.addEventListener('DOMContentLoaded', () => {
           y: {
             beginAtZero: true,
             max: yMax,
-            ticks: { stepSize: yMax > 130 ? 30 : 20, font: { size: 12 } },
+            ticks: { stepSize: yMax > 130 ? 30 : 20, font: { size: canvasId === 'sCurveChartPreview' ? 12 : 15 } },
             grid: { color: '#ccc' }
           },
           x: {
             offset: true,
             grid: { color: '#ccc' },
             ticks: { 
-              font: { size: canvasId === 'sCurveChartPreview' ? 10 : 11, weight: 'bold' },
+              font: { size: canvasId === 'sCurveChartPreview' ? 10 : 13, weight: 'bold' },
               maxRotation: 45,
               minRotation: 45
             }
