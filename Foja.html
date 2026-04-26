@@ -81,8 +81,8 @@
         .p-info-row span { font-weight: normal; }
         .p-info-bold { font-weight: bold !important; }
         
-        .p-table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; border: 1px solid #000; }
-        .p-table th, .p-table td { border: 1px solid #000; padding: 4pt; text-align: center; }
+        .p-table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; border: 1px solid #000; border-radius: 0 !important; }
+        .p-table th, .p-table td { border: 1px solid #000; padding: 4pt; text-align: center; border-radius: 0 !important; }
         .p-table th { background: #fff; font-weight: bold; }
         
         .t-left { text-align: left !important; }
@@ -191,45 +191,41 @@
                         <h1 style="font-weight: bold; margin-bottom: 15pt;">Municipalidad de Neuquén</h1>
                         <div style="text-transform: uppercase; margin-bottom: 6pt; text-align: left;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></div>
                         
-                        <div class="p-info-row" style="margin-top: 10pt; justify-content: flex-start; gap: 40pt;">
-                            <span>Identif. Obra <span id="r_id_obra" style="margin-left:10pt"></span></span>
-                            <span>N° Exp: <span id="r_exp" style="margin-left:10pt"></span></span>
-                            <span>FOJA DE MEDICION POR UNIDAD DE MEDIDA</span>
+                        <div style="margin-top: 10pt; text-align: left; text-transform: uppercase;">
+                            <span>Identif. Obra &nbsp;&nbsp; <span id="r_id_obra"></span></span>
+                            <span style="margin-left: 20pt;">N° Exp: &nbsp;&nbsp; <span id="r_exp"></span></span>
+                            <span style="margin-left: 20pt;">FOJA DE MEDICION POR &nbsp;&nbsp; UNIDAD DE MEDIDA</span>
                         </div>
                     </div>
 
-                    <!-- Gran Tabla de Datos -->
-                    <table class="p-table" id="r_items_table" style="margin-top: 5pt;">
+                    <!-- Tabla Fechas y Numero de Foja -->
+                    <table class="p-table" style="margin-bottom: 3pt; margin-top: 5pt; table-layout: fixed;">
+                        <tr>
+                            <td class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
+                            <td rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
+                        </tr>
+                        <tr>
+                            <td class="t-left" style="padding-left: 4pt;">
+                                De Inicio: <span id="r_f_inicio" style="margin-left:5pt; margin-right:20pt;"></span>
+                                De Medición: <span id="r_f_medicion" style="margin-left:5pt; margin-right:20pt;"></span>
+                                Fecha de Terminación: <span id="r_f_fin" style="margin-left:5pt;"></span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Datos Generales -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt;">
+                        <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
+                        <div style="padding-right: 4pt;">Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;">
+                        <div style="padding-left: 4pt;">Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
+                        <div style="padding-right: 4pt;"><span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;">0,00</span></div>
+                    </div>
+
+                    <!-- Tabla de Items -->
+                    <table class="p-table" id="r_items_table" style="margin-top: 2pt;">
                         <thead>
-                            <!-- FECHAS -->
-                            <tr>
-                                <td colspan="7" class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
-                                <td colspan="3" rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="t-left border-none" style="border-right: 1px solid #000 !important; border-left: 1px solid #000 !important; padding-left: 4pt;">De Inicio: <span id="r_f_inicio" style="margin-left:10pt"></span></td>
-                                <td colspan="2" class="t-left border-none" style="border-right: 1px solid #000 !important; padding-left: 4pt;">De Medición: <span id="r_f_medicion" style="margin-left:10pt"></span></td>
-                                <td colspan="3" class="t-left border-none" style="border-right: 1px solid #000 !important; padding-left: 4pt;">Fecha de Terminación: <span id="r_f_fin" style="margin-left:10pt"></span></td>
-                            </tr>
-
-                            <!-- Datos Generales -->
-                            <tr>
-                                <td colspan="7" class="t-left border-none" style="border-left: 1px solid #000 !important; border-top: 1px solid #000 !important; text-transform: uppercase; padding-left: 4pt;">
-                                    CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span>
-                                </td>
-                                <td colspan="3" class="t-right border-none" style="border-right: 1px solid #000 !important; border-top: 1px solid #000 !important; padding-right: 4pt;">
-                                    Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="7" class="t-left border-none" style="border-left: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding-left: 4pt;">
-                                    Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span>
-                                </td>
-                                <td colspan="3" class="t-right border-none" style="border-right: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding-right: 4pt;">
-                                    <span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;"></span>
-                                </td>
-                            </tr>
-
                             <!-- Cabecera Items -->
                             <tr>
                                 <th rowspan="2" style="width: 30pt;">Ítem</th>
