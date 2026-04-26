@@ -101,7 +101,7 @@
             .printable-area, .printable-area * { visibility: visible; }
             .printable-area {
                 position: absolute; left: 0; top: 0; width: 100%;
-                font-family: Arial, Helvetica, sans-serif; font-size: 9pt; background: #fff;
+                font-family: Arial, Helvetica, sans-serif; font-size: 8pt; background: #fff;
                 box-shadow: none; outline: none; margin: 0; padding: 1.5cm;
                 box-sizing: border-box;
             }
@@ -181,7 +181,7 @@
                     <input type="text" id="avanceAcumulado" placeholder="ej: 100,0000%">
                 </div>
 
-                <button class="btn-certy btn-green" onclick="window.print()"><i class="fa-solid fa-print"></i> Generar / Imprimir</button>
+                <button class="btn-certy btn-green" id="downloadPdfBtn" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> GENERAR</button>
             </div>
 
             <!-- Previsualizacion Documento -->
@@ -198,32 +198,39 @@
                         </div>
                     </div>
 
-                    <!-- Tabla Fechas y Numero de Foja -->
-                    <table class="p-table" style="margin-bottom: 5pt; margin-top: 5pt;">
-                        <tr>
-                            <td colspan="3" class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
-                            <td rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-left">De Inicio: <span id="r_f_inicio" style="margin-left:10pt"></span></td>
-                            <td class="t-left">De Medición: <span id="r_f_medicion" style="margin-left:10pt"></span></td>
-                            <td class="t-left">Fecha de Terminación: <span id="r_f_fin" style="margin-left:10pt"></span></td>
-                        </tr>
-                    </table>
-
-                    <!-- Datos Generales -->
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt; font-size: 9.5pt;">
-                        <div style="text-transform: uppercase;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
-                        <div>Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt; font-size: 9.5pt;">
-                        <div>Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
-                        <div><span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;"></span></div>
-                    </div>
-
-                    <!-- Tabla de Items -->
-                    <table class="p-table" id="r_items_table">
+                    <!-- Gran Tabla de Datos -->
+                    <table class="p-table" id="r_items_table" style="margin-top: 5pt;">
                         <thead>
+                            <!-- FECHAS -->
+                            <tr>
+                                <td colspan="7" class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
+                                <td colspan="3" rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="t-left border-none" style="border-right: 1px solid #000 !important; border-left: 1px solid #000 !important; padding-left: 4pt;">De Inicio: <span id="r_f_inicio" style="margin-left:10pt"></span></td>
+                                <td colspan="2" class="t-left border-none" style="border-right: 1px solid #000 !important; padding-left: 4pt;">De Medición: <span id="r_f_medicion" style="margin-left:10pt"></span></td>
+                                <td colspan="3" class="t-left border-none" style="border-right: 1px solid #000 !important; padding-left: 4pt;">Fecha de Terminación: <span id="r_f_fin" style="margin-left:10pt"></span></td>
+                            </tr>
+
+                            <!-- Datos Generales -->
+                            <tr>
+                                <td colspan="7" class="t-left border-none" style="border-left: 1px solid #000 !important; border-top: 1px solid #000 !important; text-transform: uppercase; padding-left: 4pt;">
+                                    CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span>
+                                </td>
+                                <td colspan="3" class="t-right border-none" style="border-right: 1px solid #000 !important; border-top: 1px solid #000 !important; padding-right: 4pt;">
+                                    Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="7" class="t-left border-none" style="border-left: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding-left: 4pt;">
+                                    Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span>
+                                </td>
+                                <td colspan="3" class="t-right border-none" style="border-right: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding-right: 4pt;">
+                                    <span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;"></span>
+                                </td>
+                            </tr>
+
+                            <!-- Cabecera Items -->
                             <tr>
                                 <th rowspan="2" style="width: 30pt;">Ítem</th>
                                 <th rowspan="2" style="width: 350pt;">Descripción</th>
@@ -511,11 +518,49 @@
         // Live Binding
         showVariacionDec.addEventListener('change', renderDocument);
         varDecItem.addEventListener('input', renderDocument);
-        varDecObra.addEventListener('input', renderDocument);
         avanceMensual.addEventListener('input', renderDocument);
         avanceAnterior.addEventListener('input', renderDocument);
         avanceAcumulado.addEventListener('input', renderDocument);
 
+        async function downloadPDF() {
+            const btn = document.getElementById('downloadPdfBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> GENERANDO...';
+            btn.disabled = true;
+
+            try {
+                const element = document.getElementById('printableFoja');
+                // Temporary styles for optimal capture
+                const originalPadding = element.style.padding;
+                const originalMargin = element.style.margin;
+                element.style.padding = '15mm';
+                element.style.margin = '0';
+                
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('Foja_de_Medicion.pdf');
+                
+                // Restore styles
+                element.style.padding = originalPadding;
+                element.style.margin = originalMargin;
+            } catch (err) {
+                console.error("Error generando PDF: ", err);
+                alert("Ocurrió un error al generar el PDF.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
