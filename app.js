@@ -18,7 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const empresaSel = document.getElementById('empresa');
   if (empresaSel) {
-    cargarDatosEmpresas().catch(err => console.error('Error al precargar empresas', err));
+    cargarDatosEmpresas()
+      .then(data => {
+        const empresasArray = Object.values(data).map(item => item.originalName).filter(Boolean);
+        empresasArray.sort((a, b) => a.localeCompare(b, 'es'));
+        empresaSel.innerHTML = '<option value="" disabled selected>Seleccione</option>';
+        empresasArray.forEach(nombre => {
+          const opt = document.createElement('option');
+          opt.value = nombre;
+          opt.textContent = nombre;
+          empresaSel.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error('Error al precargar empresas', err);
+        empresaSel.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+      });
     empresaSel.addEventListener('change', e => manejarCambioEmpresa(e.target.value));
   }
 
@@ -1336,6 +1351,7 @@ async function cargarDatosEmpresas() {
             const key = normalizarEmpresa(empresa);
             if (!key) return;
             data[key] = {
+              originalName: empresa,
               tipo: cells[1] && cells[1].v ? String(cells[1].v).trim() : '',
               nombreDni: cells[2] && cells[2].v ? String(cells[2].v).trim() : '',
               domicilio: cells[3] && cells[3].v ? String(cells[3].v).trim() : ''
