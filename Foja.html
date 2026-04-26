@@ -144,8 +144,13 @@
             <div class="loader" id="loader"></div>
             <div id="errorMsg" style="color: red; margin-top: 1rem; font-weight: bold;"></div>
             
-            <div id="apiKeyNotice" style="margin-top: 1rem; padding: 10px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; display: none;">
-                <strong>API Key no configurada</strong> - Inserta tu clave Gemini en el código fuente (API_KEY).
+            <div id="apiKeySection" style="margin-top: 1rem; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: left;">
+                <label for="userApiKey" style="font-weight: bold; display: block; margin-bottom: 5px; color: #1a202c;">API Key de Google Gemini</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="password" id="userApiKey" placeholder="AIzaSy..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <button id="saveApiKeyBtn" class="btn-certy" style="padding: 8px 15px; margin-top: 0; min-width: auto; font-size: 0.9rem;">Guardar Key</button>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">Tu clave se guarda en tu navegador localmente. Necesaria para procesar el PDF.</p>
             </div>
         </div>
 
@@ -281,7 +286,7 @@
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest";
 
-        const API_KEY = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I"; 
+        const fallbackApiKey = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I"; 
         
         let currentState = null;
 
@@ -293,6 +298,9 @@
         const uploadSection = document.getElementById("uploadSection");
         const sidebar = document.getElementById("sidebar");
         const mainPreview = document.getElementById("mainPreview");
+        
+        const userApiKeyInput = document.getElementById("userApiKey");
+        const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
 
         // Reactivity Controls
         const showVariacionDec = document.getElementById("showVariacionDec");
@@ -303,9 +311,22 @@
         const avanceAnterior = document.getElementById("avanceAnterior");
         const avanceAcumulado = document.getElementById("avanceAcumulado");
 
-        if (!API_KEY || API_KEY.includes("TU_API_KEY")) {
-            document.getElementById("apiKeyNotice").style.display = "block";
+        // Load saved API Key
+        const savedKey = localStorage.getItem("certy_gemini_api_key");
+        if (savedKey) {
+            userApiKeyInput.value = savedKey;
         }
+
+        saveApiKeyBtn.addEventListener("click", () => {
+            const val = userApiKeyInput.value.trim();
+            if (val) {
+                localStorage.setItem("certy_gemini_api_key", val);
+                alert("API Key guardada en el navegador.");
+            } else {
+                localStorage.removeItem("certy_gemini_api_key");
+                alert("API Key eliminada.");
+            }
+        });
 
         selectBtn.onclick = () => fileInput.click();
         fileInput.addEventListener("change", function () { if (this.files[0]) processFile(this.files[0]); });
@@ -323,7 +344,8 @@
         }
 
         async function processFile(file) {
-            if (!API_KEY || API_KEY.includes("TU_API_KEY")) { errorMsg.innerText = "Falta configurar la API Key."; return; }
+            const currentKey = userApiKeyInput.value.trim() || fallbackApiKey;
+            if (!currentKey || currentKey.includes("TU_API_KEY")) { errorMsg.innerText = "Falta configurar la API Key. Por favor ingresa una clave válida."; return; }
             errorMsg.innerText = "";
             dragArea.style.opacity = "0.5";
             dragArea.style.pointerEvents = "none";
@@ -332,7 +354,7 @@
             try {
                 const base64Data = await fileToBase64(file);
                 const mimeType = file.type;
-                const genAI = new GoogleGenerativeAI(API_KEY);
+                const genAI = new GoogleGenerativeAI(currentKey);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
                 const prompt = `Analiza detalladamente este documento de Foja de Medición. Extrae todos los datos replicando la estructura de la tabla y los encabezados. Responde ÚNICAMENTE con el siguiente JSON estructurado, respeta la capitalización del texto extraído:
