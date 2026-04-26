@@ -130,23 +130,18 @@
 
     <div style="max-width: 1600px; margin: 0 auto; padding: 1rem 2rem;">
         
-        <div id="uploadSection" style="max-width: 800px; margin: 2rem auto; text-align: center;">
-            <h1 style="color: #0C4FB7; margin-bottom: 1rem;">Carga tu imagen o PDF de Foja</h1>
-            <p style="color: #4a5568; margin-bottom: 2rem;">Sube la foja capturada. Nuestro motor visual mapeará el contenido y producirá una nueva plantilla lista para descargar.</p>
+        <div id="uploadSection" style="max-width: 900px; margin: 2rem auto; text-align: center;">
+            <h1 style="color: #0C4FB7; margin-bottom: 1rem;">Generador de Foja Institucional</h1>
+            <p style="color: #4a5568; margin-bottom: 2rem;">Copia todo el texto de tu PDF de la foja y pégalo abajo. Nuestro sistema estructurará el contenido automáticamente.</p>
             
-            <div class="drag-area" id="dragArea">
-                <div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                <header>Arrastra tu archivo o presiona Ctrl+V para pegar una captura</header>
-                <span>o</span>
-                <button class="btn-certy"><i class="fa-solid fa-file-image"></i> Seleccionar Archivo</button>
-                <input type="file" hidden id="fileInput" accept="image/*,application/pdf">
+            <textarea id="rawTextInput" style="width: 100%; height: 250px; padding: 1rem; border-radius: 12px; border: 2px solid #cbd5e1; font-family: monospace; font-size: 0.95rem; resize: vertical;" placeholder="Pegue aquí el texto copiado del PDF de la Foja..."></textarea>
+            
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+                <button id="processBtn" class="btn-certy"><i class="fa-solid fa-wand-magic-sparkles"></i> Procesar y Previsualizar</button>
+                <button id="clearBtn" class="btn-certy" style="background: #e2e8f0; color: #475569;"><i class="fa-solid fa-trash-can"></i> Limpiar Datos</button>
             </div>
-            <div class="loader" id="loader"></div>
+            
             <div id="errorMsg" style="color: red; margin-top: 1rem; font-weight: bold;"></div>
-            
-            <div id="apiKeyNotice" style="margin-top: 1rem; padding: 10px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; display: none;">
-                <strong>API Key no configurada</strong> - Inserta tu clave Gemini en el código fuente (API_KEY).
-            </div>
         </div>
 
         <div class="app-layout">
@@ -277,18 +272,12 @@
         </div>
     </div>
 
-    <!-- SDK Gemini -->
-    <script type="module">
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai@latest";
-
-        const API_KEY = "AIzaSyDW1WFnD-xdlqZRFXCPjK8l4FAzRY9XN2I"; 
-        
+    <script>
         let currentState = null;
 
-        const dragArea = document.getElementById("dragArea");
-        const fileInput = document.getElementById("fileInput");
-        const selectBtn = dragArea.querySelector("button");
-        const loader = document.getElementById("loader");
+        const rawTextInput = document.getElementById("rawTextInput");
+        const processBtn = document.getElementById("processBtn");
+        const clearBtn = document.getElementById("clearBtn");
         const errorMsg = document.getElementById("errorMsg");
         const uploadSection = document.getElementById("uploadSection");
         const sidebar = document.getElementById("sidebar");
@@ -303,115 +292,116 @@
         const avanceAnterior = document.getElementById("avanceAnterior");
         const avanceAcumulado = document.getElementById("avanceAcumulado");
 
-        if (!API_KEY || API_KEY.includes("TU_API_KEY")) {
-            document.getElementById("apiKeyNotice").style.display = "block";
-        }
-
-        selectBtn.onclick = () => fileInput.click();
-        fileInput.addEventListener("change", function () { if (this.files[0]) processFile(this.files[0]); });
-        dragArea.addEventListener("dragover", (e) => { e.preventDefault(); dragArea.classList.add("active"); });
-        dragArea.addEventListener("dragleave", () => { dragArea.classList.remove("active"); });
-        dragArea.addEventListener("drop", (e) => { e.preventDefault(); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
-
-        // Add paste event listener to capture screenshots
-        document.addEventListener("paste", (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let index in items) {
-                const item = items[index];
-                if (item.kind === 'file') {
-                    const blob = item.getAsFile();
-                    processFile(blob);
-                }
-            }
+        clearBtn.addEventListener("click", () => {
+            rawTextInput.value = "";
+            errorMsg.innerText = "";
         });
 
-        async function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
+        processBtn.addEventListener("click", () => {
+            const text = rawTextInput.value.trim();
+            if(!text) {
+                errorMsg.innerText = "Por favor, pega el texto del PDF primero.";
+                return;
+            }
+            errorMsg.innerText = "";
+            processText(text);
+        });
+
+        function parseText(text) {
+            const state = {
+                encabezado: {},
+                items: [],
+                variacion_decimales: { existe: false },
+                avances: {}
+            };
+
+            // 1. Encabezado
+            const extract = (regex) => { const m = text.match(regex); return m ? m[1].trim() : ""; };
+            
+            state.encabezado.obra = extract(/OBRA:\s*([^\n\r]+)/i);
+            state.encabezado.identif_obra = extract(/Identif\.?\s*Obra\s*([^\n\r]+)/i);
+            state.encabezado.n_exp = extract(/N°\s*Exp:?\s*([^\n\r]+)/i);
+            state.encabezado.fecha_inicio = extract(/De Inicio:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
+            state.encabezado.fecha_medicion = extract(/De Medición:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
+            state.encabezado.fecha_terminacion = extract(/Fecha de Terminación:\s*(\d{2}\/\d{2}\/\d{2,4})/i);
+            
+            const fojaVal = extract(/Foja de Medicion N[°\s]*([^\n\r]+)/i);
+            if(fojaVal) state.encabezado.foja_medicion = "Foja de Medicion N " + fojaVal;
+
+            state.encabezado.contratista = extract(/CONTRATISTA:\s*([^\n\r]+)/i);
+            
+            const montoMatch = text.match(/Monto Contrato:\s*\$?\s*([\d\.,]+)/i);
+            state.encabezado.monto_contrato = montoMatch ? montoMatch[1].trim() : "";
+
+            state.encabezado.inspectores = extract(/Inspectores:\s*([^\n\r]+)/i);
+
+            // 2. Items
+            // Intentar detectar lineas que comiencen con números de ítem
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            for(let i=0; i<lines.length; i++) {
+                let line = lines[i];
+                
+                // Detectar si es un ítem normal con muchos números
+                // Grupo 1: Item (1, 1.1, etc)
+                // Grupo 2: Descripcion
+                // Grupo 3 al final: Valores (Unidad, cant, etc)
+                const itemMatch = line.match(/^(\d+(?:\.\d+)*)\s+(.+?)\s+([A-Za-z\d²³]+|\-)?\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+%?)\s+([\d\.,]+%?)$/);
+                
+                if (itemMatch) {
+                    state.items.push({
+                        item: itemMatch[1],
+                        descripcion: itemMatch[2],
+                        un: itemMatch[3] || '',
+                        cantidad_contrato: itemMatch[4],
+                        precio: itemMatch[5],
+                        cantidad_ant: itemMatch[6],
+                        cantidad_actual: itemMatch[7],
+                        cantidad_acum: itemMatch[8],
+                        avance_item: itemMatch[9],
+                        avance_obra: itemMatch[10]
+                    });
+                } else {
+                    // Si no matchea todo, puede ser un título de sección (solo número y texto)
+                    const sectionMatch = line.match(/^(\d+(?:\.\d+)*)\s+([A-Za-z].+)$/);
+                    if(sectionMatch && !line.includes("Avance") && !line.includes("Variación")) {
+                        // Es un título de sección, verificar si tiene numeros al final
+                        const hasNumbers = /\d/.test(sectionMatch[2].substring(Math.max(0, sectionMatch[2].length - 5)));
+                        if(!hasNumbers) {
+                            state.items.push({
+                                item: sectionMatch[1],
+                                descripcion: sectionMatch[2],
+                                un: '', cantidad_contrato: '', precio: '', cantidad_ant: '', cantidad_actual: '', cantidad_acum: '', avance_item: '', avance_obra: ''
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 3. Totales y Avances
+            state.avances.mensual = extract(/Avance de Obra Mensual\s+([\d\.,]+%?)/i);
+            state.avances.acum_anterior = extract(/Avance Acum\.?\s*Anterior\s+([\d\.,]+%?)/i);
+            state.avances.acumulado = extract(/Avance Acumulado\s+([\d\.,]+%?)/i);
+
+            const varDecMatch = text.match(/Variaci[oó]n de decimales.*?\s+([\d\.,\-]+)\s+([\d\.,\-]+)$/im);
+            if(varDecMatch) {
+                state.variacion_decimales.existe = true;
+                state.variacion_decimales.avance_item = varDecMatch[1];
+                state.variacion_decimales.avance_obra = varDecMatch[2];
+            }
+
+            return state;
         }
 
-        async function processFile(file) {
-            if (!API_KEY || API_KEY.includes("TU_API_KEY")) { errorMsg.innerText = "Falta configurar la API Key."; return; }
-            errorMsg.innerText = "";
-            dragArea.style.opacity = "0.5";
-            dragArea.style.pointerEvents = "none";
-            loader.style.display = "block";
-
+        function processText(text) {
             try {
-                const base64Data = await fileToBase64(file);
-                const mimeType = file.type;
-                const genAI = new GoogleGenerativeAI(API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-                const prompt = `Analiza detalladamente este documento de Foja de Medición. Extrae todos los datos replicando la estructura de la tabla y los encabezados. Responde ÚNICAMENTE con el siguiente JSON estructurado, respeta la capitalización del texto extraído:
-                {
-                  "encabezado": {
-                    "obra": "string",
-                    "identif_obra": "string",
-                    "n_exp": "string",
-                    "fecha_inicio": "string",
-                    "fecha_medicion": "string",
-                    "fecha_terminacion": "string",
-                    "foja_medicion": "ejemplo: Foja de Medicion N 2 FINAL",
-                    "contratista": "string",
-                    "monto_contrato": "string con simbolos",
-                    "inspectores": "string",
-                    "inspectores_monto": "string con simbolos"
-                  },
-                  "items": [
-                    {
-                      "item": "numero o string ej: 1.1 o vacio. Si la fila indica nombre de sección mayor ponlo vacio y usa la descripción.",
-                      "descripcion": "string, respeta formato original",
-                      "un": "string",
-                      "cantidad_contrato": "string",
-                      "precio": "string",
-                      "cantidad_ant": "string",
-                      "cantidad_actual": "string",
-                      "cantidad_acum": "string",
-                      "avance_item": "string",
-                      "avance_obra": "string"
-                    }
-                  ],
-                  "variacion_decimales": {
-                    "existe": true_o_false,
-                    "avance_item": "numero/string ej: 0,0001",
-                    "avance_obra": "numero/string ej: 0,0001"
-                  },
-                  "avances": {
-                    "mensual": "string ej: 8,8808%",
-                    "acum_anterior": "string ej: 91,1192%",
-                    "acumulado": "string ej: 100,0000%"
-                  }
-                }`;
-
-                const result = await model.generateContent([
-                    { inlineData: { data: base64Data, mimeType: mimeType } },
-                    { text: prompt }
-                ]);
-
-                const response = await result.response;
-                let text = response.text().replace(/```json|```/g, "").trim();
-                const data = JSON.parse(text);
-                
-                currentState = data;
+                currentState = parseText(text);
                 populateFormAndRender();
                 
-                // Hide Upload Section, Show Workspace
                 uploadSection.style.display = "none";
                 sidebar.style.display = "block";
                 mainPreview.style.display = "flex";
-
-            } catch (error) {
-                console.error(error);
-                errorMsg.innerText = "Error procesando el archivo: " + error.message;
-            } finally {
-                loader.style.display = "none";
-                dragArea.style.opacity = "1";
-                dragArea.style.pointerEvents = "auto";
+            } catch (err) {
+                errorMsg.innerText = "Ocurrió un error procesando el texto: " + err.message;
             }
         }
 
