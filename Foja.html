@@ -218,6 +218,9 @@
                         <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
                         <div style="padding-right: 4pt;">Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
                     </div>
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 2pt;">
+                        <div style="padding-right: 4pt;">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                    </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;">
                         <div style="padding-left: 4pt;">Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
                         <div style="padding-right: 4pt;"><span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;">0,00</span></div>
@@ -337,6 +340,9 @@
             const montoMatch = text.match(/Monto Contrato:\s*\$?\s*([\d\.,]+)/i);
             state.encabezado.monto_contrato = montoMatch ? montoMatch[1].trim() : "";
 
+            const ampliacionMatch = text.match(/Monto con Ampliación\/Disminución\s*\$?\s*([\d\.,]+)/i);
+            state.encabezado.monto_ampliacion = ampliacionMatch ? ampliacionMatch[1].trim() : "";
+
             state.encabezado.inspectores = extract(/Inspectores:\s*([^\n\r]+)/i);
 
             // 2. Items
@@ -346,23 +352,21 @@
                 let line = lines[i];
                 
                 // Detectar si es un ítem normal con muchos números
-                // Grupo 1: Item (1, 1.1, etc)
-                // Grupo 2: Descripcion
-                // Grupo 3 al final: Valores (Unidad, cant, etc)
-                const itemMatch = line.match(/^(\d+(?:\.\d+)*)\s+(.+?)\s+([A-Za-z\d²³]+|\-)?\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+)\s+([\d\.,]+%?)\s+([\d\.,]+%?)$/);
+                // Hacemos que los últimos números sean opcionales por si el OCR se saltea uno (ej. ítems GL)
+                const itemMatch = line.match(/^(\d+(?:\.\d+)*)\s+(.+?)\s+([A-Za-z\d²³]+|\-)?\s+([\d\.,]+)\s+([\d\.,]+)(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+%?))?(?:\s+([\d\.,]+%?))?$/);
                 
                 if (itemMatch) {
                     state.items.push({
                         item: itemMatch[1],
                         descripcion: itemMatch[2],
                         un: itemMatch[3] || '',
-                        cantidad_contrato: itemMatch[4],
-                        precio: itemMatch[5],
-                        cantidad_ant: itemMatch[6],
-                        cantidad_actual: itemMatch[7],
-                        cantidad_acum: itemMatch[8],
-                        avance_item: itemMatch[9],
-                        avance_obra: itemMatch[10]
+                        cantidad_contrato: itemMatch[4] || '',
+                        precio: itemMatch[5] || '',
+                        cantidad_ant: itemMatch[6] || '',
+                        cantidad_actual: itemMatch[7] || '',
+                        cantidad_acum: itemMatch[8] || '',
+                        avance_item: itemMatch[9] || '',
+                        avance_obra: itemMatch[10] || ''
                     });
                 } else {
                     // Si no matchea todo, puede ser un título de sección (solo número y texto)
@@ -450,6 +454,7 @@
             document.getElementById('r_foja').textContent = str(head.foja_medicion);
             document.getElementById('r_contratista').textContent = str(head.contratista);
             document.getElementById('r_monto').textContent = str(head.monto_contrato);
+            document.getElementById('r_monto_ampl').textContent = str(head.monto_ampliacion);
             document.getElementById('r_inspectores').textContent = str(head.inspectores);
             document.getElementById('r_inspectores_monto').textContent = str(head.inspectores_monto);
 
