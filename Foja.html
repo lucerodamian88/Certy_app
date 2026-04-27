@@ -468,7 +468,33 @@
             renderDocument();
         }
 
+        function syncTableToState() {
+            if(!currentState || !currentState.items) return;
+            const rows = document.querySelectorAll('#r_items_body tr');
+            rows.forEach((tr, i) => {
+                if(currentState.items[i] && tr.children.length >= 10) {
+                    currentState.items[i].item = tr.children[0].textContent;
+                    currentState.items[i].descripcion = tr.children[1].textContent;
+                    currentState.items[i].un = tr.children[2].textContent;
+                    currentState.items[i].cantidad_contrato = tr.children[3].textContent;
+                    currentState.items[i].precio = tr.children[4].textContent;
+                    currentState.items[i].cantidad_ant = tr.children[5].textContent;
+                    currentState.items[i].cantidad_actual = tr.children[6].textContent;
+                    currentState.items[i].cantidad_acum = tr.children[7].textContent;
+                    currentState.items[i].avance_item = tr.children[8].textContent;
+                    currentState.items[i].avance_obra = tr.children[9].textContent;
+                }
+            });
+        }
+
         function renderDocument() {
+            if(!currentState) return;
+            
+            // Save manual edits before re-rendering
+            if(document.getElementById('r_items_body').children.length > 0) {
+                syncTableToState();
+            }
+
             // Update Headers
             const head = currentState.encabezado || {};
             document.getElementById('r_obra').textContent = str(head.obra);
@@ -622,15 +648,35 @@
             }
         }
 
-        // Live Binding
-        showVariacionDec.addEventListener('change', renderDocument);
-        varDecItem.addEventListener('input', renderDocument);
+        // Live Auto-Update from Table / Variacion
+        function updateBoxesFromTable() {
+            if(document.getElementById('r_items_body').children.length > 0) {
+                syncTableToState();
+            }
+            const sums = calculateSums();
+            avanceMensual.value = sums.sumItem.toFixed(4).replace('.', ',');
+            avanceAcumulado.value = sums.sumObra.toFixed(4).replace('.', ',');
+            
+            // Just update the visual bottom boxes
+            const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
+            document.getElementById('r_av_men').textContent = formatPct(avanceMensual.value);
+            document.getElementById('r_av_acu').textContent = formatPct(avanceAcumulado.value);
+            
+            validateSums();
+        }
+
+        // Live Bindings
+        showVariacionDec.addEventListener('change', () => { renderDocument(); updateBoxesFromTable(); });
+        varDecItem.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
+        varDecObra.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
+        
+        // If user manually edits the input fields (breaking the auto-sum link)
         avanceMensual.addEventListener('input', renderDocument);
         avanceAnterior.addEventListener('input', renderDocument);
         avanceAcumulado.addEventListener('input', renderDocument);
         
-        // Recalculate sums if user directly edits the preview table
-        document.getElementById('printableFoja').addEventListener('input', validateSums);
+        // Recalculate sums and auto-update boxes if user directly edits the preview table
+        document.getElementById('printableFoja').addEventListener('input', updateBoxesFromTable);
 
         async function downloadPDF() {
             const btn = document.getElementById('downloadPdfBtn');
