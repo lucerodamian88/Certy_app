@@ -182,6 +182,14 @@
                 </div>
 
                 <button class="btn-certy btn-green" id="downloadPdfBtn" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> GENERAR</button>
+                
+                <div id="sumWarning" style="display: none; align-items: flex-start; margin-top: 15px; background: #fff5f5; border: 1px solid #feb2b2; padding: 10px; border-radius: 8px;">
+                    <img src="Certy_advertencia.png" alt="Certy Advertencia" style="width: 40px; margin-right: 10px;">
+                    <div style="font-size: 0.85rem; color: #c53030; text-align: left;">
+                        <strong>¡Diferencia en sumatorias!</strong><br>
+                        <span id="sumWarningText"></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Previsualizacion Documento -->
@@ -191,10 +199,10 @@
                         <h1 style="font-weight: bold; margin-bottom: 15pt;">Municipalidad de Neuquén</h1>
                         <div style="text-transform: uppercase; margin-bottom: 6pt; text-align: left;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></div>
                         
-                        <div style="margin-top: 10pt; text-align: left; text-transform: uppercase;">
-                            <span>Identif. Obra &nbsp;&nbsp; <span id="r_id_obra"></span></span>
-                            <span style="margin-left: 20pt;">N° Exp: &nbsp;&nbsp; <span id="r_exp"></span></span>
-                            <span style="margin-left: 20pt;">FOJA DE MEDICION POR &nbsp;&nbsp; UNIDAD DE MEDIDA</span>
+                        <div style="margin-top: 10pt; text-align: left;">
+                            <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="r_id_obra"></span></span>
+                            <span style="margin-left: 10pt;">N° Exp: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="r_exp"></span></span>
+                            <span style="margin-left: 10pt; text-transform: uppercase;">FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
                         </div>
                     </div>
 
@@ -218,12 +226,9 @@
                         <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
                         <div style="padding-right: 4pt;">Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
                     </div>
-                    <div style="display: flex; justify-content: flex-end; margin-bottom: 2pt;">
-                        <div style="padding-right: 4pt;">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
-                    </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;">
                         <div style="padding-left: 4pt;">Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
-                        <div style="padding-right: 4pt;"><span id="r_inspectores_monto" style="min-width: 80pt; display: inline-block; text-align: right;">0,00</span></div>
+                        <div style="padding-right: 4pt;">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
                     </div>
 
                     <!-- Tabla de Items -->
@@ -456,7 +461,6 @@
             document.getElementById('r_monto').textContent = str(head.monto_contrato);
             document.getElementById('r_monto_ampl').textContent = str(head.monto_ampliacion);
             document.getElementById('r_inspectores').textContent = str(head.inspectores);
-            document.getElementById('r_inspectores_monto').textContent = str(head.inspectores_monto);
 
             // Refresh Table Items
             const tbody = document.getElementById('r_items_body');
@@ -514,6 +518,57 @@
             document.getElementById('r_av_men').textContent = formatPct(avanceMensual.value);
             document.getElementById('r_av_ant').textContent = formatPct(avanceAnterior.value);
             document.getElementById('r_av_acu').textContent = formatPct(avanceAcumulado.value);
+            
+            validateSums();
+        }
+
+        function calculateSums() {
+            let sumItem = 0;
+            let sumObra = 0;
+            const rows = document.querySelectorAll('#r_items_body tr');
+            rows.forEach(tr => {
+                if(tr.children.length >= 10) {
+                    const tdItem = tr.children[8];
+                    const tdObra = tr.children[9];
+                    if (tdItem && tdObra) {
+                        let valI = parseFloat(tdItem.textContent.replace(',', '.'));
+                        let valO = parseFloat(tdObra.textContent.replace(',', '.'));
+                        if(!isNaN(valI)) sumItem += valI;
+                        if(!isNaN(valO)) sumObra += valO;
+                    }
+                }
+            });
+
+            if(showVariacionDec.checked) {
+                let varI = parseFloat(varDecItem.value.replace(',', '.'));
+                let varO = parseFloat(varDecObra.value.replace(',', '.'));
+                if(!isNaN(varI)) sumItem += varI;
+                if(!isNaN(varO)) sumObra += varO;
+            }
+            
+            return { sumItem, sumObra };
+        }
+
+        function validateSums() {
+            const sums = calculateSums();
+            let userMensual = parseFloat(avanceMensual.value.replace(',', '.'));
+            let userAcumulado = parseFloat(avanceAcumulado.value.replace(',', '.'));
+            
+            let advertencias = [];
+            if(!isNaN(userMensual) && Math.abs(userMensual - sums.sumItem) > 0.001) {
+                advertencias.push(`Avance Mensual: Suma real de la tabla es <b>${sums.sumItem.toFixed(4)}%</b> pero ingresaste <b>${userMensual.toFixed(4)}%</b> (Dif: ${(userMensual - sums.sumItem).toFixed(4)}%)`);
+            }
+            if(!isNaN(userAcumulado) && Math.abs(userAcumulado - sums.sumObra) > 0.001) {
+                advertencias.push(`Avance Acumulado: Suma real de la tabla es <b>${sums.sumObra.toFixed(4)}%</b> pero ingresaste <b>${userAcumulado.toFixed(4)}%</b> (Dif: ${(userAcumulado - sums.sumObra).toFixed(4)}%)`);
+            }
+
+            const warningDiv = document.getElementById('sumWarning');
+            if(advertencias.length > 0) {
+                warningDiv.style.display = 'flex';
+                document.getElementById('sumWarningText').innerHTML = advertencias.join('<br><br>');
+            } else {
+                warningDiv.style.display = 'none';
+            }
         }
 
         // Live Binding
@@ -522,6 +577,9 @@
         avanceMensual.addEventListener('input', renderDocument);
         avanceAnterior.addEventListener('input', renderDocument);
         avanceAcumulado.addEventListener('input', renderDocument);
+        
+        // Recalculate sums if user directly edits the preview table
+        document.getElementById('printableFoja').addEventListener('input', validateSums);
 
         async function downloadPDF() {
             const btn = document.getElementById('downloadPdfBtn');
