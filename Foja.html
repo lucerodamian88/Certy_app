@@ -573,14 +573,25 @@
         function validateSums() {
             const sums = calculateSums();
             let userMensual = parseFloat(avanceMensual.value.replace(',', '.'));
+            let userAnterior = parseFloat(avanceAnterior.value.replace(',', '.'));
             let userAcumulado = parseFloat(avanceAcumulado.value.replace(',', '.'));
             
             let advertencias = [];
+            
+            // 1. Control Sumatoria de Columnas
             if(isNaN(userMensual) || Math.abs(userMensual - sums.sumItem) > 0.001) {
-                advertencias.push(`Avance Mensual: Sumatoria real es <b>${sums.sumItem.toFixed(4)}%</b> pero el recuadro dice <b>${isNaN(userMensual) ? 'vacío' : userMensual.toFixed(4) + '%'}</b>.`);
+                advertencias.push(`Avance Mensual: Sumatoria real de columna es <b>${sums.sumItem.toFixed(4)}%</b> pero recuadro dice <b>${isNaN(userMensual) ? 'vacío' : userMensual.toFixed(4) + '%'}</b>.`);
             }
             if(isNaN(userAcumulado) || Math.abs(userAcumulado - sums.sumObra) > 0.001) {
-                advertencias.push(`Avance Acumulado: Sumatoria real es <b>${sums.sumObra.toFixed(4)}%</b> pero el recuadro dice <b>${isNaN(userAcumulado) ? 'vacío' : userAcumulado.toFixed(4) + '%'}</b>.`);
+                advertencias.push(`Avance Acumulado: Sumatoria real de columna es <b>${sums.sumObra.toFixed(4)}%</b> pero recuadro dice <b>${isNaN(userAcumulado) ? 'vacío' : userAcumulado.toFixed(4) + '%'}</b>.`);
+            }
+            
+            // 2. Control Lógico del Cuadro (Mensual + Anterior = Acumulado)
+            if(!isNaN(userMensual) && !isNaN(userAnterior) && !isNaN(userAcumulado)) {
+                let sumaCuadro = userMensual + userAnterior;
+                if(Math.abs(sumaCuadro - userAcumulado) > 0.001) {
+                    advertencias.push(`Matemática del Cuadro: Mensual (<b>${userMensual.toFixed(4)}%</b>) + Anterior (<b>${userAnterior.toFixed(4)}%</b>) da <b>${sumaCuadro.toFixed(4)}%</b>, pero pusiste que el Acumulado es <b>${userAcumulado.toFixed(4)}%</b>.`);
+                }
             }
 
             const warningDiv = document.getElementById('sumWarning');
