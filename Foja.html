@@ -404,11 +404,16 @@
             state.avances.acum_anterior = extract(/Avance Acum\.?\s*Anterior\s+([\d\.,]+%?)/i);
             state.avances.acumulado = extract(/Avance Acumulado\s+([\d\.,]+%?)/i);
 
-            const varDecMatch = text.match(/Variaci[oó]n de decimales.*?\s+([\d\.,\-]+)\s+([\d\.,\-]+)$/im);
+            const varDecMatch = text.match(/Variaci[oó]n de decimales.*?\s+([\d\.,\-]+)(?:\s+([\d\.,\-]+))?/im);
             if(varDecMatch) {
                 state.variacion_decimales.existe = true;
-                state.variacion_decimales.avance_item = varDecMatch[1];
-                state.variacion_decimales.avance_obra = varDecMatch[2];
+                if(varDecMatch[2]) {
+                    state.variacion_decimales.avance_item = varDecMatch[1];
+                    state.variacion_decimales.avance_obra = varDecMatch[2];
+                } else {
+                    state.variacion_decimales.avance_item = varDecMatch[1];
+                    state.variacion_decimales.avance_obra = "";
+                }
             }
 
             return state;
@@ -571,19 +576,38 @@
             let userAcumulado = parseFloat(avanceAcumulado.value.replace(',', '.'));
             
             let advertencias = [];
-            if(!isNaN(userMensual) && Math.abs(userMensual - sums.sumItem) > 0.001) {
-                advertencias.push(`Avance Mensual: Suma real de la tabla es <b>${sums.sumItem.toFixed(4)}%</b> pero ingresaste <b>${userMensual.toFixed(4)}%</b> (Dif: ${(userMensual - sums.sumItem).toFixed(4)}%)`);
+            if(isNaN(userMensual) || Math.abs(userMensual - sums.sumItem) > 0.001) {
+                advertencias.push(`Avance Mensual: Sumatoria real es <b>${sums.sumItem.toFixed(4)}%</b> pero el recuadro dice <b>${isNaN(userMensual) ? 'vacío' : userMensual.toFixed(4) + '%'}</b>.`);
             }
-            if(!isNaN(userAcumulado) && Math.abs(userAcumulado - sums.sumObra) > 0.001) {
-                advertencias.push(`Avance Acumulado: Suma real de la tabla es <b>${sums.sumObra.toFixed(4)}%</b> pero ingresaste <b>${userAcumulado.toFixed(4)}%</b> (Dif: ${(userAcumulado - sums.sumObra).toFixed(4)}%)`);
+            if(isNaN(userAcumulado) || Math.abs(userAcumulado - sums.sumObra) > 0.001) {
+                advertencias.push(`Avance Acumulado: Sumatoria real es <b>${sums.sumObra.toFixed(4)}%</b> pero el recuadro dice <b>${isNaN(userAcumulado) ? 'vacío' : userAcumulado.toFixed(4) + '%'}</b>.`);
             }
 
             const warningDiv = document.getElementById('sumWarning');
+            warningDiv.style.display = 'flex';
+            
             if(advertencias.length > 0) {
-                warningDiv.style.display = 'flex';
-                document.getElementById('sumWarningText').innerHTML = advertencias.join('<br><br>');
+                warningDiv.style.background = '#fff5f5';
+                warningDiv.style.border = '1px solid #feb2b2';
+                warningDiv.innerHTML = `
+                    <img src="Certy_advertencia.png" alt="Certy Advertencia" style="width: 70px; margin-right: 15px; flex-shrink: 0;">
+                    <div style="font-size: 0.9rem; color: #c53030; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="font-size: 1.05rem; margin-bottom: 5px;">¡Diferencia en sumatorias!</strong>
+                        <span>${advertencias.join('<br>')}</span>
+                    </div>
+                `;
             } else {
-                warningDiv.style.display = 'none';
+                warningDiv.style.background = '#f0fdf4';
+                warningDiv.style.border = '1px solid #86efac';
+                warningDiv.innerHTML = `
+                    <div style="width: 70px; margin-right: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-solid fa-check-circle" style="font-size: 40px; color: #22c55e;"></i>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #166534; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="font-size: 1.05rem; margin-bottom: 5px;">Control Cruzado: APROBADO</strong>
+                        <span>Las sumatorias coinciden perfectamente con los recuadros.</span>
+                    </div>
+                `;
             }
         }
 
