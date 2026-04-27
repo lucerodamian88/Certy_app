@@ -439,9 +439,25 @@
                 varDecObra.value = str(currentState.variacion_decimales.avance_obra);
             }
             if(currentState.avances) {
-                avanceMensual.value = str(currentState.avances.mensual);
+                // Pre-fill with calculated sums
+                let initialSumItem = 0;
+                let initialSumObra = 0;
+                currentState.items.forEach(itm => {
+                    let valI = parseFloat(str(itm.avance_item).replace(',', '.'));
+                    let valO = parseFloat(str(itm.avance_obra).replace(',', '.'));
+                    if(!isNaN(valI)) initialSumItem += valI;
+                    if(!isNaN(valO)) initialSumObra += valO;
+                });
+                if(currentState.variacion_decimales && currentState.variacion_decimales.existe) {
+                    let varI = parseFloat(str(currentState.variacion_decimales.avance_item).replace(',', '.'));
+                    let varO = parseFloat(str(currentState.variacion_decimales.avance_obra).replace(',', '.'));
+                    if(!isNaN(varI)) initialSumItem += varI;
+                    if(!isNaN(varO)) initialSumObra += varO;
+                }
+
+                avanceMensual.value = initialSumItem.toFixed(4).replace('.', ',');
                 avanceAnterior.value = str(currentState.avances.acum_anterior);
-                avanceAcumulado.value = str(currentState.avances.acumulado);
+                avanceAcumulado.value = initialSumObra.toFixed(4).replace('.', ',');
             }
 
             renderDocument();
