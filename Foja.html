@@ -469,17 +469,17 @@
             let currentPage = [];
             let currentWeight = 0;
             
-            // Peso máximo estimado en unidades de filas simples por página
-            const MAX_PAGE_1_WEIGHT = 23;
-            const MAX_MIDDLE_PAGE_WEIGHT = 33;
-            const MAX_LAST_PAGE_WEIGHT = 24;
+            // Capacidades alineadas exactamente al estándar institucional
+            const MAX_PAGE_1_WEIGHT = 30;
+            const MAX_MIDDLE_PAGE_WEIGHT = 36;
+            const MAX_LAST_PAGE_WEIGHT = 30;
 
             for (let i = 0; i < items.length; i++) {
                 const itm = items[i];
                 const descLen = itm.descripcion ? itm.descripcion.length : 0;
                 let weight = 1;
-                if (descLen > 48) weight = 2;
-                if (descLen > 96) weight = 3;
+                if (descLen > 65) weight = 1.5;
+                if (descLen > 130) weight = 2;
 
                 let maxWeight = (pages.length === 0) ? MAX_PAGE_1_WEIGHT : MAX_MIDDLE_PAGE_WEIGHT;
 
@@ -504,13 +504,13 @@
                 lastPage.forEach(itm => {
                     const descLen = itm.descripcion ? itm.descripcion.length : 0;
                     let w = 1;
-                    if (descLen > 48) w = 2;
-                    if (descLen > 96) w = 3;
+                    if (descLen > 65) w = 1.5;
+                    if (descLen > 130) w = 2;
                     lastWeight += w;
                 });
 
-                if (lastWeight > MAX_LAST_PAGE_WEIGHT && lastPage.length > 3) {
-                    let splitIndex = Math.floor(lastPage.length * 0.65);
+                if (lastWeight > MAX_LAST_PAGE_WEIGHT && lastPage.length > 5) {
+                    let splitIndex = Math.floor(lastPage.length * 0.7);
                     let pageA = lastPage.slice(0, splitIndex);
                     let pageB = lastPage.slice(splitIndex);
                     pages[pages.length - 1] = pageA;
@@ -672,8 +672,8 @@
                             <td class="t-right"></td>
                             <td class="t-right"></td>
                             <td class="t-right"></td>
-                            <td class="t-right">${varDecItem.value}</td>
-                            <td class="t-right">${varDecObra.value}</td>
+                            <td class="t-center">${varDecItem.value}</td>
+                            <td class="t-center">${varDecObra.value}</td>
                         </tr>
                     `;
                 }
@@ -683,25 +683,26 @@
                     </table>
                 `;
 
-                // CUADRO DE AVANCES (Última página)
+                // CUADRO DE AVANCES (Última página, alineado estrictamente a la derecha)
                 if (isLastPage) {
                     const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
                     html += `
-                        <table class="p-table" style="width: 280pt; float: right; margin-top: 5pt;">
-                            <tr>
-                                <td class="t-left" style="font-weight: normal; width: 170pt;">Avance de Obra Mensual</td>
-                                <td class="t-right" id="r_av_men">${formatPct(avanceMensual.value)}</td>
-                            </tr>
-                            <tr>
-                                <td class="t-left" style="font-weight: normal;">Avance Acum. Anterior</td>
-                                <td class="t-right" id="r_av_ant">${formatPct(avanceAnterior.value)}</td>
-                            </tr>
-                            <tr>
-                                <td class="t-left" style="font-weight: normal;">Avance Acumulado</td>
-                                <td class="t-right" id="r_av_acu">${formatPct(avanceAcumulado.value)}</td>
-                            </tr>
-                        </table>
-                        <div style="clear: both;"></div>
+                        <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 6pt;">
+                            <table class="p-table" style="width: 310pt; margin: 0; border-collapse: collapse;">
+                                <tr>
+                                    <td class="t-left" style="font-weight: normal; width: 180pt;">Avance de Obra Mensual</td>
+                                    <td class="t-right" style="font-weight: normal; width: 130pt;" id="r_av_men">${formatPct(avanceMensual.value)}</td>
+                                </tr>
+                                <tr>
+                                    <td class="t-left" style="font-weight: normal;">Avance Acum. Anterior</td>
+                                    <td class="t-right" style="font-weight: normal;" id="r_av_ant">${formatPct(avanceAnterior.value)}</td>
+                                </tr>
+                                <tr>
+                                    <td class="t-left" style="font-weight: normal;">Avance Acumulado</td>
+                                    <td class="t-right" style="font-weight: normal;" id="r_av_acu">${formatPct(avanceAcumulado.value)}</td>
+                                </tr>
+                            </table>
+                        </div>
                     `;
                 }
 
