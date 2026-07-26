@@ -50,9 +50,9 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: none; height: fit-content;
         }
         .main-preview {
-            flex-grow: 1; background: #fff; outline: 1px solid #ccc;
-            overflow: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 2rem;
-            display: none; justify-content: center;
+            flex-grow: 1; background: #f1f5f9; outline: 1px solid #cbd5e1;
+            overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 2rem;
+            display: none; flex-direction: column; align-items: center; gap: 2rem;
         }
 
         .form-group { margin-bottom: 1rem; }
@@ -70,19 +70,40 @@
 
         .edit-title { border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #1a202c; }
 
-        /* Document Institutional Look (Preview inside screen) */
+        /* Printable Foja Container (Holds Pages) */
         .printable-area {
-            width: 100%; max-width: 1100px; /* ~A4 Landscape equivalent preview */
-            background: #fff; font-family: Arial, Helvetica, sans-serif;
-            font-size: 10pt; color: #000;
+            width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px;
         }
-        .p-header h1 { font-size: 18pt; font-weight: bold; margin: 0 0 10pt 0; }
+
+        /* Single Page A4 Container */
+        .foja-page {
+            width: 210mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            height: 297mm;
+            padding: 12mm 15mm 15mm 15mm;
+            background: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 8.5pt;
+            color: #000;
+            box-sizing: border-box;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .foja-page * { color: #000 !important; }
+        
+        .p-header h1 { font-size: 16pt; font-weight: bold; margin: 0 0 8pt 0; }
         .p-info-row { display: flex; justify-content: space-between; margin-bottom: 6pt; }
         .p-info-row span { font-weight: normal; }
         .p-info-bold { font-weight: bold !important; }
         
-        .p-table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; border: 1px solid #000; border-radius: 0 !important; }
-        .p-table th, .p-table td { border: 1px solid #000; padding: 4pt; text-align: center; border-radius: 0 !important; }
+        .p-table { width: 100%; border-collapse: collapse; margin-bottom: 5pt; border: 1px solid #000; border-radius: 0 !important; }
+        .p-table th, .p-table td { border: 1px solid #000; padding: 3pt 4pt; text-align: center; border-radius: 0 !important; font-size: 8.5pt; }
         .p-table th { background: #fff; font-weight: bold; }
         
         .t-left { text-align: left !important; }
@@ -91,9 +112,6 @@
         
         .border-none { border: none !important; }
 
-        /* Color Negro absoluto para la impresion y edicion */
-        .printable-area, .printable-area * { color: #000 !important; }
-
         /* Print Override */
         @media print {
             @page { size: A4 portrait; margin: 0; }
@@ -101,15 +119,19 @@
             .printable-area, .printable-area * { visibility: visible; }
             .printable-area {
                 position: absolute; left: 0; top: 0; width: 100%;
-                font-family: Arial, Helvetica, sans-serif; font-size: 8pt; background: #fff;
-                box-shadow: none; outline: none; margin: 0; padding: 1.5cm;
+                margin: 0; padding: 0; background: #fff; box-shadow: none;
+            }
+            .foja-page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+                break-after: page;
+                min-height: 297mm;
+                max-height: 297mm;
+                height: 297mm;
                 box-sizing: border-box;
             }
-            .p-table th, .p-table td { padding: 3pt 4pt; font-size: 9pt; }
-            .p-header h1 { font-size: 16pt; margin-bottom: 5pt; }
-            
-            /* Hide unused areas */
-            .sidebar, .app-header, .drag-area, .bg-wave { display: none !important; }
+            .sidebar, .app-header, .drag-area, .bg-wave, #uploadSection { display: none !important; }
         }
 
     </style>
@@ -135,7 +157,7 @@
         
         <div id="uploadSection" style="max-width: 900px; margin: 2rem auto; text-align: center;">
             <h1 style="color: #0C4FB7; margin-bottom: 1rem;">Generador de Foja Institucional</h1>
-            <p style="color: #4a5568; margin-bottom: 2rem;">Copia todo el texto de tu PDF de la foja y pégalo abajo. Nuestro sistema estructurará el contenido automáticamente.</p>
+            <p style="color: #4a5568; margin-bottom: 2rem;">Copia todo el texto de tu PDF de la foja y pégalo abajo. Nuestro sistema estructurará el contenido automáticamente dividiéndolo en páginas si corresponde.</p>
             
             <textarea id="rawTextInput" style="width: 100%; height: 250px; padding: 1rem; border-radius: 12px; border: 2px solid #cbd5e1; font-family: monospace; font-size: 0.95rem; resize: vertical;" placeholder="Pegue aquí el texto copiado del PDF de la Foja..."></textarea>
             
@@ -209,94 +231,10 @@
                 </div>
             </div>
 
-            <!-- Previsualizacion Documento -->
+            <!-- Previsualizacion Documento (Contenedor de Páginas) -->
             <div class="main-preview" id="mainPreview">
-                <div class="printable-area" id="printableFoja" contenteditable="true">
-                    <div class="p-header">
-                        <h1 style="font-weight: bold; margin-bottom: 15pt;">Municipalidad de Neuquén</h1>
-                        <div style="text-transform: uppercase; margin-bottom: 6pt; text-align: left;">OBRA: <span id="r_obra" style="margin-left:5px;"></span></div>
-                        
-                        <div style="margin-top: 10pt; text-align: left;">
-                            <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="r_id_obra"></span></span>
-                            <span style="margin-left: 10pt;">N° Exp: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="r_exp"></span></span>
-                            <span style="margin-left: 10pt; text-transform: uppercase;">FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
-                        </div>
-                    </div>
-
-                    <!-- Tabla Fechas y Numero de Foja -->
-                    <table class="p-table" style="margin-bottom: 3pt; margin-top: 5pt; table-layout: fixed;">
-                        <tr>
-                            <td class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
-                            <td rowspan="2" class="t-center" style="width: 250pt; font-size: 11pt; font-weight: bold;" id="r_foja"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-left" style="padding-left: 4pt;">
-                                De Inicio: <span id="r_f_inicio" style="margin-left:5pt; margin-right:20pt;"></span>
-                                De Medición: <span id="r_f_medicion" style="margin-left:5pt; margin-right:20pt;"></span>
-                                Fecha de Terminación: <span id="r_f_fin" style="margin-left:5pt;"></span>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- Datos Generales -->
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt;">
-                        <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
-                        <div style="padding-right: 4pt;">Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt;">
-                        <div style="padding-left: 4pt;">Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
-                        <div style="padding-right: 4pt;" id="r_monto_ampl_box">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;" id="r_alteracion_box">
-                        <div style="padding-left: 4pt;"><span id="r_alteracion" style="font-weight: normal;"></span></div>
-                    </div>
-
-                    <!-- Tabla de Items -->
-                    <table class="p-table" id="r_items_table" style="margin-top: 2pt;">
-                        <thead>
-                            <!-- Cabecera Items -->
-                            <tr>
-                                <th rowspan="2" style="width: 30pt;">Ítem</th>
-                                <th rowspan="2" style="width: 350pt;">Descripción</th>
-                                <th rowspan="2" style="width: 30pt;">Un.</th>
-                                <th rowspan="2" style="width: 70pt;">Cantidad<br>Contrato</th>
-                                <th rowspan="2" style="width: 90pt;">Precio</th>
-                                <th colspan="3">CANTIDAD</th>
-                                <th rowspan="2" style="width: 60pt;">% Avance<br>Item</th>
-                                <th rowspan="2" style="width: 60pt;">% Avance<br>Obra</th>
-                            </tr>
-                            <tr>
-                                <th style="width: 60pt;">Ant.</th>
-                                <th style="width: 60pt;">Actual</th>
-                                <th style="width: 60pt;">Acum.</th>
-                            </tr>
-                        </thead>
-                        <tbody id="r_items_body">
-                            <!-- Inyectado via JS -->
-                        </tbody>
-                        <tfoot id="r_items_foot">
-                            <!-- Variacion inyectada via JS si está activo -->
-                        </tfoot>
-                    </table>
-
-                    <!-- Cuadro Final (Avances) -->
-                    <table class="p-table" style="width: 300pt; float: right; margin-top: 5pt;">
-                        <tr>
-                            <td class="t-left" style="font-weight: normal; width: 180pt;">Avance de Obra Mensual</td>
-                            <td class="t-right" id="r_av_men"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-left" style="font-weight: normal;">Avance Acum. Anterior</td>
-                            <td class="t-right" id="r_av_ant"></td>
-                        </tr>
-                        <tr>
-                            <td class="t-left" style="font-weight: normal;">Avance Acumulado</td>
-                            <td class="t-right" id="r_av_acu"></td>
-                        </tr>
-                    </table>
-                    
-                    <!-- Clear Fix -->
-                    <div style="clear: both;"></div>
+                <div class="printable-area" id="printableFoja">
+                    <!-- Páginas inyectadas vía JS -->
                 </div>
             </div>
         </div>
@@ -386,14 +324,29 @@
             const alteracionMatch = text.match(/(ALTERACI[ÓO]N\s*CONTRACTUAL[^\n\r]*)/i);
             state.encabezado.alteracion = alteracionMatch ? alteracionMatch[1].trim() : "";
 
-            // 2. Items
-            // Intentar detectar lineas que comiencen con números de ítem
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+            // 2. Items - Filtrar ruido de saltos de página del PDF copiado
+            const rawLines = text.split('\n').map(l => l.trim()).filter(l => l);
+            const lines = rawLines.filter(line => {
+                if (/^P[áa]gina\s+\d+/i.test(line)) return false;
+                if (/^P[áa]gina$/i.test(line)) return false;
+                if (line.toLowerCase() === 'de') return false;
+                if (/^FOJA\s+DE\s+MEDICION/i.test(line)) return false;
+                if (/^FECHAS$/i.test(line)) return false;
+                if (/^UNIDAD\s+DE\s+MEDIDA$/i.test(line)) return false;
+                if (/^Descripción\s+Contrato/i.test(line)) return false;
+                if (/^Cantidad\s+CANTIDAD/i.test(line)) return false;
+                if (/^Precio$/i.test(line)) return false;
+                if (/^Obra$/i.test(line)) return false;
+                if (/^Item\s+Un\.$/i.test(line)) return false;
+                if (/^CANTIDAD\s+Ant\./i.test(line)) return false;
+                if (/^%\s*Avance\s+%\s*Avance/i.test(line)) return false;
+                return true;
+            });
+
             for(let i=0; i<lines.length; i++) {
                 let line = lines[i];
                 
-                // Detectar si es un ítem normal con muchos números
-                // Hacemos que los últimos números sean opcionales por si el OCR se saltea uno (ej. ítems GL)
+                // Detectar ítem numerado
                 const itemMatch = line.match(/^(\d+(?:\.\d+)*)\s+(.+?)\s+([A-Za-z\d²³]+|\-)?\s+([\d\.,]+)\s+([\d\.,]+)(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+))?(?:\s+([\d\.,]+%?))?(?:\s+([\d\.,]+%?))?$/);
                 
                 if (itemMatch) {
@@ -410,10 +363,9 @@
                         avance_obra: itemMatch[10] || ''
                     });
                 } else {
-                    // Si no matchea todo, puede ser un título de sección (solo número y texto)
+                    // Título de sección (ej. "1 TAREAS PRELIMINARES")
                     const sectionMatch = line.match(/^(\d+(?:\.\d+)*)\s+([A-Za-z].+)$/);
                     if(sectionMatch && !line.includes("Avance") && !line.includes("Variación")) {
-                        // Es un título de sección, verificar si tiene numeros al final
                         const hasNumbers = /\d/.test(sectionMatch[2].substring(Math.max(0, sectionMatch[2].length - 5)));
                         if(!hasNumbers) {
                             state.items.push({
@@ -425,7 +377,7 @@
                         }
                     }
                     
-                    // Podría ser la continuación de la descripción del ítem anterior
+                    // Continuación de descripción de ítem anterior
                     if(state.items.length > 0) {
                         const excludeRegex = /avance|variaci[oó]n|municipalidad|obra:|identif\.|fecha|foja|contratista|inspector|monto|^[\d\.,%\s]+$|canti|precio|item|descripc/i;
                         if(!excludeRegex.test(line)) {
@@ -487,7 +439,6 @@
                 varDecObra.value = str(currentState.variacion_decimales.avance_obra);
             }
             if(currentState.avances) {
-                // Pre-fill with calculated sums
                 let initialSumItem = 0;
                 let initialSumObra = 0;
                 currentState.items.forEach(itm => {
@@ -511,21 +462,84 @@
             renderDocument();
         }
 
+        function chunkItemsIntoPages(items, showVariacion) {
+            if (!items || items.length === 0) return [[]];
+
+            const pages = [];
+            let currentPage = [];
+            let currentWeight = 0;
+            
+            // Peso máximo estimado en unidades de filas simples por página
+            const MAX_PAGE_1_WEIGHT = 23;
+            const MAX_MIDDLE_PAGE_WEIGHT = 33;
+            const MAX_LAST_PAGE_WEIGHT = 24;
+
+            for (let i = 0; i < items.length; i++) {
+                const itm = items[i];
+                const descLen = itm.descripcion ? itm.descripcion.length : 0;
+                let weight = 1;
+                if (descLen > 48) weight = 2;
+                if (descLen > 96) weight = 3;
+
+                let maxWeight = (pages.length === 0) ? MAX_PAGE_1_WEIGHT : MAX_MIDDLE_PAGE_WEIGHT;
+
+                if (currentWeight + weight > maxWeight && currentPage.length > 0) {
+                    pages.push(currentPage);
+                    currentPage = [];
+                    currentWeight = 0;
+                }
+
+                currentPage.push(itm);
+                currentWeight += weight;
+            }
+
+            if (currentPage.length > 0) {
+                pages.push(currentPage);
+            }
+
+            // Asegurar que la última página tenga espacio para el Cuadro de Avances
+            if (pages.length > 0) {
+                let lastPage = pages[pages.length - 1];
+                let lastWeight = 0;
+                lastPage.forEach(itm => {
+                    const descLen = itm.descripcion ? itm.descripcion.length : 0;
+                    let w = 1;
+                    if (descLen > 48) w = 2;
+                    if (descLen > 96) w = 3;
+                    lastWeight += w;
+                });
+
+                if (lastWeight > MAX_LAST_PAGE_WEIGHT && lastPage.length > 3) {
+                    let splitIndex = Math.floor(lastPage.length * 0.65);
+                    let pageA = lastPage.slice(0, splitIndex);
+                    let pageB = lastPage.slice(splitIndex);
+                    pages[pages.length - 1] = pageA;
+                    pages.push(pageB);
+                }
+            }
+
+            return pages;
+        }
+
         function syncTableToState() {
             if(!currentState || !currentState.items) return;
-            const rows = document.querySelectorAll('#r_items_body tr');
-            rows.forEach((tr, i) => {
-                if(currentState.items[i] && tr.children.length >= 10) {
-                    currentState.items[i].item = tr.children[0].textContent;
-                    currentState.items[i].descripcion = tr.children[1].textContent;
-                    currentState.items[i].un = tr.children[2].textContent;
-                    currentState.items[i].cantidad_contrato = tr.children[3].textContent;
-                    currentState.items[i].precio = tr.children[4].textContent;
-                    currentState.items[i].cantidad_ant = tr.children[5].textContent;
-                    currentState.items[i].cantidad_actual = tr.children[6].textContent;
-                    currentState.items[i].cantidad_acum = tr.children[7].textContent;
-                    currentState.items[i].avance_item = tr.children[8].textContent;
-                    currentState.items[i].avance_obra = tr.children[9].textContent;
+            const rows = document.querySelectorAll('#printableFoja .items-table tbody tr');
+            let itemIdx = 0;
+            rows.forEach((tr) => {
+                if(tr.children.length >= 10 && !tr.textContent.includes("Variación de decimales")) {
+                    if(currentState.items[itemIdx]) {
+                        currentState.items[itemIdx].item = tr.children[0].textContent;
+                        currentState.items[itemIdx].descripcion = tr.children[1].textContent;
+                        currentState.items[itemIdx].un = tr.children[2].textContent;
+                        currentState.items[itemIdx].cantidad_contrato = tr.children[3].textContent;
+                        currentState.items[itemIdx].precio = tr.children[4].textContent;
+                        currentState.items[itemIdx].cantidad_ant = tr.children[5].textContent;
+                        currentState.items[itemIdx].cantidad_actual = tr.children[6].textContent;
+                        currentState.items[itemIdx].cantidad_acum = tr.children[7].textContent;
+                        currentState.items[itemIdx].avance_item = tr.children[8].textContent;
+                        currentState.items[itemIdx].avance_obra = tr.children[9].textContent;
+                        itemIdx++;
+                    }
                 }
             });
         }
@@ -533,122 +547,195 @@
         function renderDocument() {
             if(!currentState) return;
             
-            // Save manual edits before re-rendering
-            if(document.getElementById('r_items_body').children.length > 0) {
-                syncTableToState();
-            }
+            // Guardar ediciones manuales si existen
+            syncTableToState();
 
-            // Update Headers
+            const container = document.getElementById('printableFoja');
+            container.innerHTML = '';
+
             const head = currentState.encabezado || {};
             const fojaVal = (fojaMedicionInput && fojaMedicionInput.value) ? fojaMedicionInput.value : str(head.foja_medicion);
-            document.getElementById('r_foja').innerHTML = fojaVal.replace(/\n/g, '<br>');
-
-            document.getElementById('r_obra').textContent = str(head.obra);
-            document.getElementById('r_id_obra').textContent = str(head.identif_obra);
-            document.getElementById('r_exp').textContent = str(head.n_exp);
-            document.getElementById('r_f_inicio').textContent = str(head.fecha_inicio);
-            document.getElementById('r_f_medicion').textContent = str(head.fecha_medicion);
-            document.getElementById('r_f_fin').textContent = str(head.fecha_terminacion);
-            document.getElementById('r_contratista').textContent = str(head.contratista);
-            document.getElementById('r_monto').textContent = str(head.monto_contrato);
-            document.getElementById('r_inspectores').textContent = str(head.inspectores);
-
-            const montoAmplVal = (montoAmpliacionInput && montoAmpliacionInput.value) ? montoAmpliacionInput.value : str(head.monto_ampliacion);
-            const montoAmplBox = document.getElementById('r_monto_ampl_box');
-            if(montoAmplVal) {
-                document.getElementById('r_monto_ampl').textContent = montoAmplVal;
-                montoAmplBox.style.visibility = 'visible';
-            } else {
-                document.getElementById('r_monto_ampl').textContent = '';
-                montoAmplBox.style.visibility = 'hidden';
-            }
-
             const alteracionVal = (alteracionInput && alteracionInput.value) ? alteracionInput.value : str(head.alteracion);
-            const alteracionBox = document.getElementById('r_alteracion_box');
-            if(alteracionVal) {
-                document.getElementById('r_alteracion').textContent = alteracionVal;
-                alteracionBox.style.display = 'flex';
-            } else {
-                document.getElementById('r_alteracion').textContent = '';
-                alteracionBox.style.display = 'none';
-            }
+            const montoAmplVal = (montoAmpliacionInput && montoAmpliacionInput.value) ? montoAmpliacionInput.value : str(head.monto_ampliacion);
 
-            // Refresh Table Items
-            const tbody = document.getElementById('r_items_body');
-            tbody.innerHTML = '';
-            
-            if(currentState.items) {
-                currentState.items.forEach(itm => {
-                    const tr = document.createElement('tr');
-                    
-                    // If it has NO item number, NO units and NO prices, it's likely a Section Title.
-                    let isSection = !itm.item && !itm.un && !itm.precio && itm.descripcion;
-                    
-                    tr.innerHTML = `
-                        <td class="t-left">${str(itm.item)}</td>
-                        <td class="t-left" style="${isSection ? 'text-transform:uppercase; font-weight:bold;' : ''}">${str(itm.descripcion)}</td>
-                        <td class="t-center">${str(itm.un)}</td>
-                        <td class="t-right">${str(itm.cantidad_contrato)}</td>
-                        <td class="t-right">${str(itm.precio)}</td>
-                        <td class="t-right">${str(itm.cantidad_ant)}</td>
-                        <td class="t-right">${str(itm.cantidad_actual)}</td>
-                        <td class="t-right">${str(itm.cantidad_acum)}</td>
-                        <td class="t-right">${str(itm.avance_item)}</td>
-                        <td class="t-right">${str(itm.avance_obra)}</td>
+            const items = currentState.items || [];
+            const pagesItems = chunkItemsIntoPages(items, showVariacionDec.checked);
+            const totalPages = pagesItems.length;
+
+            pagesItems.forEach((pageItems, pageIdx) => {
+                const pageNum = pageIdx + 1;
+                const isFirstPage = (pageNum === 1);
+                const isLastPage = (pageNum === totalPages);
+
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'foja-page';
+                pageDiv.setAttribute('contenteditable', 'true');
+
+                let html = '';
+
+                // ENCABEZADO DE PÁGINA 1
+                if (isFirstPage) {
+                    html += `
+                        <div class="p-header">
+                            <h1 style="font-weight: bold; margin-bottom: 12pt; font-size: 16pt;">Municipalidad de Neuquén</h1>
+                            <div style="text-transform: uppercase; margin-bottom: 6pt; text-align: left; font-size: 8.5pt;">OBRA: <span style="margin-left:5px;">${str(head.obra)}</span></div>
+                            
+                            <div style="margin-top: 8pt; text-align: left; font-size: 8.5pt;">
+                                <span>Identif. Obra &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>${str(head.identif_obra)}</span></span>
+                                <span style="margin-left: 10pt;">N° Exp: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span>${str(head.n_exp)}</span></span>
+                                <span style="margin-left: 10pt; text-transform: uppercase;">FOJA DE MEDICION POR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNIDAD DE MEDIDA</span>
+                            </div>
+                        </div>
+
+                        <!-- Tabla Fechas y Numero de Foja -->
+                        <table class="p-table" style="margin-bottom: 3pt; margin-top: 5pt; table-layout: fixed;">
+                            <tr>
+                                <td class="t-center" style="font-weight: normal; padding: 2pt;">FECHAS</td>
+                                <td rowspan="2" class="t-center" style="width: 220pt; font-size: 10.5pt; font-weight: bold;">${fojaVal.replace(/\n/g, '<br>')}</td>
+                            </tr>
+                            <tr>
+                                <td class="t-left" style="padding-left: 4pt;">
+                                    De Inicio: <span style="margin-left:5pt; margin-right:15pt;">${str(head.fecha_inicio)}</span>
+                                    De Medición: <span style="margin-left:5pt; margin-right:15pt;">${str(head.fecha_medicion)}</span>
+                                    Fecha de Terminación: <span style="margin-left:5pt;">${str(head.fecha_terminacion)}</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Datos Generales -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2pt; font-size: 8.5pt;">
+                            <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span style="margin-left: 5px;">${str(head.contratista)}</span></div>
+                            <div style="padding-right: 4pt;">Monto Contrato: $ <span style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;">${str(head.monto_contrato)}</span></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 2pt; font-size: 8.5pt;">
+                            <div style="padding-left: 4pt;">Inspectores: <span style="margin-left: 5px;">${str(head.inspectores)}</span></div>
+                            <div style="padding-right: 4pt; ${montoAmplVal ? '' : 'visibility:hidden;'}">Monto con Ampliación/Disminución $ <span style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;">${str(montoAmplVal)}</span></div>
+                        </div>
+                        ${alteracionVal ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4pt; font-size: 8.5pt;">
+                            <div style="padding-left: 4pt;"><span style="font-weight: normal;">${alteracionVal}</span></div>
+                        </div>` : ''}
                     `;
-                    tbody.appendChild(tr);
-                });
-            }
+                }
 
-            // Footer / Variacion Dec
-            const tfoot = document.getElementById('r_items_foot');
-            tfoot.innerHTML = '';
-            
-            if(showVariacionDec.checked) {
-                variacionGroup.style.display = 'block';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="t-left"></td>
-                    <td class="t-left" style="font-weight: normal;">Variación de decimales</td>
-                    <td class="t-center"></td>
-                    <td class="t-right"></td>
-                    <td class="t-right"></td>
-                    <td class="t-right"></td>
-                    <td class="t-right"></td>
-                    <td class="t-right"></td>
-                    <td class="t-right">${varDecItem.value}</td>
-                    <td class="t-right">${varDecObra.value}</td>
+                // CABECERA DE TABLA (En todas las páginas)
+                html += `
+                    <table class="p-table items-table" style="margin-top: ${isFirstPage ? '2pt' : '0'};">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width: 28pt;">Ítem</th>
+                                <th rowspan="2" style="width: 320pt;">Descripción</th>
+                                <th rowspan="2" style="width: 25pt;">Un.</th>
+                                <th rowspan="2" style="width: 65pt;">Cantidad<br>Contrato</th>
+                                <th rowspan="2" style="width: 85pt;">Precio</th>
+                                <th colspan="3">CANTIDAD</th>
+                                <th rowspan="2" style="width: 55pt;">% Avance<br>Item</th>
+                                <th rowspan="2" style="width: 55pt;">% Avance<br>Obra</th>
+                            </tr>
+                            <tr>
+                                <th style="width: 50pt;">Ant.</th>
+                                <th style="width: 50pt;">Actual</th>
+                                <th style="width: 50pt;">Acum.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-                tfoot.appendChild(tr);
+
+                // FILAS DE ÍTEMS DE ESTA PÁGINA
+                pageItems.forEach(itm => {
+                    let isSection = !itm.item && !itm.un && !itm.precio && itm.descripcion;
+                    html += `
+                        <tr>
+                            <td class="t-left">${str(itm.item)}</td>
+                            <td class="t-left" style="${isSection ? 'text-transform:uppercase; font-weight:bold;' : ''}">${str(itm.descripcion)}</td>
+                            <td class="t-center">${str(itm.un)}</td>
+                            <td class="t-right">${str(itm.cantidad_contrato)}</td>
+                            <td class="t-right">${str(itm.precio)}</td>
+                            <td class="t-right">${str(itm.cantidad_ant)}</td>
+                            <td class="t-right">${str(itm.cantidad_actual)}</td>
+                            <td class="t-right">${str(itm.cantidad_acum)}</td>
+                            <td class="t-right">${str(itm.avance_item)}</td>
+                            <td class="t-right">${str(itm.avance_obra)}</td>
+                        </tr>
+                    `;
+                });
+
+                // VARIACIÓN DE DECIMALES (Última página si está activo)
+                if (isLastPage && showVariacionDec.checked) {
+                    html += `
+                        <tr>
+                            <td class="t-left"></td>
+                            <td class="t-left" style="font-weight: normal;">Variación de decimales</td>
+                            <td class="t-center"></td>
+                            <td class="t-right"></td>
+                            <td class="t-right"></td>
+                            <td class="t-right"></td>
+                            <td class="t-right"></td>
+                            <td class="t-right"></td>
+                            <td class="t-right">${varDecItem.value}</td>
+                            <td class="t-right">${varDecObra.value}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                // CUADRO DE AVANCES (Última página)
+                if (isLastPage) {
+                    const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
+                    html += `
+                        <table class="p-table" style="width: 280pt; float: right; margin-top: 5pt;">
+                            <tr>
+                                <td class="t-left" style="font-weight: normal; width: 170pt;">Avance de Obra Mensual</td>
+                                <td class="t-right" id="r_av_men">${formatPct(avanceMensual.value)}</td>
+                            </tr>
+                            <tr>
+                                <td class="t-left" style="font-weight: normal;">Avance Acum. Anterior</td>
+                                <td class="t-right" id="r_av_ant">${formatPct(avanceAnterior.value)}</td>
+                            </tr>
+                            <tr>
+                                <td class="t-left" style="font-weight: normal;">Avance Acumulado</td>
+                                <td class="t-right" id="r_av_acu">${formatPct(avanceAcumulado.value)}</td>
+                            </tr>
+                        </table>
+                        <div style="clear: both;"></div>
+                    `;
+                }
+
+                // PIE DE PÁGINA ("Página X de Y")
+                html += `
+                    <div style="text-align: right; font-size: 8.5pt; margin-top: auto; padding-top: 5pt; font-weight: normal;">
+                        Página ${pageNum} de ${totalPages}
+                    </div>
+                `;
+
+                pageDiv.innerHTML = html;
+                container.appendChild(pageDiv);
+            });
+
+            if (showVariacionDec.checked) {
+                variacionGroup.style.display = 'block';
             } else {
                 variacionGroup.style.display = 'none';
             }
 
-            // Bottom Boxes
-            const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
-            document.getElementById('r_av_men').textContent = formatPct(avanceMensual.value);
-            document.getElementById('r_av_ant').textContent = formatPct(avanceAnterior.value);
-            document.getElementById('r_av_acu').textContent = formatPct(avanceAcumulado.value);
-            
             validateSums();
         }
 
         function calculateSums() {
             let sumItem = 0;
             let sumObra = 0;
-            const rows = document.querySelectorAll('#r_items_body tr');
-            rows.forEach(tr => {
-                if(tr.children.length >= 10) {
-                    const tdItem = tr.children[8];
-                    const tdObra = tr.children[9];
-                    if (tdItem && tdObra) {
-                        let valI = parseFloat(tdItem.textContent.replace(',', '.'));
-                        let valO = parseFloat(tdObra.textContent.replace(',', '.'));
-                        if(!isNaN(valI)) sumItem += valI;
-                        if(!isNaN(valO)) sumObra += valO;
-                    }
-                }
-            });
+            if (currentState && currentState.items) {
+                currentState.items.forEach(itm => {
+                    let valI = parseFloat(str(itm.avance_item).replace(',', '.'));
+                    let valO = parseFloat(str(itm.avance_obra).replace(',', '.'));
+                    if(!isNaN(valI)) sumItem += valI;
+                    if(!isNaN(valO)) sumObra += valO;
+                });
+            }
 
             if(showVariacionDec.checked) {
                 let varI = parseFloat(varDecItem.value.replace(',', '.'));
@@ -714,17 +801,16 @@
 
         // Live Auto-Update from Table / Variacion
         function updateBoxesFromTable() {
-            if(document.getElementById('r_items_body').children.length > 0) {
-                syncTableToState();
-            }
+            syncTableToState();
             const sums = calculateSums();
             avanceMensual.value = sums.sumItem.toFixed(4).replace('.', ',');
             avanceAcumulado.value = sums.sumObra.toFixed(4).replace('.', ',');
             
-            // Just update the visual bottom boxes
             const formatPct = (val) => val && !val.trim().endsWith('%') ? val.trim() + '%' : val;
-            document.getElementById('r_av_men').textContent = formatPct(avanceMensual.value);
-            document.getElementById('r_av_acu').textContent = formatPct(avanceAcumulado.value);
+            const rAvMen = document.getElementById('r_av_men');
+            const rAvAcu = document.getElementById('r_av_acu');
+            if (rAvMen) rAvMen.textContent = formatPct(avanceMensual.value);
+            if (rAvAcu) rAvAcu.textContent = formatPct(avanceAcumulado.value);
             
             validateSums();
         }
@@ -738,12 +824,10 @@
         varDecItem.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
         varDecObra.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
         
-        // If user manually edits the input fields (breaking the auto-sum link)
         avanceMensual.addEventListener('input', renderDocument);
         avanceAnterior.addEventListener('input', renderDocument);
         avanceAcumulado.addEventListener('input', renderDocument);
         
-        // Recalculate sums and auto-update boxes if user directly edits the preview table
         document.getElementById('printableFoja').addEventListener('input', updateBoxesFromTable);
 
         async function downloadPDF() {
@@ -753,27 +837,23 @@
             btn.disabled = true;
 
             try {
-                const element = document.getElementById('printableFoja');
-                // Temporary styles for optimal capture
-                const originalPadding = element.style.padding;
-                const originalMargin = element.style.margin;
-                element.style.padding = '15mm';
-                element.style.margin = '0';
-                
-                const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                
+                const pages = document.querySelectorAll('.foja-page');
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+                for (let i = 0; i < pages.length; i++) {
+                    const pageEl = pages[i];
+                    const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, logging: false });
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                }
+
                 pdf.save('Foja_de_Medicion.pdf');
-                
-                // Restore styles
-                element.style.padding = originalPadding;
-                element.style.margin = originalMargin;
             } catch (err) {
                 console.error("Error generando PDF: ", err);
                 alert("Ocurrió un error al generar el PDF.");
