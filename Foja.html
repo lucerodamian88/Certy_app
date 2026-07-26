@@ -152,6 +152,23 @@
             <div class="sidebar" id="sidebar">
                 <h3 class="edit-title"><i class="fa-solid fa-pen-to-square"></i> Edición de Foja</h3>
                 
+                <div class="form-group">
+                    <label>Título de Foja</label>
+                    <input type="text" id="fojaMedicionInput" placeholder="ej: Foja de Medición Adicional N 1 FINAL">
+                </div>
+
+                <div class="form-group">
+                    <label>Alteración Contractual</label>
+                    <input type="text" id="alteracionInput" placeholder="ej: ALTERACIÓN CONTRACTUAL en Trámite Expte N° OE -8727-M-2024 Alc:2/2025">
+                </div>
+
+                <div class="form-group">
+                    <label>Monto con Ampliación/Disminución</label>
+                    <input type="text" id="montoAmpliacionInput" placeholder="ej: 582.913.543,69">
+                </div>
+
+                <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+
                 <div class="toggle-container">
                     <input type="checkbox" id="showVariacionDec" checked>
                     <label for="showVariacionDec" style="font-weight: bold; cursor: pointer;">Mostrar Variación de decimales</label>
@@ -226,9 +243,12 @@
                         <div style="text-transform: uppercase; padding-left: 4pt;">CONTRATISTA: <span id="r_contratista" style="margin-left: 5px;"></span></div>
                         <div style="padding-right: 4pt;">Monto Contrato: $ <span id="r_monto" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2pt;">
                         <div style="padding-left: 4pt;">Inspectores: <span id="r_inspectores" style="margin-left: 5px;"></span></div>
-                        <div style="padding-right: 4pt;">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                        <div style="padding-right: 4pt;" id="r_monto_ampl_box">Monto con Ampliación/Disminución $ <span id="r_monto_ampl" style="margin-left: 5px; min-width: 80pt; display: inline-block; text-align: right;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5pt;" id="r_alteracion_box">
+                        <div style="padding-left: 4pt;"><span id="r_alteracion" style="font-weight: normal;"></span></div>
                     </div>
 
                     <!-- Tabla de Items -->
@@ -294,6 +314,9 @@
         const mainPreview = document.getElementById("mainPreview");
 
         // Reactivity Controls
+        const fojaMedicionInput = document.getElementById("fojaMedicionInput");
+        const alteracionInput = document.getElementById("alteracionInput");
+        const montoAmpliacionInput = document.getElementById("montoAmpliacionInput");
         const showVariacionDec = document.getElementById("showVariacionDec");
         const variacionGroup = document.getElementById("variacionGroup");
         const varDecItem = document.getElementById("varDecItem");
@@ -329,26 +352,39 @@
             const extract = (regex) => { const m = text.match(regex); return m ? m[1].trim() : ""; };
             
             state.encabezado.obra = extract(/OBRA:\s*([^\n\r]+)/i);
-            state.encabezado.identif_obra = extract(/Identif\.?\s*Obra\s*([^\n\r]+)/i);
-            state.encabezado.n_exp = extract(/N°\s*Exp:?\s*([^\n\r]+)/i);
+            
+            const idObraMatch = text.match(/Identif\.?\s*Obra\s*:?\s*([A-Za-z0-9\-]+)/i);
+            state.encabezado.identif_obra = idObraMatch ? idObraMatch[1].trim() : "";
+
+            const expMatch = text.match(/N°\s*Exp:?\s*([A-Za-z0-9\-\s\/]+?)(?=\s*FOJA|\s*ALTERACI|\s*UNIDAD|[\r\n]|$)/i);
+            state.encabezado.n_exp = expMatch ? expMatch[1].trim() : "";
             
             const dateMatches = text.match(/\d{2}\/\d{2}\/\d{2,4}/g);
             if(dateMatches && dateMatches.length >= 1) state.encabezado.fecha_inicio = dateMatches[0];
             if(dateMatches && dateMatches.length >= 2) state.encabezado.fecha_medicion = dateMatches[1];
             if(dateMatches && dateMatches.length >= 3) state.encabezado.fecha_terminacion = dateMatches[2];
             
-            const fojaVal = extract(/Foja de Medicion N[°\s]*([^\n\r]+)/i);
-            if(fojaVal) state.encabezado.foja_medicion = "Foja de Medicion N " + fojaVal;
+            const fojaMatch = text.match(/(Foja\s+de\s+Medici[oó]n[^\n\r]*)/i);
+            if(fojaMatch) {
+                let titleStr = fojaMatch[1].trim();
+                if(text.includes("MODELO") && !titleStr.includes("MODELO")) {
+                    titleStr += "\nMODELO";
+                }
+                state.encabezado.foja_medicion = titleStr;
+            }
 
             state.encabezado.contratista = extract(/CONTRATISTA:\s*([^\n\r]+)/i);
             
             const montoMatch = text.match(/Monto Contrato:\s*\$?\s*([\d\.,]+)/i);
             state.encabezado.monto_contrato = montoMatch ? montoMatch[1].trim() : "";
 
-            const ampliacionMatch = text.match(/Monto con Ampliación\/Disminución\s*\$?\s*([\d\.,]+)/i);
+            const ampliacionMatch = text.match(/Monto con Ampliaci[oó]n\/Disminuci[oó]n\s*\$?\s*([\d\.,]+)/i);
             state.encabezado.monto_ampliacion = ampliacionMatch ? ampliacionMatch[1].trim() : "";
 
             state.encabezado.inspectores = extract(/Inspectores:\s*([^\n\r]+)/i);
+
+            const alteracionMatch = text.match(/(ALTERACI[ÓO]N\s*CONTRACTUAL[^\n\r]*)/i);
+            state.encabezado.alteracion = alteracionMatch ? alteracionMatch[1].trim() : "";
 
             // 2. Items
             // Intentar detectar lineas que comiencen con números de ítem
@@ -437,7 +473,14 @@
         function populateFormAndRender() {
             if(!currentState) return;
             
-            // Populating Editor Form
+            // Populating Editor Form Header Fields
+            if(currentState.encabezado) {
+                if(fojaMedicionInput) fojaMedicionInput.value = str(currentState.encabezado.foja_medicion);
+                if(alteracionInput) alteracionInput.value = str(currentState.encabezado.alteracion);
+                if(montoAmpliacionInput) montoAmpliacionInput.value = str(currentState.encabezado.monto_ampliacion);
+            }
+
+            // Populating Editor Form Decimal Variation
             if(currentState.variacion_decimales) {
                 showVariacionDec.checked = currentState.variacion_decimales.existe;
                 varDecItem.value = str(currentState.variacion_decimales.avance_item);
@@ -497,17 +540,38 @@
 
             // Update Headers
             const head = currentState.encabezado || {};
+            const fojaVal = (fojaMedicionInput && fojaMedicionInput.value) ? fojaMedicionInput.value : str(head.foja_medicion);
+            document.getElementById('r_foja').innerHTML = fojaVal.replace(/\n/g, '<br>');
+
             document.getElementById('r_obra').textContent = str(head.obra);
             document.getElementById('r_id_obra').textContent = str(head.identif_obra);
             document.getElementById('r_exp').textContent = str(head.n_exp);
             document.getElementById('r_f_inicio').textContent = str(head.fecha_inicio);
             document.getElementById('r_f_medicion').textContent = str(head.fecha_medicion);
             document.getElementById('r_f_fin').textContent = str(head.fecha_terminacion);
-            document.getElementById('r_foja').textContent = str(head.foja_medicion);
             document.getElementById('r_contratista').textContent = str(head.contratista);
             document.getElementById('r_monto').textContent = str(head.monto_contrato);
-            document.getElementById('r_monto_ampl').textContent = str(head.monto_ampliacion);
             document.getElementById('r_inspectores').textContent = str(head.inspectores);
+
+            const montoAmplVal = (montoAmpliacionInput && montoAmpliacionInput.value) ? montoAmpliacionInput.value : str(head.monto_ampliacion);
+            const montoAmplBox = document.getElementById('r_monto_ampl_box');
+            if(montoAmplVal) {
+                document.getElementById('r_monto_ampl').textContent = montoAmplVal;
+                montoAmplBox.style.visibility = 'visible';
+            } else {
+                document.getElementById('r_monto_ampl').textContent = '';
+                montoAmplBox.style.visibility = 'hidden';
+            }
+
+            const alteracionVal = (alteracionInput && alteracionInput.value) ? alteracionInput.value : str(head.alteracion);
+            const alteracionBox = document.getElementById('r_alteracion_box');
+            if(alteracionVal) {
+                document.getElementById('r_alteracion').textContent = alteracionVal;
+                alteracionBox.style.display = 'flex';
+            } else {
+                document.getElementById('r_alteracion').textContent = '';
+                alteracionBox.style.display = 'none';
+            }
 
             // Refresh Table Items
             const tbody = document.getElementById('r_items_body');
@@ -666,6 +730,10 @@
         }
 
         // Live Bindings
+        fojaMedicionInput.addEventListener('input', renderDocument);
+        alteracionInput.addEventListener('input', renderDocument);
+        montoAmpliacionInput.addEventListener('input', renderDocument);
+
         showVariacionDec.addEventListener('change', () => { renderDocument(); updateBoxesFromTable(); });
         varDecItem.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
         varDecObra.addEventListener('input', () => { renderDocument(); updateBoxesFromTable(); });
